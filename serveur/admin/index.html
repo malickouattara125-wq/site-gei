@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Tableau de bord · GEI</title>
+  <link rel="icon" href="/assets/img/logo-gei.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+
+  <!-- Connexion -->
+  <section class="login" id="login" hidden>
+    <form class="login__card" id="loginForm">
+      <img src="/assets/img/logo-gei.png" alt="" width="64" height="64">
+      <h1>Tableau de bord</h1>
+      <p>Global Empire Immobilier</p>
+      <label><span>Identifiant</span><input name="user" autocomplete="username" required></label>
+      <label><span>Mot de passe</span><input name="password" type="password" autocomplete="current-password" required></label>
+      <p class="err" id="loginErr" hidden></p>
+      <button class="btn btn--primary" type="submit">Se connecter</button>
+    </form>
+  </section>
+
+  <!-- Application -->
+  <div class="app" id="app" hidden>
+    <aside class="side">
+      <a class="side__brand" href="/" target="_blank" rel="noopener"><img src="/assets/img/logo-gei.png" alt="" width="40" height="40"><span><b>GEI</b><small>Tableau de bord</small></span></a>
+      <nav class="side__nav" id="nav">
+        <a href="#accueil" data-view="accueil"><i class="i i--chart"></i>Vue d'ensemble</a>
+        <a href="#demandes" data-view="demandes"><i class="i i--inbox"></i>Demandes <em id="badgeDemandes" hidden></em></a>
+        <a href="#programmes" data-view="programmes"><i class="i i--home"></i>Programmes</a>
+        <a href="#actualites" data-view="actualites"><i class="i i--news"></i>Actualités</a>
+        <a href="#compte" data-view="compte"><i class="i i--user"></i>Mon compte</a>
+      </nav>
+      <div class="side__foot">
+        <a href="/" target="_blank" rel="noopener" class="btn btn--ghost btn--sm">Voir le site ↗</a>
+        <button class="btn btn--text btn--sm" id="logout">Se déconnecter</button>
+      </div>
+    </aside>
+    <main class="main" id="main"></main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Bibliothèque d'images -->
+  <dialog class="modal" id="picker">
+    <div class="modal__head"><h3>Choisir une image</h3><button class="btn btn--text" data-close>Fermer</button></div>
+    <div class="modal__tools">
+      <label class="btn btn--primary btn--sm">Envoyer une photo depuis l'ordinateur<input type="file" accept="image/*" multiple hidden id="pickerUpload"></label>
+      <input type="search" placeholder="Rechercher…" id="pickerSearch">
+    </div>
+    <div class="modal__grid" id="pickerGrid"></div>
+  </dialog>
+
+  <script src="/admin/admin.js" defer></script>
+</body>
+</html>
