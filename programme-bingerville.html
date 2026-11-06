@@ -4,155 +4,212 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Cité des Opulences 1 · Bingerville · Global Empire Immobilier</title>
-  <meta name="description" content="Des villas duplex de six pièces sur 200 m², avec baies vitrées, balcons et toit-terrasse, aux portes d&#x27;Abidjan.">
+  <meta name="description" content="Des villas duplex de six pièces sur 200 m², avec baies vitrées, balcons et toit-terrasse, aux portes d'Abidjan.">
   <meta property="og:title" content="Cité des Opulences 1 · Bingerville · Global Empire Immobilier">
-  <meta property="og:description" content="Des villas duplex de six pièces sur 200 m², avec baies vitrées, balcons et toit-terrasse, aux portes d&#x27;Abidjan.">
+  <meta property="og:description" content="Des villas duplex de six pièces sur 200 m², avec baies vitrées, balcons et toit-terrasse, aux portes d'Abidjan.">
   <meta property="og:image" content="assets/img/bingerville-1.jpg">
-  <meta name="theme-color" content="#060B2E">
+  <meta name="theme-color" content="#0A1784">
   <link rel="icon" href="assets/img/logo-gei.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800;1,900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/v2.css">
 </head>
 <body>
-  <div class="curtain" aria-hidden="true"><img src="assets/img/logo-gei.png" alt=""></div>
 
-  <header class="header" data-header>
-    <a href="index.html" class="header__brand" aria-label="Global Empire Immobilier, accueil">
-      <img src="assets/img/logo-gei.png" alt="Logo GEI Sarl" width="52" height="52">
-      <span>Global Empire<br><strong>Immobilier</strong></span>
-    </a>
-    <nav class="nav" aria-label="Navigation principale">
-      <a href="programmes.html" class="is-current">Programmes</a>
-      <a href="realisations.html">Réalisations</a>
-      <a href="services.html">Services</a>
-      <a href="a-propos.html">À propos</a>
-      <a href="actualites.html">Actualités</a>
-      <a href="contact.html">Contact</a>
-    </nav>
-    <a href="contact.html" class="btn btn--light header__cta" data-magnetic><span>Devenir propriétaire</span></a>
-    <button class="burger" aria-label="Ouvrir le menu" aria-expanded="false" data-burger><span></span><span></span></button>
-  </header>
-
-  <div class="menu" data-menu aria-hidden="true">
-    <nav class="menu__links">
-      <a href="index.html"><small>00</small>Accueil</a>
-      <a href="programmes.html"><small>01</small>Programmes</a>
-      <a href="realisations.html"><small>02</small>Réalisations</a>
-      <a href="services.html"><small>03</small>Services</a>
-      <a href="a-propos.html"><small>04</small>À propos</a>
-      <a href="actualites.html"><small>05</small>Actualités</a>
-      <a href="contact.html"><small>06</small>Contact</a>
-    </nav>
-    <div class="menu__foot">
-      <a href="tel:+2250709718530">07 09 71 85 30</a>
-      <a href="mailto:contact@gei-sarl.ci">contact@gei-sarl.ci</a>
+  <div class="topbar">
+    <div class="wrap topbar__in">
+      <span><i class="ico ico--pin"></i>Abidjan, Cocody · Cité des Arts</span>
+      <span class="hide-sm"><i class="ico ico--clock"></i>Lun – Ven · 8h – 16h30</span>
+      <span class="push hide-sm"><i class="ico ico--mail"></i><a href="mailto:contact@gei-sarl.ci">contact@gei-sarl.ci</a></span>
+      <span><i class="ico ico--phone"></i><a href="tel:+2250709718530">07 09 71 85 30</a></span>
     </div>
   </div>
 
-  <main id="top">
+  <header class="header" data-header>
+    <div class="wrap header__in">
+      <a href="index.html" class="brand" aria-label="Global Empire Immobilier, accueil">
+        <img src="assets/img/logo-gei.png" alt="" width="46" height="46">
+        <span><b>Global Empire</b><small>Immobilier · GEI Sarl</small></span>
+      </a>
+      <nav class="nav" aria-label="Navigation principale">
+        <a href="index.html">Accueil</a>
+        <a href="programmes.html" class="is-current">Programmes</a>
+        <a href="realisations.html">Réalisations</a>
+        <a href="services.html">Services</a>
+        <a href="a-propos.html">À propos</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <a href="contact.html" class="btn btn--primary header__cta">Prendre rendez-vous</a>
+      <button class="burger" aria-label="Menu" aria-expanded="false" data-burger><span></span><span></span><span></span></button>
+    </div>
+    <nav class="mnav" data-mnav aria-label="Navigation mobile">
+      <a href="index.html">Accueil</a><a href="programmes.html">Programmes</a><a href="realisations.html">Réalisations</a><a href="services.html">Services</a><a href="a-propos.html">À propos</a><a href="contact.html">Contact</a>
+      <a href="contact.html" class="btn btn--primary">Prendre rendez-vous</a>
+    </nav>
+  </header>
 
-    <section class="page-hero">
-      <picture><source srcset="assets/img/bingerville-1.webp" type="image/webp"><img src="assets/img/bingerville-1.jpg" alt=""></picture>
-      <div class="page-hero__content">
-        <p class="crumbs" data-reveal><a href="index.html">Accueil</a> <span>/</span> <a href="programmes.html">Programmes</a> <span>/</span> Bingerville</p>
-        <p class="eyebrow" data-reveal style="--d:.1s">Programme 03 · Bingerville</p>
-        <h1 data-split>Cité des<br><em>Opulences 1</em></h1>
-        <p class="page-hero__lead" data-reveal style="--d:.5s">Des villas duplex de six pièces sur 200 m², avec baies vitrées, balcons et toit-terrasse, aux portes d'Abidjan.</p>
+  <main id="top">
+<section class="phero">
+      <div class="wrap phero__grid">
+        <div>
+          <p class="crumbs" data-anim><a href="index.html">Accueil</a><span>/</span><a href="programmes.html">Programmes</a><span>/</span>Bingerville</p>
+          <span class="pill" data-anim style="--d:.04s"><i></i>En finitions</span>
+          <h1 data-anim style="--d:.08s">Cité des <span class="hl">Opulences 1</span></h1>
+          <p class="phero__lead" data-anim style="--d:.14s">Des villas duplex de six pièces sur 200 m², avec baies vitrées, balcons et toit-terrasse, aux portes d'Abidjan.</p>
+          <div class="phero__btns" data-anim style="--d:.2s">
+            <a href="#contact" class="btn btn--primary">Réserver une visite</a>
+            <a href="#galerie" class="btn btn--ghost">Voir les photos</a>
+          </div>
+        </div>
+        <div class="phero__media" data-anim style="--d:.1s">
+          <img src="assets/img/bingerville-1.jpg" alt="Villa duplex de la Cité des Opulences 1 à Bingerville">
+          <div class="float float--price"><small>Au gros œuvre</small><b>75 M <em>FCFA</em></b></div>
+        </div>
+      </div>
+      <div class="wrap">
+        <div class="stats stats--5 stats--txt" data-anim>
+          <div><b>Villa duplex</b><span>Type</span></div>
+          <div><b>6 pièces</b><span>Pièces</span></div>
+          <div><b>200 m²</b><span>Superficie</span></div>
+          <div><b>ACD &amp; permis</b><span>Documents</span></div>
+          <div><b>En finitions</b><span>Statut</span></div>
+        </div>
       </div>
     </section>
 
-    <div class="facts"><div data-reveal style='--d:0.00s'><small>Type</small><b>Villa duplex</b></div><div data-reveal style='--d:0.07s'><small>Pièces</small><b>6 pièces</b></div><div data-reveal style='--d:0.14s'><small>Superficie</small><b>200 m²</b></div><div data-reveal style='--d:0.21s'><small>Documents</small><b>ACD & permis</b></div><div data-reveal style='--d:0.28s'><small>Statut</small><b>En finitions</b></div></div>
-
-    <section class="block">
-      <div class="split">
-        <div class="prose" data-reveal>
-          <p class="eyebrow eyebrow--dark">Le programme</p>
-          <h2 class="title" data-split>Cité des Opulences 1</h2>
-          <p>À Bingerville, Global Empire Immobilier construit la Cité des Opulences 1 : des villas duplex de six pièces, bâties chacune sur une superficie de 200 mètres carrés.</p><p>Des maisons spacieuses et lumineuses : grandes baies vitrées, balcons, toit-terrasse avec vue dégagée. À l'intérieur, les finitions sont soignées, du carrelage aux faux plafonds, jusqu'aux salles d'eau et à la cuisine.</p><p>Le projet dispose d'un ACD et d'un permis de construire. Vous choisissez votre formule : au gros œuvre ou clé en main.</p>
-          <ul class="ticks"><li>Villas duplex de 6 pièces</li><li>200 m² par villa</li><li>Grandes baies vitrées</li><li>Balcons</li><li>Toit-terrasse</li><li>Faux plafonds</li><li>Cuisine avec plan en granit</li><li>ACD et permis de construire</li></ul>
+    <section class="section">
+      <div class="wrap split">
+        <div class="prose">
+          <p class="kicker" data-anim>Le programme</p>
+          <h2 data-anim style="--d:.06s">Spacieuse <span class="hl">et lumineuse</span></h2>
+          <p data-anim style="--d:.1s">À Bingerville, Global Empire Immobilier construit la Cité des Opulences 1 : des villas duplex de six pièces, bâties chacune sur une superficie de 200 mètres carrés.</p>
+          <p data-anim style="--d:.12s">Des maisons spacieuses et lumineuses : grandes baies vitrées, balcons, toit-terrasse avec vue dégagée. À l'intérieur, les finitions sont soignées, du carrelage aux faux plafonds, jusqu'aux salles d'eau et à la cuisine.</p>
+          <p data-anim style="--d:.14s">Le projet dispose d'un ACD et d'un permis de construire. Vous choisissez votre formule : au gros œuvre ou clé en main.</p>
+          <ul class="checks checks--2" data-anim style="--d:.18s">
+            <li>Villas duplex de 6 pièces</li><li>200 m² par villa</li><li>Grandes baies vitrées</li><li>Balcons</li>
+            <li>Toit-terrasse</li><li>Faux plafonds</li><li>Cuisine avec plan en granit</li><li>ACD et permis de construire</li>
+          </ul>
         </div>
-        <aside class="offer" data-reveal style="--d:.15s">
+        <aside class="offer" data-anim style="--d:.1s">
           <h3>Formules d'acquisition</h3>
-          <div class="offer__row"><span>Au gros œuvre</span><b>75<small>M FCFA</small></b></div><div class="offer__row"><span>Clé en main</span><b>95<small>M FCFA</small></b></div>
+          <div class="offer__row"><span>Au gros œuvre</span><b>75<small>M FCFA</small></b></div>
+          <div class="offer__row"><span>Clé en main</span><b>95<small>M FCFA</small></b></div>
           <p class="offer__note">Un cadre de vie moderne, aux portes d'Abidjan.</p>
-          <div class="docs"><span>ACD</span><span>Permis de construire</span><span>Frais de dossier 300 000 FCFA</span></div>
-          <a href="https://wa.me/2250709718530?text=Bonjour GEI, je souhaite des informations sur Cité des Opulences 1 (Bingerville)." class="btn btn--olive" target="_blank" rel="noopener" data-magnetic><span>Réserver une visite</span></a>
+          <ul class="tags"><li>ACD</li><li>Permis de construire</li><li>Frais de dossier 300 000 FCFA</li></ul>
+          <a href="#contact" class="btn btn--primary">Réserver une visite</a>
+          <a href="https://wa.me/2250709718530?text=Bonjour%20GEI%2C%20je%20souhaite%20des%20informations%20sur%20la%20Cit%C3%A9%20des%20Opulences%201%20(Bingerville)." class="btn btn--wa" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
         </aside>
       </div>
     </section>
 
-    <section class="gallery">
-      <div class="gallery__head" data-reveal>
-        <p class="eyebrow eyebrow--dark">Galerie</p>
-        <h2 class="title" data-split>Bingerville<br><em>en images.</em></h2>
-      </div>
-      <div class="gallery__grid">
-        <button class="g g--tall" data-lightbox="assets/img/bingerville-1.jpg" data-img-reveal data-cursor="Voir" style="--d:0.00s"><picture><source srcset="assets/img/bingerville-1.webp" type="image/webp"><img src="assets/img/bingerville-1.jpg" alt="La villa" loading="lazy"></picture><span>La villa</span></button>
-<button class="g" data-lightbox="assets/img/bingerville-2.jpg" data-img-reveal data-cursor="Voir" style="--d:0.08s"><picture><source srcset="assets/img/bingerville-2.webp" type="image/webp"><img src="assets/img/bingerville-2.jpg" alt="Balcons vitrés" loading="lazy"></picture><span>Balcons vitrés</span></button>
-<button class="g" data-lightbox="assets/img/bingerville-3.jpg" data-img-reveal data-cursor="Voir" style="--d:0.16s"><picture><source srcset="assets/img/bingerville-3.webp" type="image/webp"><img src="assets/img/bingerville-3.jpg" alt="Toit-terrasse" loading="lazy"></picture><span>Toit-terrasse</span></button>
-<button class="g g--wide" data-lightbox="assets/img/bingerville-4.jpg" data-img-reveal data-cursor="Voir" style="--d:0.00s"><picture><source srcset="assets/img/bingerville-4.webp" type="image/webp"><img src="assets/img/bingerville-4.jpg" alt="Séjour lumineux" loading="lazy"></picture><span>Séjour lumineux</span></button>
-<button class="g" data-lightbox="assets/img/bingerville-5.jpg" data-img-reveal data-cursor="Voir" style="--d:0.08s"><picture><source srcset="assets/img/bingerville-5.webp" type="image/webp"><img src="assets/img/bingerville-5.jpg" alt="Grande pièce" loading="lazy"></picture><span>Grande pièce</span></button>
-<button class="g" data-lightbox="assets/img/bingerville-6.jpg" data-img-reveal data-cursor="Voir" style="--d:0.16s"><picture><source srcset="assets/img/bingerville-6.webp" type="image/webp"><img src="assets/img/bingerville-6.jpg" alt="Salle d&#x27;eau" loading="lazy"></picture><span>Salle d&#x27;eau</span></button>
-<button class="g g--tall" data-lightbox="assets/img/bingerville-7.jpg" data-img-reveal data-cursor="Voir" style="--d:0.00s"><picture><source srcset="assets/img/bingerville-7.webp" type="image/webp"><img src="assets/img/bingerville-7.jpg" alt="Cuisine" loading="lazy"></picture><span>Cuisine</span></button>
-<button class="g" data-lightbox="assets/img/bingerville-8.jpg" data-img-reveal data-cursor="Voir" style="--d:0.08s"><picture><source srcset="assets/img/bingerville-8.webp" type="image/webp"><img src="assets/img/bingerville-8.jpg" alt="Cuisine" loading="lazy"></picture><span>Cuisine</span></button>
-<button class="g" data-lightbox="assets/img/bingerville-9.jpg" data-img-reveal data-cursor="Voir" style="--d:0.16s"><picture><source srcset="assets/img/bingerville-9.webp" type="image/webp"><img src="assets/img/bingerville-9.jpg" alt="Escalier" loading="lazy"></picture><span>Escalier</span></button>
+    <section class="section section--soft" id="galerie">
+      <div class="wrap">
+        <div class="head head--row">
+          <div>
+            <p class="kicker" data-anim>Galerie</p>
+            <h2 data-anim style="--d:.06s">Bingerville <span class="hl">en images</span></h2>
+          </div>
+          <p data-anim>Cliquez sur une photo pour l'agrandir.</p>
+        </div>
+        <div class="gallery">
+          <button class="g g--tall" data-lightbox="assets/img/bingerville-1.jpg" data-anim><img src="assets/img/bingerville-1.jpg" alt="La villa" loading="lazy"><span>La villa</span></button>
+          <button class="g" data-lightbox="assets/img/bingerville-2.jpg" data-anim style="--d:.05s"><img src="assets/img/bingerville-2.jpg" alt="Balcons vitrés" loading="lazy"><span>Balcons vitrés</span></button>
+          <button class="g" data-lightbox="assets/img/bingerville-3.jpg" data-anim style="--d:.1s"><img src="assets/img/bingerville-3.jpg" alt="Toit-terrasse" loading="lazy"><span>Toit-terrasse</span></button>
+          <button class="g g--wide" data-lightbox="assets/img/bingerville-4.jpg" data-anim><img src="assets/img/bingerville-4.jpg" alt="Séjour lumineux" loading="lazy"><span>Séjour lumineux</span></button>
+          <button class="g" data-lightbox="assets/img/bingerville-5.jpg" data-anim style="--d:.05s"><img src="assets/img/bingerville-5.jpg" alt="Grande pièce" loading="lazy"><span>Grande pièce</span></button>
+          <button class="g" data-lightbox="assets/img/bingerville-6.jpg" data-anim style="--d:.1s"><img src="assets/img/bingerville-6.jpg" alt="Salle d'eau" loading="lazy"><span>Salle d'eau</span></button>
+          <button class="g g--tall" data-lightbox="assets/img/bingerville-7.jpg" data-anim><img src="assets/img/bingerville-7.jpg" alt="Cuisine" loading="lazy"><span>Cuisine</span></button>
+          <button class="g" data-lightbox="assets/img/bingerville-8.jpg" data-anim style="--d:.05s"><img src="assets/img/bingerville-8.jpg" alt="Plan de travail en granit" loading="lazy"><span>Plan en granit</span></button>
+          <button class="g" data-lightbox="assets/img/bingerville-9.jpg" data-anim style="--d:.1s"><img src="assets/img/bingerville-9.jpg" alt="Escalier" loading="lazy"><span>Escalier</span></button>
+        </div>
       </div>
     </section>
 
-    <section class="block block--cream">
-      <div class="split">
-        <div data-reveal>
-          <p class="eyebrow eyebrow--dark">Intéressé(e) ?</p>
-          <h2 class="title" data-split>Parlons de<br><em>votre future maison.</em></h2>
-          <p style="color:var(--muted);max-width:480px">Laissez vos coordonnées : un conseiller vous répond sur WhatsApp pour organiser une visite et vous présenter les formules.</p>
+    <section class="section">
+      <div class="wrap">
+        <div class="head head--row">
+          <div>
+            <p class="kicker" data-anim>Nos autres programmes</p>
+            <h2 data-anim style="--d:.06s">Découvrez aussi</h2>
+          </div>
+          <a href="programmes.html" class="btn btn--ghost" data-anim>Tous les programmes</a>
         </div>
-        <div data-reveal style="--d:.15s">
-      <form class="form" data-form>
-        <h3>Je suis intéressé(e)</h3>
-        <div class="form__row">
-          <label><span>Nom complet</span><input name="nom" required autocomplete="name"></label>
-          <label><span>Téléphone / WhatsApp</span><input name="tel" required inputmode="tel" autocomplete="tel"></label>
+        <div class="others">
+          <a class="prog" href="programme-adiake.html" data-type="basse" data-ville="adiake" data-price="40" data-anim style="--d:0s">
+            <div class="prog__img"><img src="assets/img/villa-facade.jpg" alt="Villa basse, Cité Les Rives de l'Opulence" loading="lazy"><span class="badge badge--ok">Clés remises</span></div>
+            <div class="prog__body">
+              <p class="prog__city"><i class="ico ico--pin"></i>Adiaké</p>
+              <h3>Cité Les Rives de l'Opulence</h3>
+              <ul class="chips"><li>Villa basse</li><li>4 pièces</li><li>300 m²</li></ul>
+              <div class="prog__foot"><span>Dès <b>40 M FCFA</b></span><i class="arrow"></i></div>
+            </div>
+          </a>
+          <a class="prog" href="programme-djorobite.html" data-type="duplex" data-ville="djorobite" data-price="75" data-anim style="--d:0.06s">
+            <div class="prog__img"><img src="assets/img/djorobite-cite.jpg" alt="Villa duplex, Cité des Opulences 3" loading="lazy"><span class="badge">En construction</span></div>
+            <div class="prog__body">
+              <p class="prog__city"><i class="ico ico--pin"></i>Djorobité</p>
+              <h3>Cité des Opulences 3</h3>
+              <ul class="chips"><li>Duplex</li><li>5 pièces</li><li>150 m²</li></ul>
+              <div class="prog__foot"><span>Dès <b>75 M FCFA</b></span><i class="arrow"></i></div>
+            </div>
+          </a>
+          <a class="prog" href="programme-abengourou.html" data-type="eco" data-ville="abengourou" data-price="10" data-anim style="--d:0.12s">
+            <div class="prog__img"><img src="assets/img/abengourou.jpg" alt="Pose de la première pierre à Abengourou" loading="lazy"><span class="badge badge--new">Nouveau</span></div>
+            <div class="prog__body">
+              <p class="prog__city"><i class="ico ico--pin"></i>Abengourou</p>
+              <h3>Villas économiques</h3>
+              <ul class="chips"><li>3 et 4 pièces</li><li>200 m²</li></ul>
+              <div class="prog__foot"><span>Dès <b>10 M FCFA</b></span><i class="arrow"></i></div>
+            </div>
+          </a>
         </div>
-        <input type="hidden" name="programme" value="Bingerville · Cité des Opulences 1">
-        <label><span>Message</span><textarea name="message" rows="3" placeholder="Visite, formule de paiement, questions…"></textarea></label>
-        <button class="btn btn--olive" type="submit" data-magnetic><span>Envoyer sur WhatsApp</span></button>
-      </form></div>
       </div>
     </section>
 
-    <section class="block">
-      <p class="eyebrow eyebrow--dark">Nos autres programmes</p>
-      <div class="others"><a class="other" href="programme-adiake.html"><picture><source srcset="assets/img/villa-nuit.webp" type="image/webp"><img src="assets/img/villa-nuit.jpg" alt="Cité Les Rives de l&#x27;Opulence" loading="lazy"></picture><span><small>Adiaké</small>Les Rives de l'Opulence</span></a><a class="other" href="programme-djorobite.html"><picture><source srcset="assets/img/djorobite.webp" type="image/webp"><img src="assets/img/djorobite.jpg" alt="Cité des Opulences 3" loading="lazy"></picture><span><small>Djorobité</small>Cité des Opulences 3</span></a><a class="other" href="programme-abengourou.html"><picture><source srcset="assets/img/abengourou.webp" type="image/webp"><img src="assets/img/abengourou.jpg" alt="Villas économiques" loading="lazy"></picture><span><small>Abengourou</small>Villas économiques</span></a></div>
+    <section class="section" id="contact">
+      <div class="wrap">
+        <div class="contact" data-anim>
+          <div class="contact__text">
+            <p class="kicker kicker--light">Contactez-nous</p>
+            <h2>Votre duplex à <span>Bingerville</span></h2>
+            <p>Les rendez-vous sont gratuits et sans engagement. Un conseiller vous rappelle rapidement sur WhatsApp.</p>
+            <ul class="contact__list">
+              <li><i class="ico ico--phone"></i><a href="tel:+2250709718530">07 09 71 85 30</a> · <a href="tel:+2250704755306">07 04 75 53 06</a></li>
+              <li><i class="ico ico--mail"></i><a href="mailto:contact@gei-sarl.ci">contact@gei-sarl.ci</a></li>
+              <li><i class="ico ico--pin"></i>Cocody, Cité des Arts (derrière la banque NSIA)</li>
+              <li><i class="ico ico--clock"></i>Lundi au vendredi · 8h – 16h30</li>
+            </ul>
+          </div>
+          <form class="cform" data-form>
+            <label><span>Nom complet</span><input name="nom" required autocomplete="name" placeholder="Votre nom"></label>
+            <label><span>Téléphone / WhatsApp</span><input name="tel" required inputmode="tel" autocomplete="tel" placeholder="+225 …"></label>
+            <label><span>Votre projet</span><select name="programme"><option>Adiaké · Cité Les Rives de l'Opulence</option><option>Djorobité · Cité des Opulences 3</option><option selected>Bingerville · Cité des Opulences 1</option><option>Abengourou · Villas économiques</option><option>Construction ou rénovation</option><option>Préfinancement ou bail</option><option>Autre demande</option></select></label>
+            <label><span>Message</span><textarea name="message" rows="3" placeholder="Visite, formule de paiement, questions…"></textarea></label>
+            <button class="btn btn--light" type="submit">Être rappelé sur WhatsApp</button>
+          </form>
+        </div>
+      </div>
     </section>
   </main>
 
   <footer class="footer">
-    <div class="footer__top" style="grid-template-columns:1fr;padding-bottom:50px">
+    <div class="wrap footer__grid">
       <div class="footer__brand">
-        <img src="assets/img/logo-gei.png" alt="Logo GEI Sarl" width="96" height="96">
-        <p class="footer__slogan">Votre confiance,<br><em>notre engagement.</em></p>
+        <a href="index.html" class="brand brand--light"><img src="assets/img/logo-gei.png" alt="" width="46" height="46"><span><b>Global Empire</b><small>Immobilier · GEI Sarl</small></span></a>
+        <p>Promoteur et constructeur en Côte d'Ivoire. Votre confiance, notre engagement.</p>
       </div>
+      <div><h4>Programmes</h4><a href="programme-adiake.html">Adiaké</a><a href="programme-djorobite.html">Djorobité</a><a href="programme-bingerville.html">Bingerville</a><a href="programme-abengourou.html">Abengourou</a></div>
+      <div><h4>L'entreprise</h4><a href="a-propos.html">À propos</a><a href="services.html">Services</a><a href="realisations.html">Réalisations</a><a href="actualites.html">Actualités</a><a href="contact.html">Contact</a></div>
+      <div><h4>Téléphones</h4><a href="tel:+2250709718530">07 09 71 85 30</a><a href="tel:+2250704755306">07 04 75 53 06</a><a href="tel:+2250142518590">01 42 51 85 90</a><a href="tel:+2250151757200">01 51 75 72 00</a><a href="tel:+2250710296720">07 10 29 67 20</a><a href="tel:+2250708623038">07 08 62 30 38</a></div>
     </div>
-    <div class="footer__cols">
-      <div><h4>Siège</h4><p>Abidjan, Cocody · Cité des Arts<br>(derrière la banque NSIA)</p><p>Lundi au vendredi · 8h – 16h30</p></div>
-      <div><h4>Téléphones</h4><p><a href="tel:+2250709718530">07 09 71 85 30</a> · <a href="tel:+2250704755306">07 04 75 53 06</a><br><a href="tel:+2250142518590">01 42 51 85 90</a> · <a href="tel:+2250151757200">01 51 75 72 00</a><br><a href="tel:+2250710296720">07 10 29 67 20</a> · <a href="tel:+2250708623038">07 08 62 30 38</a></p></div>
-      <div><h4>Écrire</h4><p><a href="mailto:contact@gei-sarl.ci">contact@gei-sarl.ci</a></p><p><a href="https://wa.me/2250709718530" target="_blank" rel="noopener">WhatsApp</a></p>
-        <p><a href="programmes.html">Programmes</a> · <a href="realisations.html">Réalisations</a> · <a href="services.html">Services</a></p></div>
-    </div>
-    <div class="footer__bottom">
-      <span>© <span data-year>2026</span> Global Empire Immobilier SARL</span>
-      <a href="#top">Haut de page ↑</a>
-    </div>
+    <div class="wrap footer__bottom"><span>© <span data-year>2026</span> Global Empire Immobilier SARL</span><a href="#top">Haut de page ↑</a></div>
   </footer>
 
   <a href="https://wa.me/2250709718530" class="wa" target="_blank" rel="noopener" aria-label="Nous écrire sur WhatsApp">
     <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3Zm0 23.6c-2 0-4-.5-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1 1 16 26.6Zm5.8-7.9c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.6.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.7 5.8 5.1 2.2.9 3 1 4.1.8.7-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5 0-.2-.3-.3-.5-.4Z"/></svg>
   </a>
-  <div class="lightbox" data-lightbox-box aria-hidden="true"><img alt=""><button aria-label="Fermer">×</button></div>
-  <div class="cursor" aria-hidden="true"><span class="cursor__dot"></span><span class="cursor__ring"><b data-cursor-label></b></span></div>
-  <div class="progress" aria-hidden="true"><span data-progress></span></div>
-  <script src="js/main.js" defer></script>
+
+  <script src="js/v2.js" defer></script>
 </body>
 </html>
