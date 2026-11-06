@@ -1,0 +1,13 @@
+{
+  "name": "gei-serveur",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Site et tableau de bord de Global Empire Immobilier (GEI Sarl)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
