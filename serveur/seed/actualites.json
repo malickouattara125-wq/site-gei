@@ -1,0 +1,8 @@
+[
+  { "id": "a1", "date": "2026-10-10", "dateTexte": "", "titre": "Premières clés remises à Adiaké", "texte": "Le samedi 10 octobre 2026, les premiers clients de la Cité Les Rives de l'Opulence ont reçu les clés de leur villa, suivis d'une visite guidée.", "image": "assets/img/remise-cles.jpg", "lien": "programme-adiake.html", "publie": true },
+  { "id": "a2", "date": "2026-09-04", "dateTexte": "", "titre": "Korhogo : 25 pièces livrées en 6 mois", "texte": "Remise officielle des clés d'une villa duplex de 25 pièces, avec trois studios, trois magasins et une cuisine africaine.", "image": "assets/img/korhogo-villa.jpg", "lien": "realisations.html", "publie": true },
+  { "id": "a3", "date": "2026-01-01", "dateTexte": "2026", "titre": "Première pierre à Abengourou", "texte": "Lancement du programme de villas économiques, lors d'une journée qui a aussi mis à l'honneur l'excellence scolaire.", "image": "assets/img/abengourou-4.jpg", "lien": "programme-abengourou.html", "publie": true },
+  { "id": "a4", "date": "2023-04-02", "dateTexte": "", "titre": "Remise des clés des appartements Lucy", "texte": "M. Angaman a procédé à la cérémonie officielle de remise des clés d'un nouveau bâtiment.", "image": "", "lien": "", "publie": true },
+  { "id": "a5", "date": "2023-04-01", "dateTexte": "2 avril 2023", "titre": "GEI pose ses valises à Agnibilékrou", "texte": "Global Empire Immobilier poursuit son déploiement sur toute l'étendue du territoire national.", "image": "", "lien": "", "publie": true },
+  { "id": "a6", "date": "2023-01-07", "dateTexte": "", "titre": "Lancement officiel de GEI SARL", "texte": "Le samedi 7 janvier 2023 s'est tenu le lancement officiel de Global Empire Immobilier SARL.", "image": "", "lien": "", "publie": true }
+]
