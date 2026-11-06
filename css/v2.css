@@ -279,6 +279,8 @@ h1, h2, h3 { color: var(--ink); line-height: 1.12; letter-spacing: -.02em; margi
 .cform input:focus, .cform select:focus, .cform textarea:focus { border-color: var(--olive); }
 .cform .btn { margin-top: 6px; }
 
+.hp { position: absolute !important; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
 /* ---------- Pied de page ---------- */
 .footer { background: var(--blue-d); color: #C6CBF0; padding: 80px 0 30px; }
 .footer__grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 50px; border-bottom: 1px solid rgba(255, 255, 255, .1); }
