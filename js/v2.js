@@ -89,6 +89,12 @@
   $$("[data-form]").forEach((form) => form.addEventListener("submit", (e) => {
     e.preventDefault();
     const f = new FormData(form);
+    // Enregistre la demande dans le tableau de bord (si le site tourne avec son serveur)
+    try {
+      fetch("api/contact", { method: "POST", keepalive: true, headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nom: f.get("nom"), tel: f.get("tel"), programme: f.get("programme") || "",
+          message: f.get("message") || "", site: f.get("site") || "", page: location.pathname }) }).catch(() => {});
+    } catch (_) { /* site statique : on passe directement à WhatsApp */ }
     const msg = [`Bonjour GEI, je suis ${f.get("nom")} (${f.get("tel")}).`,
       f.get("programme") && `Programme : ${f.get("programme")}`, f.get("message")].filter(Boolean).join("\n");
     open(`https://wa.me/2250709718530?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
