@@ -7,7 +7,40 @@ Comptez environ 30 minutes. À la fin, envoyez l'adresse du site à Claude pour 
 
 ---
 
-## Avant de commencer : la bonne offre
+## ⭐ Méthode automatique (recommandée) : 5 informations à ranger, une seule fois
+
+Avec cette méthode, **vous ne touchez pas au cPanel** : GitHub envoie le site chez LWS et l'active tout seul,
+puis le remet à jour automatiquement à chaque modification.
+
+### 1. Trouver vos informations chez LWS
+Dans votre **Espace client LWS**, ouvrez votre hébergement. Notez :
+- le **nom du serveur** cPanel (par exemple `xxxx.lws-hosting.com`, visible dans l'adresse du cPanel ou dans les informations FTP) ;
+- l'**identifiant cPanel** ;
+- le **mot de passe cPanel** ;
+- votre **nom de domaine** (sans `https://` ni `www`, par exemple `gei-ci.com`).
+
+### 2. Les ranger dans le coffre-fort de GitHub
+1. Ouvrez https://github.com/malickouattara125-wq/site-gei/settings/secrets/actions
+2. Pour chaque ligne ci-dessous, cliquez sur **New repository secret**, écrivez le **Name** exactement comme indiqué, collez la valeur, puis **Add secret** :
+
+| Name | Valeur |
+|---|---|
+| `LWS_HOST` | le nom du serveur cPanel |
+| `LWS_USER` | l'identifiant cPanel |
+| `LWS_PASSWORD` | le mot de passe cPanel |
+| `LWS_DOMAIN` | votre nom de domaine |
+| `ADMIN_PASSWORD` | le mot de passe que vous voulez pour le tableau de bord (12 caractères ou plus, notez-le) |
+
+Personne ne peut relire ces valeurs, pas même Claude : GitHub les utilise seulement pour la mise en ligne.
+
+### 3. C'est tout
+Dites à Claude « c'est rangé ». Il lance la mise en ligne, vérifie le site et corrige si besoin.
+
+---
+
+## Méthode manuelle (si la méthode automatique ne marche pas)
+
+### Avant de commencer : la bonne offre
 
 Le site a besoin de **Node.js** pour faire marcher le tableau de bord et enregistrer les demandes des clients.
 Chez LWS, Node.js est disponible sur les hébergements **cPanel L, XL, 2XL, 3XL** (et CloudCP).
@@ -19,7 +52,7 @@ Il vous faut aussi un **nom de domaine** (par exemple `gei-ci.com`), relié à l
 
 ---
 
-## Étape 1 · Ouvrir le cPanel
+### Étape 1 · Ouvrir le cPanel
 
 1. Connectez-vous sur **lws.fr** → **Espace client**.
 2. Cliquez sur votre hébergement, puis sur le bouton **cPanel**.
@@ -28,7 +61,7 @@ Toutes les étapes suivantes se font dans le cPanel.
 
 ---
 
-## Étape 2 · Activer le cadenas HTTPS (certificat SSL gratuit)
+### Étape 2 · Activer le cadenas HTTPS (certificat SSL gratuit)
 
 1. Dans l'espace client LWS (ou dans le cPanel), cherchez **« SSL »** ou **« Let's Encrypt »**.
 2. Activez le certificat **gratuit** pour votre domaine (avec et sans `www`).
@@ -38,7 +71,7 @@ L'activation peut prendre jusqu'à une heure. Vous pouvez continuer en attendant
 
 ---
 
-## Étape 3 · Copier le site depuis GitHub
+### Étape 3 · Copier le site depuis GitHub
 
 1. Dans le cPanel, cherchez **« Git™ Version Control »** et ouvrez-le.
 2. Cliquez sur **Create** (Créer).
@@ -60,7 +93,7 @@ Vérifiez qu'on trouve bien `site-gei/index.html` et `site-gei/serveur/server.js
 
 ---
 
-## Étape 4 · Démarrer le serveur (Node.js)
+### Étape 4 · Démarrer le serveur (Node.js)
 
 1. Dans le cPanel, cherchez **« Setup Node.js App »** et ouvrez-le.
 2. Cliquez sur **Create Application**.
@@ -83,7 +116,7 @@ Il n'y a **rien à installer** (pas besoin du bouton « Run NPM Install ») : le
 
 ---
 
-## Étape 5 · Tester vous-même
+### Étape 5 · Tester vous-même
 
 1. Ouvrez `https://votre-domaine` : la page d'accueil GEI doit s'afficher, avec le cadenas 🔒.
 2. Ouvrez `https://votre-domaine/admin` :
