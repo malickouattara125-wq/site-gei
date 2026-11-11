@@ -37,13 +37,13 @@ function cardImages(p) {
 
 function card(p, i = 0) {
   const imgs = cardImages(p);
-  return `          <a class="prog" href="programme-${esc(p.slug)}.html" data-type="${esc(p.type)}" data-ville="${esc(p.slug)}" data-price="${esc(p.prixDes)}" data-anim style="--d:${(0.06 * i).toFixed(2)}s">
-            <div class="prog__img"${imgs.length > 1 ? " data-roll" : ""}>${imgs.map((src, k) => `<img src="${esc(src)}" alt="${k ? "" : esc(p.nom)}" loading="lazy"${k ? "" : ' class="is-on"'}>`).join("")}${p.statut ? `<span class="${BADGES[p.badge || ""] || "badge"}">${esc(p.statut)}</span>` : ""}</div>
-            <div class="prog__body">
-              <p class="prog__city"><i class="ico ico--pin"></i>${esc(p.ville)}</p>
-              <h3>${esc(p.nom)}</h3>
-              <ul class="chips">${chips(p)}</ul>
-              <div class="prog__foot"><span>À partir de <b>${num(p.prixDes)} M FCFA</b></span><span class="prog__more">Découvrir <i class="arrow"></i></span></div>
+  const badge = p.statut ? `<span class="tile__badge${p.badge === "ok" ? " tile__badge--ok" : ""}">${esc(p.statut)}</span>` : "";
+  return `          <a class="prog tile" href="programme-${esc(p.slug)}.html" data-type="${esc(p.type)}" data-ville="${esc(p.slug)}" data-price="${esc(p.prixDes)}" data-anim style="--d:${(0.06 * i).toFixed(2)}s">
+            <div class="tile__img"${imgs.length > 1 ? " data-roll" : ""}>${imgs.map((src, k) => `<img src="${esc(src)}" alt="${k ? "" : esc(p.nom + ", " + p.ville)}" loading="lazy"${k ? "" : ' class="is-on"'}>`).join("")}</div>
+            ${badge}
+            <div class="tile__txt">
+              <h3><b>Nos villas</b> à ${esc(p.ville)}</h3>
+              <p>${esc(p.nom)} · À partir de <strong>${num(p.prixDes)} M FCFA</strong></p>
             </div>
           </a>`;
 }
@@ -58,7 +58,7 @@ function slides(list) {
         ${s.kicker ? `<p class="kicker">${esc(s.kicker)}</p>` : ""}
         <${h}>${esc(s.titre1)}${s.titre2 ? ` <em>${esc(s.titre2)}</em>` : ""}</${h}>
         ${s.texte ? `<p>${esc(s.texte)}</p>` : ""}
-        <div class="slide__btns">${s.bouton && s.lien ? `<a href="${esc(s.lien)}" class="btn btn--gold">${esc(s.bouton)}</a>` : ""}<a href="contact.html" class="btn btn--line">Prendre rendez-vous</a></div>
+        <div class="slide__btns">${s.bouton && s.lien ? `<a href="${esc(s.lien)}" class="btn btn--gold">${esc(s.bouton)}</a>` : ""}</div>
       </div></div></div>
     </div>`;
   }).join("\n");
@@ -69,16 +69,15 @@ function slides(list) {
 const rich = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
 const svcTitle = (s) => `${esc(s.titre1)}${s.titre2 ? ` <span class="hl">${esc(s.titre2)}</span>` : ""}`;
 
-// Cartes de l'accueil (« Un seul interlocuteur »)
+// Tuiles de l'accueil (« Un seul interlocuteur »)
 function servicesCards(list) {
-  return list.map((s, i) => `          <article class="svc${i === 0 ? " svc--big" : ""}" data-anim${i ? ` style="--d:${(0.08 * i).toFixed(2)}s"` : ""}>
-            <img src="${esc(s.image)}" alt="" loading="lazy">
-            <div class="svc__body">
-              <span class="svc__num">${String(i + 1).padStart(2, "0")}</span>
-              <h3>${esc([s.titre1, s.titre2].filter(Boolean).join(" "))}</h3>
+  return list.map((s, i) => `          <a class="tile" href="services.html#service-${String(i + 1).padStart(2, "0")}" data-anim${i ? ` style="--d:${(0.06 * i).toFixed(2)}s"` : ""}>
+            <div class="tile__img"><img src="${esc(s.image)}" alt="" loading="lazy"></div>
+            <div class="tile__txt">
+              <h3><b>${esc(s.titre1)}</b> ${esc(s.titre2 || "")}</h3>
               ${s.resume ? `<p>${esc(s.resume)}</p>` : ""}
             </div>
-          </article>`).join("\n");
+          </a>`).join("\n");
 }
 
 // Blocs détaillés de la page Services
@@ -96,16 +95,34 @@ function servicesRows(list) {
 
 /* ---------- Réalisations livrées ---------- */
 function realisations(list) {
-  return list.map((r, i) => `          <article class="real" data-anim style="--d:${((i % 3) * 0.06).toFixed(2)}s">
-            <div class="real__img"><img src="${esc(r.image || "assets/img/logo-gei.png")}" alt="${esc(r.titre)}" loading="lazy">${r.date ? `<span class="real__date">${esc(r.date)}</span>` : ""}</div>
-            <div class="real__body">
-              ${r.lieu ? `<p class="prog__city"><i class="ico ico--pin"></i>${esc(r.lieu)}</p>` : ""}
-              <h3>${esc(r.titre)}</h3>
-              ${r.texte ? `<p>${esc(r.texte)}</p>` : ""}
-              ${r.chiffres && r.chiffres.length ? `<ul class="chips">${r.chiffres.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}
-              ${r.lien ? `<a class="prog__more" href="${esc(r.lien)}">En savoir plus <i class="arrow"></i></a>` : ""}
+  return list.map((r, i) => {
+    const tag = r.lien ? "a" : "article";
+    return `          <${tag} class="tile"${r.lien ? ` href="${esc(r.lien)}"` : ""} data-anim style="--d:${((i % 3) * 0.06).toFixed(2)}s">
+            <div class="tile__img"><img src="${esc(r.image || "assets/img/logo-gei.png")}" alt="${esc(r.titre)}" loading="lazy"></div>
+            ${r.date ? `<span class="tile__badge">${esc(r.date)}</span>` : ""}
+            <div class="tile__txt">
+              <h3><b>${esc(r.titre)}</b> ${esc(r.lieu || "")}</h3>
+              ${r.chiffres && r.chiffres.length ? `<p>${r.chiffres.map(esc).join(" · ")}</p>` : ""}
             </div>
-          </article>`).join("\n");
+          </${tag}>`;
+  }).join("\n");
+}
+
+// Accueil : mise en page éditoriale (une grande réalisation à la une + deux à côté), légendes sous les photos
+function realisationsUne(list) {
+  return list.slice(0, 3).map((r, i) => {
+    const tag = r.lien ? "a" : "article";
+    const meta = [r.lieu, r.date].filter(Boolean).map(esc).join(" · ");
+    return `          <${tag} class="re-item${i === 0 ? " re-item--une" : ""}"${r.lien ? ` href="${esc(r.lien)}"` : ""} data-anim style="--d:${(0.08 * i).toFixed(2)}s">
+            <div class="re-item__img"><img src="${esc(r.image || "assets/img/logo-gei.png")}" alt="${esc(r.titre)}" loading="lazy"></div>
+            <div class="re-item__cap">
+              ${meta ? `<p class="re-item__meta">${meta}</p>` : ""}
+              <h3>${esc(r.titre)}</h3>
+              ${i === 0 && r.texte ? `<p class="re-item__txt">${esc(r.texte)}</p>` : ""}
+              ${r.chiffres && r.chiffres.length ? `<p class="re-item__fig">${r.chiffres.map(esc).join("<i></i>")}</p>` : ""}
+            </div>
+          </${tag}>`;
+  }).join("\n");
 }
 
 function cards(list) { return list.map((p, i) => card(p, i)).join("\n"); }
@@ -318,4 +335,4 @@ function between(html, name, content) {
   return html.replace(re, (_, a, b) => `${a}\n${content}\n          ${b}`);
 }
 
-module.exports = { esc, layout, card, cards, slides, realisations, servicesCards, servicesRows, programmePage, newsList, between, contactBlock };
+module.exports = { esc, layout, card, cards, slides, realisations, realisationsUne, servicesCards, servicesRows, programmePage, newsList, between, contactBlock };

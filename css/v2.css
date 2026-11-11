@@ -752,3 +752,192 @@ h1, h2, h3 { letter-spacing: -.015em; }
   [data-anim] { opacity: 1 !important; transform: none !important; }
   .slide__txt > * { opacity: 1 !important; transform: none !important; }
 }
+
+/* ==========================================================
+   AJUSTEMENTS (retours de l'équipe GEI, 11/11/2026)
+   Plus clair et épuré : pas de tirets décoratifs, pas de flèches,
+   bannière de hauteur maîtrisée, voile léger sur les photos,
+   grandes tuiles photo avec le titre posé dessus.
+   ========================================================== */
+body { background: #fff; }
+.section--soft { background: #F7F8F5; }
+.kicker { gap: 0; letter-spacing: .2em; }
+.kicker::before { content: none !important; }
+.head h2, .prose h2 { font-weight: 600; }
+
+/* ---- Bannière (slider) : hauteur maîtrisée, voile léger ---- */
+.slider { height: clamp(420px, 64vh, 640px); }
+.slide::after { background: linear-gradient(90deg, rgba(7, 16, 74, .55) 0%, rgba(7, 16, 74, .18) 45%, rgba(7, 16, 74, 0) 70%),
+  linear-gradient(0deg, rgba(7, 16, 74, .35) 0%, rgba(7, 16, 74, 0) 35%); }
+.slide img { transform: scale(1.06); }
+.slide.is-on img { transform: scale(1); }
+.slide__in { bottom: clamp(70px, 11vh, 110px); }
+.slide__txt { max-width: 560px; text-shadow: 0 1px 14px rgba(0, 0, 0, .35); }
+.slide .kicker { font-size: 11px; margin-bottom: 10px; color: #fff; opacity: .9; }
+.slide h1, .slide h2 { font-size: clamp(26px, 3.3vw, 44px); text-transform: none; letter-spacing: -.015em; margin-bottom: 12px; }
+.slide h1 em, .slide h2 em { display: inline; }
+.slide p { font-size: 15px; margin-bottom: 22px; max-width: 440px; }
+.slide__btns .btn--line { display: none; }
+.slider__ctrl { bottom: 30px; }
+.slider__count { display: none; }
+.slider__dots { gap: 10px; }
+.slider__dots button { width: 9px; height: 9px; border-radius: 50%; background: rgba(255, 255, 255, .55); }
+.slider__dots button i { display: none; }
+.slider__dots button.is-on { background: var(--olive); transform: scale(1.25); }
+.slider__arrows button { width: 40px; height: 40px; font-size: 18px; background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .4); }
+
+/* ---- Grandes tuiles photo, titre posé sur l'image ---- */
+.tiles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.tiles--3 { grid-template-columns: repeat(3, 1fr); }
+.tile { position: relative; display: block; overflow: hidden; aspect-ratio: 16 / 10; background: var(--blue-l); color: #fff; }
+.tile.is-hidden { display: none; }
+.tile__img, .tile__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.tile__img[data-roll] img:first-child { position: absolute; }
+.tile::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7, 16, 74, .62) 0%, rgba(7, 16, 74, .15) 45%, rgba(7, 16, 74, 0) 70%); transition: background .5s; }
+.tile:hover::after { background: linear-gradient(0deg, rgba(7, 16, 74, .72) 0%, rgba(7, 16, 74, .25) 55%, rgba(7, 16, 74, .05) 80%); }
+.tile__img img { transition: transform 1.6s var(--ease), opacity 1.8s ease; }
+.tile:hover .tile__img img.is-on, .tile:hover .tile__img > img:only-child { transform: scale(1.05); }
+.tile__txt { position: absolute; z-index: 2; left: clamp(20px, 3vw, 36px); right: clamp(20px, 3vw, 36px); bottom: clamp(18px, 3vw, 32px); }
+.tile h3 { color: #fff; font-size: clamp(22px, 2.4vw, 32px); font-weight: 300; line-height: 1.15; margin: 0 0 6px; text-shadow: 0 1px 12px rgba(0, 0, 0, .35); }
+.tile h3 b { display: block; font-weight: 700; }
+.tile p { margin: 0; font-size: 14px; color: rgba(255, 255, 255, .9); text-shadow: 0 1px 8px rgba(0, 0, 0, .4); }
+.tile p strong { color: #fff; font-weight: 600; }
+.tile__badge { position: absolute; z-index: 2; top: 16px; left: 16px; background: #fff; color: var(--blue); font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; padding: 6px 11px; border-radius: 3px; }
+.tile__badge--ok { background: var(--olive); color: var(--blue); }
+.tiles-wide { padding-inline: 8px; }
+
+/* ---- Notre histoire (vidéo du DG) ---- */
+.story-v { display: grid; grid-template-columns: 1.1fr .9fr; gap: 56px; align-items: center; }
+.story-v__media { position: relative; aspect-ratio: 16 / 10; background: var(--blue-l); overflow: hidden; }
+.story-v__media video, .story-v__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.story-v__media img { object-position: 50% 20%; }
+.story-v h2 { font-size: clamp(28px, 3vw, 40px); font-weight: 600; margin: 0 0 16px; }
+.story-v p { margin: 0 0 14px; color: var(--text); }
+.story-v__sign { margin-top: 18px; font-weight: 600; color: var(--ink); }
+.story-v__sign span { display: block; font-weight: 400; font-size: 14px; color: var(--muted); }
+.figures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 26px 0 0; }
+.figures div { padding: 16px 0; }
+.figures b { display: block; font-size: 34px; font-weight: 600; color: var(--blue); line-height: 1; }
+.figures span { font-size: 13px; color: var(--muted); }
+
+/* ---- Nos catalogues ---- */
+.catal { display: grid; grid-template-columns: .8fr 1.2fr; gap: 0; background: var(--blue); color: rgba(255, 255, 255, .85); overflow: hidden; }
+.catal__img { position: relative; min-height: 320px; }
+.catal__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.catal__txt { padding: clamp(28px, 4vw, 52px); align-self: center; }
+.catal h2 { color: #fff; font-size: clamp(26px, 2.8vw, 38px); font-weight: 600; margin: 0 0 12px; }
+.catal h2 span { color: var(--olive); font-weight: 300; }
+.catal p { margin: 0 0 24px; max-width: 470px; }
+.catal__btns { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* ---- Moins de signes « lien » ---- */
+.prog__more .arrow, .qcard em, .arrow { display: none !important; }
+.prog__more { letter-spacing: .1em; }
+
+@media (max-width: 900px) {
+  .slider { height: clamp(360px, 58vh, 520px); }
+  .slide::after { background: linear-gradient(0deg, rgba(7, 16, 74, .62) 0%, rgba(7, 16, 74, .2) 50%, rgba(7, 16, 74, 0) 75%); }
+  .slide__in { bottom: 64px; }
+  .slider__ctrl { bottom: 26px; }
+  .slider__ctrl .wrap { justify-content: center; }
+  .tiles--3 { grid-template-columns: 1fr 1fr; }
+  .story-v, .catal { grid-template-columns: 1fr; gap: 30px; }
+  .catal { gap: 0; }
+  .catal__img { min-height: 220px; }
+}
+@media (max-width: 560px) {
+  .slider { height: clamp(340px, 56vh, 460px); }
+  .slide h1, .slide h2 { font-size: 26px; }
+  .slide p { font-size: 14px; margin-bottom: 18px; }
+  .tiles, .tiles--3 { grid-template-columns: 1fr; gap: 6px; }
+  .tile { aspect-ratio: 4 / 3; }
+  .tiles-wide { padding-inline: 0; }
+  .figures b { font-size: 28px; }
+}
+/* Photos qui défilent dans les tuiles */
+.tile__img[data-roll] img { opacity: 0; transition: opacity 1.8s ease, transform 9s linear; }
+.tile__img[data-roll] img.is-on { opacity: 1; transform: scale(1.05); }
+.others { gap: 8px; }
+.catal__img { background: #0A145A; }
+.catal__img img { object-fit: contain; padding: 26px; filter: drop-shadow(0 14px 30px rgba(0, 0, 0, .35)); }
+/* Tuiles projets : sans coins arrondis ni ombre (même rendu que les autres tuiles) */
+.prog.tile, .others .prog.tile { border-radius: 0; box-shadow: none; background: var(--blue-l); overflow: hidden; }
+.prog.tile:hover { transform: none; box-shadow: none; }
+
+/* ==========================================================
+   SANS VOILE NI DÉGRADÉ (demande de l'équipe, 11/11/2026)
+   Les photos restent intactes ; les textes posés dessus sont
+   dans des encadrés blancs nets.
+   ========================================================== */
+.slide::after, .tile::after, .tile:hover::after, .phero__media::after,
+.svc::before, .svc:hover::before, .contact::before, .contact::after, .band::before { content: none !important; background: none !important; }
+.hero, .phero { background: #fff !important; }
+.timeline i { background: var(--olive); }
+.history::before { background: var(--line); }
+.steps::before { background: var(--line); }
+
+/* Bannière : texte dans un encadré blanc */
+.slide__txt { background: #fff; padding: 26px 30px 28px; max-width: 520px; text-shadow: none; box-shadow: 0 10px 30px rgba(0, 0, 0, .12); }
+.slide .kicker { color: var(--olive-d); opacity: 1; }
+.slide h1, .slide h2 { color: var(--ink); }
+.slide h1 em, .slide h2 em { color: var(--olive-d); }
+.slide p { color: var(--text); text-shadow: none; }
+.slide__btns .btn--gold { background: var(--blue); color: #fff; }
+.slide__btns .btn--gold:hover { background: var(--olive-d); color: #fff; }
+.slider__dots button { box-shadow: 0 0 0 1px rgba(0, 0, 0, .15); }
+
+/* Tuiles : titre dans une étiquette blanche, coin bas gauche */
+.tile__txt { left: 0; right: auto; bottom: 0; max-width: calc(100% - 32px); background: #fff; padding: 16px 20px 15px; }
+.tile h3 { color: var(--ink); text-shadow: none; font-size: clamp(19px, 1.9vw, 25px); }
+.tile p { color: var(--muted); text-shadow: none; font-size: 13.5px; }
+.tile p strong { color: var(--blue); }
+.tile:hover .tile__txt { background: var(--blue); }
+.tile:hover h3, .tile:hover p, .tile:hover p strong { color: #fff; }
+.tile__txt { transition: background .35s; }
+
+/* Bannières des pages intérieures : texte dans un encadré blanc */
+.phero__grid > div:first-child { background: #fff; padding: 30px 34px 32px; box-shadow: 0 10px 30px rgba(0, 0, 0, .12); max-width: 620px; }
+.phero h1 { color: var(--ink); }
+.phero h1 .hl { color: var(--olive-d); }
+.phero__lead { color: var(--text); }
+.phero .crumbs { color: var(--muted); }
+.phero .crumbs a { color: var(--blue); }
+.phero .pill { background: var(--olive-l); color: var(--olive-d); border: 0; backdrop-filter: none; font-weight: 600; }
+.phero .btn--primary, .phero .btn--gold { background: var(--blue); color: #fff; }
+.phero .btn--primary:hover, .phero .btn--gold:hover { background: var(--olive-d); color: #fff; }
+.phero .btn--ghost, .phero .btn--line { background: transparent; color: var(--blue); box-shadow: inset 0 0 0 1.5px var(--blue); }
+.phero .btn--ghost:hover, .phero .btn--line:hover { background: var(--blue); color: #fff; }
+
+@media (max-width: 900px) {
+  .slide__in { bottom: 52px; }
+  .slide__txt { padding: 18px 20px 20px; max-width: none; }
+  .phero__grid { padding: 140px 0 70px; }
+  .phero__grid > div:first-child { padding: 22px 22px 24px; }
+}
+@media (max-width: 560px) {
+  .slide__txt p { display: none; }
+  .tile__txt { max-width: calc(100% - 20px); padding: 13px 16px 12px; }
+}
+
+/* ---------- Nos réalisations (accueil) : une à la une + deux, légendes sous les photos ---------- */
+.re-grid { display: grid; grid-template-columns: 1.45fr 1fr; grid-template-rows: auto auto; gap: 44px 40px; }
+.re-item { display: flex; flex-direction: column; color: inherit; }
+.re-item--une { grid-row: span 2; }
+.re-item__img { position: relative; overflow: hidden; background: var(--blue-l); aspect-ratio: 16 / 10; }
+.re-item--une .re-item__img { aspect-ratio: auto; flex: 1 1 auto; min-height: 420px; }
+.re-item__img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1.6s var(--ease); }
+.re-item:hover .re-item__img img { transform: scale(1.04); }
+.re-item__cap { padding: 18px 0 0; }
+.re-item__meta { margin: 0 0 6px; font-size: 11.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--olive-d); }
+.re-item h3 { font-size: 20px; font-weight: 600; color: var(--ink); line-height: 1.25; margin: 0 0 6px; transition: color .3s; }
+.re-item--une h3 { font-size: clamp(24px, 2.2vw, 30px); }
+a.re-item:hover h3 { color: var(--olive-d); }
+.re-item__txt { margin: 0 0 8px; color: var(--text); font-size: 15px; max-width: 560px; }
+.re-item__fig { margin: 0; font-size: 13.5px; color: var(--muted); display: flex; flex-wrap: wrap; align-items: center; gap: 4px 0; }
+.re-item__fig i { display: inline-block; width: 4px; height: 4px; border-radius: 50%; background: var(--olive); margin: 0 10px; }
+@media (max-width: 900px) {
+  .re-grid { grid-template-columns: 1fr; gap: 36px; }
+  .re-item--une { grid-row: auto; }
+  .re-item--une .re-item__img { aspect-ratio: 4 / 3; min-height: 0; flex: none; }
+  .re-item__img { aspect-ratio: 4 / 3; }
+}

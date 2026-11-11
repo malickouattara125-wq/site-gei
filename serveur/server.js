@@ -110,7 +110,7 @@ function dynamicPage(pathname) {
     if (s.length) html = R.between(html, "slides", R.slides(s));
     const sv = enLigne("services");
     if (sv.length) html = R.between(html, "services", R.servicesCards(sv.slice(0, 3)));
-    return R.between(html, "realisations", R.realisations(enLigne("realisations").slice(0, 6)));
+    return R.between(html, "realisations", R.realisationsUne(enLigne("realisations")));
   }
   if (pathname === "/realisations.html") {
     return R.between(page("realisations.html"), "realisations", R.realisations(enLigne("realisations")));

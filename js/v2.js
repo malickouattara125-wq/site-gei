@@ -140,6 +140,17 @@
     });
   }
 
+  /* ---------- Vidéo du DG : photo affichée tant que la vidéo n'est pas déposée ---------- */
+  const dgv = $("[data-dgvideo]");
+  if (dgv) {
+    const photo = $("[data-dgphoto]");
+    const fallback = () => { dgv.hidden = true; if (photo) photo.hidden = false; };
+    const src = $("source", dgv);
+    if (src) src.addEventListener("error", fallback);
+    dgv.addEventListener("error", fallback);
+    fetch(src ? src.getAttribute("src") : "", { method: "HEAD" }).then((r) => { if (!r.ok) fallback(); }).catch(fallback);
+  }
+
   /* ---------- FAQ : une seule question ouverte à la fois ---------- */
   $$("[data-faq] details").forEach((d) => d.addEventListener("toggle", () => {
     if (d.open) $$("[data-faq] details").forEach((o) => { if (o !== d) o.open = false; });
