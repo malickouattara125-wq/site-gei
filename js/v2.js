@@ -140,6 +140,46 @@
     });
   }
 
+  /* ---------- Nos projets : onglets par ville ---------- */
+  $$("[data-ponglets]").forEach((box) => {
+    const tabs = $$("[role=tab]", box);
+    const select = (t, focus) => {
+      tabs.forEach((b) => {
+        const on = b === t;
+        b.setAttribute("aria-selected", on);
+        b.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(b.getAttribute("aria-controls"));
+        if (panel) { panel.hidden = !on; panel.classList.toggle("is-on", on); }
+      });
+      if (focus) t.focus();
+      t.scrollIntoView({ block: "nearest", inline: "nearest" });
+    };
+    tabs.forEach((t, i) => {
+      t.addEventListener("click", () => select(t));
+      t.addEventListener("keydown", (e) => {
+        const k = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+        if (k) { e.preventDefault(); select(tabs[(i + k + tabs.length) % tabs.length], true); }
+      });
+    });
+  });
+
+  /* ---------- Carrousels de cartes (flèches + balayage) ---------- */
+  $$("[data-carousel]").forEach((c) => {
+    const track = $("[data-ctrack]", c), prev = $("[data-cprev]", c), next = $("[data-cnext]", c);
+    if (!track) return;
+    const step = () => { const first = track.firstElementChild; return first ? first.getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 0) : track.clientWidth; };
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth - 2;
+      if (prev) prev.disabled = track.scrollLeft <= 2;
+      if (next) next.disabled = track.scrollLeft >= max;
+    };
+    if (prev) prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
+    if (next) next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
+    track.addEventListener("scroll", update, { passive: true });
+    addEventListener("resize", update);
+    update();
+  });
+
   /* ---------- Vidéo du DG : photo affichée tant que la vidéo n'est pas déposée ---------- */
   const dgv = $("[data-dgvideo]");
   if (dgv) {

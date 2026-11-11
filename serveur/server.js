@@ -105,12 +105,12 @@ function page(name) { return fs.readFileSync(path.join(SITE, name), "utf8"); }
 
 function dynamicPage(pathname) {
   if (pathname === "/" || pathname === "/index.html") {
-    let html = R.between(page("index.html"), "programmes", R.cards(visibles()));
+    let html = R.between(page("index.html"), "programmes", R.projetsUne(visibles()));
     const s = enLigne("slides");
     if (s.length) html = R.between(html, "slides", R.slides(s));
     const sv = enLigne("services");
     if (sv.length) html = R.between(html, "services", R.servicesCards(sv.slice(0, 3)));
-    return R.between(html, "realisations", R.realisationsUne(enLigne("realisations")));
+    return R.between(html, "realisations", R.realisationsCards(enLigne("realisations")));
   }
   if (pathname === "/realisations.html") {
     return R.between(page("realisations.html"), "realisations", R.realisations(enLigne("realisations")));

@@ -35,6 +35,9 @@ function cardImages(p) {
   return [...new Set(all)].slice(0, 5);
 }
 
+const ICO_PIECES = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 4l9 6.5V20H3z"/><path d="M9 20v-6h6v6"/></svg>';
+const ICO_SURF = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M4 9h5M4 14h3M9 4v5M14 4v3"/></svg>';
+
 function card(p, i = 0) {
   const imgs = cardImages(p);
   const badge = p.statut ? `<span class="tile__badge${p.badge === "ok" ? " tile__badge--ok" : ""}">${esc(p.statut)}</span>` : "";
@@ -46,6 +49,68 @@ function card(p, i = 0) {
               <p>${esc(p.nom)} · À partir de <strong>${num(p.prixDes)} M FCFA</strong></p>
             </div>
           </a>`;
+}
+
+/* ---------- Accueil : nos projets par onglets de ville ---------- */
+function projetsOnglets(list) {
+  const tabs = list.map((p, i) => `<button type="button" role="tab" id="pt-${esc(p.slug)}" aria-controls="pp-${esc(p.slug)}" aria-selected="${i === 0}"${i ? ' tabindex="-1"' : ""}>${esc(p.ville)}</button>`).join("");
+  const panels = list.map((p, i) => {
+    const imgs = cardImages(p);
+    const specs = [["Type", p.typeLabel], ["Pièces", p.pieces], ["Superficie", p.surface]].filter((s) => s[1])
+      .map(([k, v]) => `<li><span>${k}</span><b>${esc(v)}</b></li>`).join("");
+    return `          <div class="ponglets__panel${i === 0 ? " is-on" : ""}" role="tabpanel" id="pp-${esc(p.slug)}" aria-labelledby="pt-${esc(p.slug)}"${i ? " hidden" : ""}>
+            <a class="ponglets__img" href="programme-${esc(p.slug)}.html"${imgs.length > 1 ? " data-roll" : ""}>${imgs.map((src, k) => `<img src="${esc(src)}" alt="${k ? "" : esc(p.nom + ", " + p.ville)}" loading="lazy"${k ? "" : ' class="is-on"'}>`).join("")}${p.statut ? `<span class="ponglets__badge${p.badge === "ok" ? " ponglets__badge--ok" : ""}">${esc(p.statut)}</span>` : ""}</a>
+            <div class="ponglets__txt">
+              <p class="kicker">${esc(p.ville)}</p>
+              <h3>${esc(p.nom)}</h3>
+              ${p.accroche ? `<p class="ponglets__lead">${esc(p.accroche)}</p>` : ""}
+              ${specs ? `<ul class="ponglets__specs">${specs}</ul>` : ""}
+              <p class="ponglets__price">À partir de <b>${num(p.prixDes)} M FCFA</b></p>
+              <div class="ponglets__btns"><a class="btn btn--primary" href="programme-${esc(p.slug)}.html">Découvrir le projet</a><a class="btn btn--ghost" href="programme-${esc(p.slug)}.html#souscrire">Comment souscrire</a></div>
+            </div>
+          </div>`;
+  }).join("\n");
+  return `          <div class="ponglets" data-ponglets>
+            <div class="ponglets__tabs" role="tablist" aria-label="Choisir une ville">${tabs}</div>
+${panels}
+          </div>`;
+}
+
+/* ---------- Accueil : un projet à la une + les autres en liste ---------- */
+function projetsUne(list) {
+  if (!list.length) return "";
+  const [p, ...others] = list;
+  const imgs = cardImages(p);
+  const badge = (x, cls) => (x.statut ? `<span class="${cls}${x.badge === "ok" ? ` ${cls}--ok` : ""}">${esc(x.statut)}</span>` : "");
+  const main = `            <a class="pune__main" href="programme-${esc(p.slug)}.html">
+              <div class="pune__img"${imgs.length > 1 ? " data-roll" : ""}>${imgs.map((src, k) => `<img src="${esc(src)}" alt="${k ? "" : esc(p.nom + ", " + p.ville)}" loading="lazy"${k ? "" : ' class="is-on"'}>`).join("")}${badge(p, "pune__badge")}</div>
+              <div class="pune__cap">
+                <div>
+                  <p class="pune__ville">${esc(p.ville)}</p>
+                  <h3>${esc(p.nom)}</h3>
+                  ${p.accroche ? `<p class="pune__lead">${esc(p.accroche)}</p>` : ""}
+                </div>
+                <p class="pune__price"><span>À partir de</span><b>${num(p.prixDes)} M FCFA</b></p>
+              </div>
+            </a>`;
+  const rows = others.map((o) => {
+    const meta = [o.typeLabel, o.pieces, o.surface].filter(Boolean).map(esc).join(" · ");
+    return `              <a class="pune__row" href="programme-${esc(o.slug)}.html">
+                <span class="pune__thumb"><img src="${esc(o.carte || o.image)}" alt="${esc(o.nom + ", " + o.ville)}" loading="lazy"></span>
+                <span class="pune__info">
+                  <span class="pune__ville">${esc(o.ville)}${o.statut ? ` · <em>${esc(o.statut)}</em>` : ""}</span>
+                  <b class="pune__nom">${esc(o.nom)}</b>
+                  ${meta ? `<span class="pune__meta">${meta}</span>` : ""}
+                  <span class="pune__p">À partir de <strong>${num(o.prixDes)} M FCFA</strong></span>
+                </span>
+              </a>`;
+  }).join("\n");
+  return `          <div class="pune">
+${main}
+            <div class="pune__list">
+${rows}
+            </div>
+          </div>`;
 }
 
 /* ---------- Slides de l'accueil ---------- */
@@ -108,18 +173,19 @@ function realisations(list) {
   }).join("\n");
 }
 
-// Accueil : mise en page éditoriale (une grande réalisation à la une + deux à côté), légendes sous les photos
-function realisationsUne(list) {
-  return list.slice(0, 3).map((r, i) => {
+// Accueil : réalisations en cartes blanches (badge « Livré »)
+function realisationsCards(list) {
+  return list.map((r) => {
     const tag = r.lien ? "a" : "article";
-    const meta = [r.lieu, r.date].filter(Boolean).map(esc).join(" · ");
-    return `          <${tag} class="re-item${i === 0 ? " re-item--une" : ""}"${r.lien ? ` href="${esc(r.lien)}"` : ""} data-anim style="--d:${(0.08 * i).toFixed(2)}s">
-            <div class="re-item__img"><img src="${esc(r.image || "assets/img/logo-gei.png")}" alt="${esc(r.titre)}" loading="lazy"></div>
-            <div class="re-item__cap">
-              ${meta ? `<p class="re-item__meta">${meta}</p>` : ""}
-              <h3>${esc(r.titre)}</h3>
-              ${i === 0 && r.texte ? `<p class="re-item__txt">${esc(r.texte)}</p>` : ""}
-              ${r.chiffres && r.chiffres.length ? `<p class="re-item__fig">${r.chiffres.map(esc).join("<i></i>")}</p>` : ""}
+    return `          <${tag} class="pcard"${r.lien ? ` href="${esc(r.lien)}"` : ""}>
+            <div class="pcard__img"><img src="${esc(r.image || "assets/img/logo-gei.png")}" alt="${esc(r.titre)}" loading="lazy">
+              <span class="pcard__badge pcard__badge--ok">Livré</span>
+              ${r.date ? `<span class="pcard__price">${esc(r.date)}</span>` : ""}
+            </div>
+            <div class="pcard__body">
+              <h3>${esc([r.lieu, r.titre].filter(Boolean).join(" · "))}</h3>
+              ${r.chiffres && r.chiffres.length ? `<p class="pcard__specs">${r.chiffres.map((c) => `<span>${esc(c)}</span>`).join("")}</p>` : ""}
+              ${r.texte ? `<p class="pcard__txt">${esc(r.texte)}</p>` : ""}
             </div>
           </${tag}>`;
   }).join("\n");
@@ -335,4 +401,4 @@ function between(html, name, content) {
   return html.replace(re, (_, a, b) => `${a}\n${content}\n          ${b}`);
 }
 
-module.exports = { esc, layout, card, cards, slides, realisations, realisationsUne, servicesCards, servicesRows, programmePage, newsList, between, contactBlock };
+module.exports = { esc, layout, card, cards, projetsOnglets, projetsUne, slides, realisations, realisationsCards, servicesCards, servicesRows, programmePage, newsList, between, contactBlock };
