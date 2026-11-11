@@ -66,7 +66,7 @@ Ces deux dossiers ne doivent **jamais** être mis sur GitHub : ils contiennent l
 
 ## Mettre en ligne plus tard
 
-**Chez LWS :** suivez le guide pas à pas [`HEBERGEMENT-LWS.md`](../HEBERGEMENT-LWS.md).
+**Chez LWS :** le site est en ligne sur https://geisarl.com, voir [`HEBERGEMENT-LWS.md`](../HEBERGEMENT-LWS.md).
 
 Il faut un hébergeur qui accepte **Node.js 18 ou plus** : LWS (cPanel L ou plus), un VPS, Render, Railway, o2switch, Hostinger, etc.
 
