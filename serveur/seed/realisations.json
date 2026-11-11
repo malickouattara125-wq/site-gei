@@ -1,0 +1,38 @@
+[
+  {
+    "id": "e5f6a1b2c3d4",
+    "titre": "Villa duplex de 25 pièces",
+    "lieu": "Korhogo",
+    "date": "Livrée le 4 septembre 2026",
+    "texte": "Une villa duplex de 25 pièces et une cour avec trois studios, trois magasins et une cuisine africaine, construites en six mois.",
+    "chiffres": ["25 pièces", "6 mois", "Clés remises"],
+    "image": "assets/img/korhogo-villa.jpg",
+    "lien": "",
+    "publie": true,
+    "ordre": 1
+  },
+  {
+    "id": "f6a1b2c3d4e5",
+    "titre": "Cité Les Rives de l'Opulence",
+    "lieu": "Adiaké",
+    "date": "Premières clés le 10 octobre 2026",
+    "texte": "Lancés en avril 2026, les travaux ont abouti à la remise des clés aux premiers propriétaires, six mois plus tard.",
+    "chiffres": ["Villas basses", "4 pièces", "300 m²"],
+    "image": "assets/img/remise-cles.jpg",
+    "lien": "programme-adiake.html",
+    "publie": true,
+    "ordre": 2
+  },
+  {
+    "id": "a1f6b2e5c3d4",
+    "titre": "Cités des Opulences 1 et 2",
+    "lieu": "Djorobité",
+    "date": "2024 — 2025",
+    "texte": "Nos premiers programmes de villas duplex de standing, à Djorobité.",
+    "chiffres": ["Villas duplex", "Livrées"],
+    "image": "assets/img/djorobite-1.jpg",
+    "lien": "",
+    "publie": true,
+    "ordre": 3
+  }
+]

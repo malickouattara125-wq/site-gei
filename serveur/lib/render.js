@@ -29,16 +29,83 @@ function chips(p) {
   return [p.typeLabel, p.pieces, p.surface].filter(Boolean).map((c) => `<li>${esc(c)}</li>`).join("");
 }
 
+// Photos de la carte : la photo de carte, puis la grande photo et la galerie (elles défilent doucement)
+function cardImages(p) {
+  const all = [p.carte, p.image, ...(p.galerie || []).map((g) => g.src)].filter(Boolean);
+  return [...new Set(all)].slice(0, 5);
+}
+
 function card(p, i = 0) {
+  const imgs = cardImages(p);
   return `          <a class="prog" href="programme-${esc(p.slug)}.html" data-type="${esc(p.type)}" data-ville="${esc(p.slug)}" data-price="${esc(p.prixDes)}" data-anim style="--d:${(0.06 * i).toFixed(2)}s">
-            <div class="prog__img"><img src="${esc(p.carte || p.image)}" alt="${esc(p.nom)}" loading="lazy">${p.statut ? `<span class="${BADGES[p.badge || ""] || "badge"}">${esc(p.statut)}</span>` : ""}</div>
+            <div class="prog__img"${imgs.length > 1 ? " data-roll" : ""}>${imgs.map((src, k) => `<img src="${esc(src)}" alt="${k ? "" : esc(p.nom)}" loading="lazy"${k ? "" : ' class="is-on"'}>`).join("")}${p.statut ? `<span class="${BADGES[p.badge || ""] || "badge"}">${esc(p.statut)}</span>` : ""}</div>
             <div class="prog__body">
               <p class="prog__city"><i class="ico ico--pin"></i>${esc(p.ville)}</p>
               <h3>${esc(p.nom)}</h3>
               <ul class="chips">${chips(p)}</ul>
-              <div class="prog__foot"><span>Dès <b>${num(p.prixDes)} M FCFA</b></span><i class="arrow"></i></div>
+              <div class="prog__foot"><span>À partir de <b>${num(p.prixDes)} M FCFA</b></span><span class="prog__more">Découvrir <i class="arrow"></i></span></div>
             </div>
           </a>`;
+}
+
+/* ---------- Slides de l'accueil ---------- */
+function slides(list) {
+  return list.map((s, i) => {
+    const h = i === 0 ? "h1" : "h2";
+    return `    <div class="slide${i === 0 ? " is-on" : ""}" data-slide>
+      <img src="${esc(s.image)}" alt="${esc(s.alt || [s.titre1, s.titre2].filter(Boolean).join(" "))}"${i === 0 ? ' fetchpriority="high"' : ' loading="lazy"'}>
+      <div class="slide__in"><div class="wrap"><div class="slide__txt">
+        ${s.kicker ? `<p class="kicker">${esc(s.kicker)}</p>` : ""}
+        <${h}>${esc(s.titre1)}${s.titre2 ? ` <em>${esc(s.titre2)}</em>` : ""}</${h}>
+        ${s.texte ? `<p>${esc(s.texte)}</p>` : ""}
+        <div class="slide__btns">${s.bouton && s.lien ? `<a href="${esc(s.lien)}" class="btn btn--gold">${esc(s.bouton)}</a>` : ""}<a href="contact.html" class="btn btn--line">Prendre rendez-vous</a></div>
+      </div></div></div>
+    </div>`;
+  }).join("\n");
+}
+
+/* ---------- Services ---------- */
+// Texte échappé, avec **mots en gras** autorisés
+const rich = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+const svcTitle = (s) => `${esc(s.titre1)}${s.titre2 ? ` <span class="hl">${esc(s.titre2)}</span>` : ""}`;
+
+// Cartes de l'accueil (« Un seul interlocuteur »)
+function servicesCards(list) {
+  return list.map((s, i) => `          <article class="svc${i === 0 ? " svc--big" : ""}" data-anim${i ? ` style="--d:${(0.08 * i).toFixed(2)}s"` : ""}>
+            <img src="${esc(s.image)}" alt="" loading="lazy">
+            <div class="svc__body">
+              <span class="svc__num">${String(i + 1).padStart(2, "0")}</span>
+              <h3>${esc([s.titre1, s.titre2].filter(Boolean).join(" "))}</h3>
+              ${s.resume ? `<p>${esc(s.resume)}</p>` : ""}
+            </div>
+          </article>`).join("\n");
+}
+
+// Blocs détaillés de la page Services
+function servicesRows(list) {
+  return list.map((s, i) => `        <div class="split split--mid${i % 2 ? " split--rev" : ""} svc-row" id="service-${String(i + 1).padStart(2, "0")}">
+          <div class="prose">
+            <span class="num-tag" data-anim>Service ${String(i + 1).padStart(2, "0")}</span>
+            <h2 data-anim style="--d:.06s">${svcTitle(s)}</h2>
+            ${(s.paragraphes || []).map((t, k) => `<p data-anim style="--d:${(0.1 + k * 0.02).toFixed(2)}s">${rich(t)}</p>`).join("\n            ")}
+            ${s.points && s.points.length ? `<ul class="checks checks--2" data-anim style="--d:.16s">${s.points.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
+          </div>
+          <div class="media-card" data-anim style="--d:.1s"><img src="${esc(s.image)}" alt="${esc([s.titre1, s.titre2].join(" "))}" loading="lazy"></div>
+        </div>`).join("\n\n");
+}
+
+/* ---------- Réalisations livrées ---------- */
+function realisations(list) {
+  return list.map((r, i) => `          <article class="real" data-anim style="--d:${((i % 3) * 0.06).toFixed(2)}s">
+            <div class="real__img"><img src="${esc(r.image || "assets/img/logo-gei.png")}" alt="${esc(r.titre)}" loading="lazy">${r.date ? `<span class="real__date">${esc(r.date)}</span>` : ""}</div>
+            <div class="real__body">
+              ${r.lieu ? `<p class="prog__city"><i class="ico ico--pin"></i>${esc(r.lieu)}</p>` : ""}
+              <h3>${esc(r.titre)}</h3>
+              ${r.texte ? `<p>${esc(r.texte)}</p>` : ""}
+              ${r.chiffres && r.chiffres.length ? `<ul class="chips">${r.chiffres.map((c) => `<li>${esc(c)}</li>`).join("")}</ul>` : ""}
+              ${r.lien ? `<a class="prog__more" href="${esc(r.lien)}">En savoir plus <i class="arrow"></i></a>` : ""}
+            </div>
+          </article>`).join("\n");
 }
 
 function cards(list) { return list.map((p, i) => card(p, i)).join("\n"); }
@@ -81,6 +148,46 @@ function gallery(items) {
   }).join("\n");
 }
 
+/* ---------- Comment souscrire (bas de chaque fiche programme) ---------- */
+function souscrire(p, waText) {
+  const f = (p.formules || []).filter((x) => x.label);
+  const choix = f.length ? f.map((x) => x.label.toLowerCase()).join(", ") : "la formule adaptée à votre budget";
+  return `
+    <section class="section" id="souscrire">
+      <div class="wrap">
+        <div class="head head--row">
+          <div>
+            <p class="kicker" data-anim>Comment souscrire</p>
+            <h2 data-anim style="--d:.06s">Devenir propriétaire <span class="hl">à ${esc(p.ville)}</span></h2>
+          </div>
+          <p data-anim>Un conseiller vous accompagne à chaque étape, sur place ou à distance.</p>
+        </div>
+        <ol class="sub-steps" data-anim>
+          <li><h3>Prenez contact</h3><p>Appelez-nous ou écrivez-nous sur WhatsApp : un conseiller répond à vos questions et organise une visite gratuite.</p></li>
+          <li><h3>Choisissez votre formule</h3><p>${esc(choix.charAt(0).toUpperCase() + choix.slice(1))} : vous choisissez selon votre budget.</p></li>
+          <li><h3>Réservez</h3><p>Vous réglez les frais de dossier (300 000 FCFA) et signez votre contrat de réservation.</p></li>
+          <li><h3>Recevez vos clés</h3><p>Nos équipes construisent et contrôlent chaque étape, jusqu'à la remise des clés.</p></li>
+        </ol>
+        <div class="sub-docs" data-anim style="--d:.08s">
+          <div>
+            <h3>Les conditions <span>en bref</span></h3>
+            <ul>
+              ${f.map((x) => `<li>${esc(x.label)} : <b>${num(x.montant)} M FCFA</b></li>`).join("\n              ")}
+              ${p.noteOffre ? `<li>${esc(p.noteOffre)}</li>` : ""}
+              <li>Frais de dossier : 300 000 FCFA</li>
+              <li>Documents du programme : ${esc(p.documents || "ACD & permis de construire")}</li>
+            </ul>
+          </div>
+          <div class="sub-docs__cta">
+            <p>Prêt à réserver votre villa à ${esc(p.ville)} ?</p>
+            <a href="https://wa.me/2250709718530?text=${waText}" class="btn btn--gold" target="_blank" rel="noopener">Souscrire sur WhatsApp</a>
+            <a href="#contact" class="btn btn--line">Être rappelé</a>
+          </div>
+        </div>
+      </div>
+    </section>`;
+}
+
 function programmePage(p, all) {
   const others = all.filter((o) => o.slug !== p.slug);
   const waText = encodeURIComponent(`Bonjour GEI, je souhaite des informations sur ${p.nom} (${p.ville}).`);
@@ -94,8 +201,9 @@ function programmePage(p, all) {
           <h1 data-anim style="--d:.08s">${esc(p.titre1)} <span class="hl">${esc(p.titre2)}</span></h1>
           <p class="phero__lead" data-anim style="--d:.14s">${esc(p.accroche)}</p>
           <div class="phero__btns" data-anim style="--d:.2s">
-            <a href="#contact" class="btn btn--primary">Réserver une visite</a>
-            ${p.galerie && p.galerie.length ? '<a href="#galerie" class="btn btn--ghost">Voir les photos</a>' : ""}
+            <a href="#souscrire" class="btn btn--gold">Comment souscrire</a>
+            <a href="#contact" class="btn btn--line">Réserver une visite</a>
+            ${p.galerie && p.galerie.length ? '<a href="#galerie" class="btn btn--line">Voir les photos</a>' : ""}
           </div>
         </div>
         <div class="phero__media" data-anim style="--d:.1s">
@@ -163,6 +271,7 @@ ${v ? `
         </div>
       </div>
     </section>` : ""}
+${souscrire(p, waText)}
 ${others.length ? `
     <section class="section section--soft">
       <div class="wrap">
@@ -209,4 +318,4 @@ function between(html, name, content) {
   return html.replace(re, (_, a, b) => `${a}\n${content}\n          ${b}`);
 }
 
-module.exports = { esc, layout, card, cards, programmePage, newsList, between, contactBlock };
+module.exports = { esc, layout, card, cards, slides, realisations, servicesCards, servicesRows, programmePage, newsList, between, contactBlock };

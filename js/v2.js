@@ -80,6 +80,66 @@
     $("#programmes").scrollIntoView({ behavior: "smooth" });
   });
 
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ---------- Slider plein écran de l'accueil ---------- */
+  const slider = $("[data-slider]");
+  if (slider) {
+    const slides = $$("[data-slide]", slider);
+    const dots = $("[data-dots]", slider);
+    const cur = $("[data-cur]", slider), tot = $("[data-tot]", slider);
+    const DUR = 6500;
+    let i = 0, timer = null;
+    const pad = (n) => String(n).padStart(2, "0");
+    if (tot) tot.textContent = pad(slides.length);
+    if (dots) dots.innerHTML = slides.map((_, k) => `<button type="button" aria-label="Photo ${k + 1}"><i></i></button>`).join("");
+    const dotBtns = dots ? $$("button", dots) : [];
+    slider.style.setProperty("--dur", DUR / 1000 + "s");
+    const show = (n) => {
+      i = (n + slides.length) % slides.length;
+      slides.forEach((s, k) => { s.classList.toggle("is-on", k === i); s.setAttribute("aria-hidden", k !== i); });
+      dotBtns.forEach((b, k) => { b.classList.remove("is-on"); if (k === i) { void b.offsetWidth; b.classList.add("is-on"); } });
+      if (cur) cur.textContent = pad(i + 1);
+    };
+    const play = () => { clearInterval(timer); if (!calm && slides.length > 1) timer = setInterval(() => show(i + 1), DUR); };
+    const go = (n) => { show(n); play(); };
+    dotBtns.forEach((b, k) => b.addEventListener("click", () => go(k)));
+    const prev = $("[data-prev]", slider), next = $("[data-next]", slider);
+    if (prev) prev.addEventListener("click", () => go(i - 1));
+    if (next) next.addEventListener("click", () => go(i + 1));
+    slider.addEventListener("mouseenter", () => { clearInterval(timer); slider.classList.add("is-paused"); });
+    slider.addEventListener("mouseleave", () => { slider.classList.remove("is-paused"); play(); });
+    let x0 = null;
+    slider.addEventListener("touchstart", (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    slider.addEventListener("touchend", (e) => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0; x0 = null;
+      if (Math.abs(dx) > 45) go(i + (dx < 0 ? 1 : -1));
+    });
+    // Les photos suivantes se chargent après la première
+    slides.slice(1).forEach((s) => { const im = $("img", s); if (im) im.loading = "eager"; });
+    show(0); play();
+  }
+
+  /* ---------- Cartes projets : les photos défilent doucement ---------- */
+  const rolls = $$("[data-roll]");
+  if (rolls.length && !calm) {
+    const visible = new Set();
+    const rio = new IntersectionObserver((es) => es.forEach((e) => (e.isIntersecting ? visible.add(e.target) : visible.delete(e.target))), { threshold: 0.2 });
+    rolls.forEach((r, k) => {
+      rio.observe(r);
+      const imgs = $$("img", r);
+      let n = 0;
+      // Décalage entre les cartes pour qu'elles ne changent pas toutes en même temps
+      setTimeout(() => setInterval(() => {
+        if (!visible.has(r) || document.hidden) return;
+        imgs[n].classList.remove("is-on");
+        n = (n + 1) % imgs.length;
+        imgs[n].classList.add("is-on");
+      }, 4200), k * 1100);
+    });
+  }
+
   /* ---------- FAQ : une seule question ouverte à la fois ---------- */
   $$("[data-faq] details").forEach((d) => d.addEventListener("toggle", () => {
     if (d.open) $$("[data-faq] details").forEach((o) => { if (o !== d) o.open = false; });

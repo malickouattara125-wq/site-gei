@@ -1,4 +1,12 @@
-﻿Thumbs.db
+Thumbs.db
 desktop.ini
 .DS_Store
 
+# Données privées du serveur : demandes des clients, mot de passe, photos envoyées
+serveur/data/
+serveur/uploads/
+serveur/node_modules/
+.env
+
+# Outils de construction locaux
+.claude/

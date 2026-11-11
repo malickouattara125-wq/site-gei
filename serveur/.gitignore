@@ -1,0 +1,6 @@
+# Données privées : demandes des clients, mot de passe, statistiques
+data/
+# Photos envoyées depuis le tableau de bord (à sauvegarder à part)
+uploads/
+node_modules/
+.env

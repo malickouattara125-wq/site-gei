@@ -1,0 +1,44 @@
+[
+  {
+    "id": "5e1a2b3c4d01",
+    "titre1": "Construction",
+    "titre2": "& réhabilitation",
+    "resume": "Résidentiel, bureaux, commerces : de l'étude technique à la livraison, partout en Côte d'Ivoire.",
+    "paragraphes": [
+      "De l'étude technique (métré, plans, conception, devis quantitatif estimatif et cahier des charges) à la construction de bâtiments neufs, Global Empire Immobilier est le partenaire de votre projet : résidentiel, bureaux, commerces ou ouvrages fonctionnels.",
+      "La construction neuve est notre cœur de métier. Nous nous appuyons sur des équipes expérimentées et proposons des solutions sur mesure pour des clients publics et privés, partout en Côte d'Ivoire. Nous rénovons et réhabilitons aussi les bâtiments existants, avec la même exigence."
+    ],
+    "points": ["Étude technique et métré", "Plans 2D et 3D", "Devis et cahier des charges", "Construction neuve", "Rénovation", "Réhabilitation"],
+    "image": "assets/img/villa-ouvrier.jpg",
+    "publie": true,
+    "ordre": 1
+  },
+  {
+    "id": "5e1a2b3c4d02",
+    "titre1": "Génie civil",
+    "titre2": "& expertise",
+    "resume": "Conception sur mesure, modélisation 3D, vérification des ouvrages et des matériaux.",
+    "paragraphes": [
+      "Concepteur-constructeur reconnu, Global Empire Immobilier conjugue savoir-faire, agilité technique et innovation numérique. Grâce à des outils de modélisation 3D, nous développons des projets au plus près de vos attentes, et nos équipes gèrent la conception, la réalisation et la réparation d'ouvrages de toutes tailles.",
+      "Nous mettons aussi notre expertise à la disposition des particuliers : vérification des documents techniques et des ouvrages, des matériaux, des pathologies du bâtiment, des fondations et des dalles."
+    ],
+    "points": ["Conception sur mesure", "Modélisation 3D", "Réalisation d'ouvrages", "Vérification des ouvrages", "Contrôle des matériaux", "Diagnostic du bâtiment"],
+    "image": "assets/img/chantier-macons.jpg",
+    "publie": true,
+    "ordre": 2
+  },
+  {
+    "id": "5e1a2b3c4d03",
+    "titre1": "Préfinancement",
+    "titre2": "& bail",
+    "resume": "Jusqu'à 60 % de votre projet préfinancé, ou votre terrain valorisé grâce au crédit-bail.",
+    "paragraphes": [
+      "**Préfinancement :** nous accompagnons un particulier jusqu'à 60 % de son projet immobilier. Avec 40 % du budget, nous vous accompagnons dans votre construction, avec un taux d'intérêt de 0 à 10 %. Le bâtiment doit être à but commercial ; pour une maison personnelle, l'accompagnement est possible si vous disposez d'autres biens pouvant servir de garantie.",
+      "**Bail :** vous avez un terrain mais pas les moyens de le construire ? Nous le mettons en valeur en finançant à 100 % le projet grâce au crédit-bail, pour un bâtiment à usage commercial."
+    ],
+    "points": ["Préfinancement jusqu'à 60 %", "Taux de 0 à 10 %", "Crédit-bail à 100 %", "Valorisation de votre terrain", "Accompagnement par nos experts", "Projets commerciaux"],
+    "image": "assets/img/villa-cite.jpg",
+    "publie": true,
+    "ordre": 3
+  }
+]

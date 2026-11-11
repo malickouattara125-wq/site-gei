@@ -32,6 +32,7 @@ const programmes = () => store.load("programmes", []);
 const visibles = () => programmes().filter((p) => p.visible !== false).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
 const actualites = () => store.load("actualites", []);
 const publiees = () => actualites().filter((a) => a.publie !== false).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+const enLigne = (name) => store.load(name, []).filter((x) => x.publie !== false).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
 
 function ip(req) { return (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress || ""; }
 
@@ -104,7 +105,19 @@ function page(name) { return fs.readFileSync(path.join(SITE, name), "utf8"); }
 
 function dynamicPage(pathname) {
   if (pathname === "/" || pathname === "/index.html") {
-    return R.between(page("index.html"), "programmes", R.cards(visibles()));
+    let html = R.between(page("index.html"), "programmes", R.cards(visibles()));
+    const s = enLigne("slides");
+    if (s.length) html = R.between(html, "slides", R.slides(s));
+    const sv = enLigne("services");
+    if (sv.length) html = R.between(html, "services", R.servicesCards(sv.slice(0, 3)));
+    return R.between(html, "realisations", R.realisations(enLigne("realisations").slice(0, 6)));
+  }
+  if (pathname === "/realisations.html") {
+    return R.between(page("realisations.html"), "realisations", R.realisations(enLigne("realisations")));
+  }
+  if (pathname === "/services.html") {
+    const sv = enLigne("services");
+    return sv.length ? R.between(page("services.html"), "services", R.servicesRows(sv)) : page("services.html");
   }
   if (pathname === "/programmes.html") {
     return R.between(page("programmes.html"), "programmes", R.cards(visibles()));
@@ -170,6 +183,31 @@ function cleanActu(b) {
   if (a.lien && !/^(https?:\/\/|[a-z0-9-]+\.html)/i.test(a.lien)) a.lien = "";
   return a;
 }
+
+// Slides de l'accueil et réalisations : petites collections gérées depuis le tableau de bord
+const okLink = (v) => { const s = str(v, 300); return /^(https?:\/\/|[a-z0-9-]+\.html(#[\w-]*)?$|#[\w-]+$)/i.test(s) ? s : ""; };
+const COLLECTIONS = {
+  slides: (b) => {
+    const s = { image: str(b.image, 300), alt: str(b.alt, 160), kicker: str(b.kicker, 80), titre1: str(b.titre1, 60), titre2: str(b.titre2, 60),
+      texte: str(b.texte, 200), bouton: str(b.bouton, 40), lien: okLink(b.lien), publie: b.publie !== false, ordre: Number.isInteger(+b.ordre) ? +b.ordre : 0 };
+    if (!s.image || !s.titre1) throw Object.assign(new Error("La photo et le titre sont obligatoires."), { status: 400 });
+    return s;
+  },
+  realisations: (b) => {
+    const r = { titre: str(b.titre, 120), lieu: str(b.lieu, 60), date: str(b.date, 60), texte: str(b.texte, 600), image: str(b.image, 300),
+      chiffres: (Array.isArray(b.chiffres) ? b.chiffres : []).map((x) => str(x, 40)).filter(Boolean).slice(0, 6),
+      lien: okLink(b.lien), publie: b.publie !== false, ordre: Number.isInteger(+b.ordre) ? +b.ordre : 0 };
+    if (!r.titre) throw Object.assign(new Error("Le titre est obligatoire."), { status: 400 });
+    return r;
+  },
+  services: (b) => {
+    const list = (v, n, max) => (Array.isArray(v) ? v : []).map((x) => str(x, max)).filter(Boolean).slice(0, n);
+    const s = { titre1: str(b.titre1, 60), titre2: str(b.titre2, 60), resume: str(b.resume, 220), paragraphes: list(b.paragraphes, 6, 1500),
+      points: list(b.points, 12, 60), image: str(b.image, 300), publie: b.publie !== false, ordre: Number.isInteger(+b.ordre) ? +b.ordre : 0 };
+    if (!s.titre1) throw Object.assign(new Error("Le titre est obligatoire."), { status: 400 });
+    return s;
+  },
+};
 
 async function api(req, res, pathname) {
   const method = req.method;
@@ -276,6 +314,25 @@ async function api(req, res, pathname) {
     else if (method === "DELETE") list.splice(i, 1);
     else return json(res, 405, { error: "Méthode non permise" });
     store.save("actualites", list);
+    return json(res, 200, list[i] || { ok: true });
+  }
+
+  // Slides et réalisations
+  m = /^\/api\/(slides|realisations|services)(?:\/([a-f0-9]+))?$/.exec(pathname);
+  if (m) {
+    const name = m[1], clean = COLLECTIONS[name];
+    const list = store.load(name, []);
+    if (!m[2]) {
+      if (method === "GET") return json(res, 200, list);
+      if (method === "POST") { const x = { id: id(), ...clean(await readBody(req, 60000)) }; list.push(x); store.save(name, list); return json(res, 200, x); }
+      return json(res, 405, { error: "Méthode non permise" });
+    }
+    const i = list.findIndex((x) => x.id === m[2]);
+    if (i < 0) return json(res, 404, { error: "Introuvable" });
+    if (method === "PUT") list[i] = { id: list[i].id, ...clean(await readBody(req, 60000)) };
+    else if (method === "DELETE") list.splice(i, 1);
+    else return json(res, 405, { error: "Méthode non permise" });
+    store.save(name, list);
     return json(res, 200, list[i] || { ok: true });
   }
 

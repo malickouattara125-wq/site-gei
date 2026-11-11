@@ -54,7 +54,9 @@
   }
 
   /* ---------- Navigation ---------- */
-  const views = { accueil: viewAccueil, demandes: viewDemandes, programmes: viewProgrammes, programme: viewProgramme, actualites: viewActualites, actualite: viewActualite, compte: viewCompte };
+  const views = { accueil: viewAccueil, demandes: viewDemandes, programmes: viewProgrammes, programme: viewProgramme, actualites: viewActualites, actualite: viewActualite, compte: viewCompte,
+    slides: () => viewListe(SLIDES), slide: (id) => viewFiche(SLIDES, id), realisations: () => viewListe(REALS), realisation: (id) => viewFiche(REALS, id),
+    services: () => viewListe(SERVICES), service: (id) => viewFiche(SERVICES, id) };
   let dirty = false;
   function route() {
     const [name, arg] = (location.hash.slice(1) || "accueil").split("/");
@@ -374,6 +376,125 @@
     if (del) del.addEventListener("click", async () => {
       if (!confirm("Supprimer définitivement cette actualité ?")) return;
       try { await api("/api/actualites/" + a.id, { method: "DELETE" }); dirty = false; toast("Actualité supprimée"); location.hash = "#actualites"; } catch (err) { fail(err); }
+    });
+  }
+
+  /* ---------- Slides de l'accueil et réalisations (même fonctionnement) ---------- */
+  const SLIDES = {
+    api: "/api/slides", list: "slides", one: "slide", titre: "Slides de l'accueil", nouveau: "+ Nouveau slide", nom: "ce slide",
+    sous: "Les grandes photos qui défilent en haut de la page d'accueil. Les changements apparaissent tout de suite sur le site.",
+    vide: { publie: true, ordre: 10, bouton: "Découvrir", lien: "programmes.html" },
+    label: (x) => [x.titre1, x.titre2].filter(Boolean).join(" "), sub: (x) => x.kicker || "",
+    fields: [
+      { k: "image", type: "img", label: "Photo (format paysage, la plus grande possible)" },
+      { k: "kicker", label: "Petite ligne au-dessus du titre", ph: "Ex. Adiaké · Cité Les Rives de l'Opulence", full: true },
+      { k: "titre1", label: "Titre, partie en gras *", ph: "Ex. L'art de bâtir" },
+      { k: "titre2", label: "Titre, partie fine (en vert)", ph: "Ex. votre avenir" },
+      { k: "texte", type: "textarea", label: "Phrase courte", full: true, hint: "Une phrase, deux au maximum : le slide doit rester léger." },
+      { k: "bouton", label: "Texte du bouton", ph: "Ex. Découvrir le programme" },
+      { k: "lien", label: "Lien du bouton", ph: "Ex. programme-adiake.html", hint: "Une page du site (…html) ou une adresse complète (https://…)." },
+      { k: "ordre", type: "number", label: "Ordre d'affichage", hint: "Le plus petit numéro passe en premier." },
+      { k: "publie", type: "check", label: "Afficher ce slide sur le site" },
+    ],
+  };
+  const REALS = {
+    api: "/api/realisations", list: "realisations", one: "realisation", titre: "Réalisations", nouveau: "+ Nouvelle réalisation", nom: "cette réalisation",
+    sous: "Les projets terminés et remis aux clients (« GEI en images » sur l'accueil et page Réalisations).",
+    vide: { publie: true, ordre: 10, chiffres: [] },
+    label: (x) => x.titre, sub: (x) => [x.lieu, x.date].filter(Boolean).join(" · "),
+    fields: [
+      { k: "titre", label: "Titre *", ph: "Ex. Villa duplex de 25 pièces", full: true },
+      { k: "lieu", label: "Lieu", ph: "Ex. Korhogo" },
+      { k: "date", label: "Date affichée", ph: "Ex. Livrée le 4 septembre 2026" },
+      { k: "texte", type: "textarea", label: "Description", full: true },
+      { k: "chiffres", type: "lines", label: "Chiffres clés", full: true, hint: "Un par ligne, par exemple : 25 pièces, 6 mois, Clés remises." },
+      { k: "image", type: "img", label: "Photo" },
+      { k: "lien", label: "Lien « En savoir plus » (facultatif)", ph: "Ex. programme-adiake.html" },
+      { k: "ordre", type: "number", label: "Ordre d'affichage", hint: "Le plus petit numéro passe en premier." },
+      { k: "publie", type: "check", label: "Afficher sur le site" },
+    ],
+  };
+
+  const SERVICES = {
+    api: "/api/services", list: "services", one: "service", titre: "Services", nouveau: "+ Nouveau service", nom: "ce service",
+    sous: "Les services affichés sur la page Services. Les 3 premiers apparaissent aussi sur l'accueil (« Un seul interlocuteur »).",
+    vide: { publie: true, ordre: 10, paragraphes: [], points: [] },
+    label: (x) => [x.titre1, x.titre2].filter(Boolean).join(" "), sub: (x) => x.resume || "",
+    fields: [
+      { k: "titre1", label: "Titre, partie en gras *", ph: "Ex. Construction" },
+      { k: "titre2", label: "Titre, partie fine (en vert)", ph: "Ex. & réhabilitation" },
+      { k: "resume", type: "textarea", label: "Résumé (carte de l'accueil)", full: true, hint: "Une phrase courte." },
+      { k: "paragraphes", type: "paras", label: "Présentation (page Services)", full: true, hint: "Laissez une ligne vide entre deux paragraphes. Pour mettre un mot en gras : **comme ceci**." },
+      { k: "points", type: "lines", label: "Points clés", full: true, hint: "Un par ligne." },
+      { k: "image", type: "img", label: "Photo" },
+      { k: "ordre", type: "number", label: "Ordre d'affichage", hint: "Le plus petit numéro passe en premier." },
+      { k: "publie", type: "check", label: "Afficher sur le site" },
+    ],
+  };
+
+  async function viewListe(c) {
+    const list = (await api(c.api)).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
+    main.innerHTML = `
+      <div class="top"><div><h1>${c.titre}</h1><p>${c.sous}</p></div>
+        <div class="top__actions"><a class="btn btn--primary" href="#${c.one}/nouveau">${c.nouveau}</a></div></div>
+      <div class="items">${list.map((x) => `
+        <article class="item">
+          <img src="${esc(img(x.image))}" alt="" loading="lazy">
+          <div class="item__body"><small>${esc(c.sub(x))}</small><h3>${esc(c.label(x))}</h3>
+            <p>Ordre ${esc(x.ordre || 0)} · ${x.publie === false ? '<span class="tag tag--off">Masqué du site</span>' : '<span class="tag">En ligne</span>'}</p></div>
+          <div class="item__foot"><a class="btn btn--sm btn--primary" href="#${c.one}/${esc(x.id)}">Modifier</a></div>
+        </article>`).join("") || '<p class="empty">Rien pour le moment.</p>'}</div>`;
+  }
+
+  async function viewFiche(c, id) {
+    const isNew = id === "nouveau";
+    const x = isNew ? { ...c.vide } : (await api(c.api)).find((y) => y.id === id);
+    if (!x) { main.innerHTML = '<p class="empty">Élément introuvable.</p>'; return; }
+    const field = (f) => {
+      const v = x[f.k];
+      const hint = f.hint ? `<p class="hint">${f.hint}</p>` : "";
+      if (f.type === "img") return imgField(f.k, f.label, v);
+      if (f.type === "check") return `<label class="check"><input type="checkbox" name="${f.k}"${v !== false ? " checked" : ""}> ${f.label}</label>`;
+      if (f.type === "textarea") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="3">${esc(v)}</textarea>${hint}</label>`;
+      if (f.type === "lines") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="4">${esc((v || []).join("\n"))}</textarea>${hint}</label>`;
+      if (f.type === "paras") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="9">${esc((v || []).join("\n\n"))}</textarea>${hint}</label>`;
+      return `<label${f.full ? ' class="full"' : ""}><span>${f.label}</span><input name="${f.k}"${f.type === "number" ? ' type="number"' : ""} value="${esc(v == null ? "" : v)}" placeholder="${esc(f.ph || "")}">${hint}</label>`;
+    };
+    main.innerHTML = `
+      <div class="top"><div><h1>${isNew ? c.nouveau.replace("+ ", "") : esc(c.label(x))}</h1><p>${c.sous}</p></div>
+        <div class="top__actions"><a class="btn btn--text" href="#${c.list}">← Retour</a></div></div>
+      <form class="form" id="cf" novalidate>
+        <section class="panel"><div class="grid">${c.fields.map(field).join("")}</div></section>
+        <div class="savebar">
+          ${isNew ? "" : '<button type="button" class="btn btn--danger" id="del">Supprimer</button>'}
+          <button type="submit" class="btn btn--primary">${isNew ? "Créer" : "Enregistrer"}</button>
+        </div>
+      </form>`;
+    const form = $("#cf");
+    form.addEventListener("input", () => { dirty = true; });
+    form.addEventListener("click", (e) => { const n = e.target.dataset.pick; if (n) pick(([src]) => setImg(form, n, src)); });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const body = {};
+      c.fields.forEach((f) => {
+        if (f.type === "check") body[f.k] = fd.get(f.k) === "on";
+        else if (f.type === "lines") body[f.k] = lines(fd.get(f.k));
+        else if (f.type === "paras") body[f.k] = paras(fd.get(f.k));
+        else body[f.k] = fd.get(f.k) || "";
+      });
+      const btn = $("[type=submit]", form); btn.disabled = true;
+      try {
+        const saved = await api(isNew ? c.api : c.api + "/" + x.id, { method: isNew ? "POST" : "PUT", body });
+        dirty = false; toast(isNew ? "Créé : visible sur le site" : "Modifications enregistrées");
+        if (isNew) location.hash = `#${c.one}/${saved.id}`;
+      } catch (err) { fail(err); }
+      btn.disabled = false;
+    });
+    const del = $("#del");
+    if (del) del.addEventListener("click", async () => {
+      if (!confirm(`Supprimer définitivement ${c.nom} ?\n\nAstuce : pour le cacher sans le supprimer, décochez plutôt la case « Afficher ».`)) return;
+      try { await api(c.api + "/" + x.id, { method: "DELETE" }); dirty = false; toast("Supprimé"); location.hash = "#" + c.list; } catch (err) { fail(err); }
     });
   }
 

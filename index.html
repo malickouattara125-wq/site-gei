@@ -7,12 +7,12 @@
   <meta name="description" content="Global Empire Immobilier (GEI Sarl) construit et vend des villas à Adiaké, Djorobité, Bingerville et Abengourou. ACD et permis de construire, vente directe, location-vente, clé en main.">
   <meta property="og:title" content="Global Empire Immobilier · Votre confiance, notre engagement">
   <meta property="og:description" content="Villas basses, duplex et villas économiques en Côte d'Ivoire, construites par nos propres équipes.">
-  <meta property="og:image" content="assets/img/villa-nuit.jpg">
-  <meta name="theme-color" content="#0A1784">
+  <meta property="og:image" content="assets/img/slide-villa.jpg">
+  <meta name="theme-color" content="#0B1A6E">
   <link rel="icon" href="assets/img/logo-gei.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/v2.css">
 </head>
 <body>
@@ -54,163 +54,168 @@
 
   <main id="top">
 
-    <!-- HÉRO : texte à gauche, mosaïque photo à droite -->
-    <section class="hero">
-      <div class="wrap hero__grid">
-        <div class="hero__text">
-          <span class="pill" data-anim><i></i>Premières clés remises à Adiaké</span>
-          <h1 data-anim style="--d:.08s">Devenez propriétaire<br>d'une maison <span class="hl">bien construite.</span></h1>
-          <p class="hero__lead" data-anim style="--d:.16s">Global Empire Immobilier construit lui-même ses villas, de la fondation à la finition, avec des documents en règle et des délais tenus.</p>
-
-          <!-- Recherche de programme -->
-          <form class="finder" data-finder data-anim style="--d:.24s" aria-label="Trouver un programme">
-            <label>
-              <span>Ville</span>
-              <select name="ville">
-                <option value="">Toutes les villes</option>
-                <option value="adiake">Adiaké</option>
-                <option value="djorobite">Djorobité</option>
-                <option value="bingerville">Bingerville</option>
-                <option value="abengourou">Abengourou</option>
-              </select>
-            </label>
-            <label>
-              <span>Budget</span>
-              <select name="budget">
-                <option value="">Tous les budgets</option>
-                <option value="20">Moins de 20 M FCFA</option>
-                <option value="50">Moins de 50 M FCFA</option>
-                <option value="100">Moins de 100 M FCFA</option>
-              </select>
-            </label>
-            <button class="btn btn--primary" type="submit">Voir les programmes</button>
-          </form>
-          <p class="hero__note" data-anim style="--d:.3s"><i class="ico ico--check"></i>ACD et permis de construire sur tous nos programmes</p>
-        </div>
-
-        <div class="hero__media" data-anim style="--d:.1s">
-          <div class="mosaic">
-            <figure class="mosaic__a"><img src="assets/img/villa-nuit.jpg" alt="Villa basse au crépuscule, Cité Les Rives de l'Opulence"></figure>
-            <figure class="mosaic__b"><img src="assets/img/salon.jpg" alt="Salon avec faux plafond lumineux"></figure>
-            <figure class="mosaic__c"><img src="assets/img/remise-cles.jpg" alt="Remise des clés aux premiers propriétaires"></figure>
-          </div>
-          <div class="float float--key">
-            <span class="float__ico"><i class="ico ico--key"></i></span>
-            <div><b>10 octobre 2026</b><small>Premières clés à Adiaké</small></div>
-          </div>
-          <div class="float float--price">
-            <small>Villas à partir de</small>
-            <b>10 M <em>FCFA</em></b>
-          </div>
-        </div>
-      </div>
-
-      <!-- Chiffres -->
-      <div class="wrap">
-        <div class="stats" data-anim>
-          <div><b data-count="12">0</b><span>ans d'expérience</span></div>
-          <div><b data-count="300" data-suffix="+">0</b><span>collaborateurs</span></div>
-          <div><b data-count="4">0</b><span>programmes en cours</span></div>
-          <div><b data-count="6">0</b><span>mois pour livrer 25 pièces</span></div>
+    <!-- SLIDER plein écran (modifiable depuis le tableau de bord : « Slides de l'accueil ») -->
+    <section class="slider" data-slider aria-roledescription="carrousel" aria-label="GEI en images">
+<!-- slides:debut -->
+    <div class="slide is-on" data-slide>
+      <img src="assets/img/slide-villa.jpg" alt="Villa de la Cité Les Rives de l'Opulence au crépuscule" fetchpriority="high">
+      <div class="slide__in"><div class="wrap"><div class="slide__txt">
+        <p class="kicker">Adiaké · Cité Les Rives de l'Opulence</p>
+        <h1>L'art de bâtir <em>votre avenir</em></h1>
+        <p>Des villas construites par nos propres équipes, de la fondation à la finition.</p>
+        <div class="slide__btns"><a href="programme-adiake.html" class="btn btn--gold">Découvrir le programme</a><a href="contact.html" class="btn btn--line">Prendre rendez-vous</a></div>
+      </div></div></div>
+    </div>
+    <div class="slide" data-slide>
+      <img src="assets/img/slide-salon.jpg" alt="Salon avec faux plafond lumineux et carrelage marbre" loading="lazy">
+      <div class="slide__in"><div class="wrap"><div class="slide__txt">
+        <p class="kicker">Finitions · Adiaké</p>
+        <h2>Le soin du détail <em>dans chaque pièce</em></h2>
+        <p>Faux plafonds lumineux, carrelage grand format, salles d'eau équipées.</p>
+        <div class="slide__btns"><a href="programmes.html" class="btn btn--gold">Voir nos projets</a><a href="contact.html" class="btn btn--line">Prendre rendez-vous</a></div>
+      </div></div></div>
+    </div>
+    <div class="slide" data-slide>
+      <img src="assets/img/slide-korhogo.jpg" alt="Villa duplex de 25 pièces livrée à Korhogo" loading="lazy">
+      <div class="slide__in"><div class="wrap"><div class="slide__txt">
+        <p class="kicker">Réalisation · Korhogo</p>
+        <h2>25 pièces livrées <em>en 6 mois</em></h2>
+        <p>Une villa duplex remise à son propriétaire le 4 septembre 2026.</p>
+        <div class="slide__btns"><a href="realisations.html" class="btn btn--gold">Nos réalisations</a><a href="contact.html" class="btn btn--line">Prendre rendez-vous</a></div>
+      </div></div></div>
+    </div>
+    <div class="slide" data-slide>
+      <img src="assets/img/slide-cles.jpg" alt="L'équipe GEI lors de la remise des premières clés à Adiaké" loading="lazy">
+      <div class="slide__in"><div class="wrap"><div class="slide__txt">
+        <p class="kicker">10 octobre 2026 · Adiaké</p>
+        <h2>Les premières clés <em>remises</em></h2>
+        <p>Six mois après le premier coup de pioche, nos premiers propriétaires emménagent.</p>
+        <div class="slide__btns"><a href="contact.html" class="btn btn--gold">Devenir propriétaire</a><a href="contact.html" class="btn btn--line">Prendre rendez-vous</a></div>
+      </div></div></div>
+    </div>
+<!-- slides:fin -->
+      <div class="slider__ctrl">
+        <div class="wrap">
+          <span class="slider__count"><b data-cur>01</b> / <span data-tot>04</span></span>
+          <div class="slider__dots" data-dots></div>
+          <div class="slider__arrows"><button type="button" data-prev aria-label="Photo précédente">‹</button><button type="button" data-next aria-label="Photo suivante">›</button></div>
         </div>
       </div>
     </section>
 
-    <!-- PROGRAMMES avec filtre -->
+    <!-- Raccourcis -->
+    <div class="quick">
+      <div class="wrap">
+        <div class="quick__grid">
+          <a class="qcard" href="programmes.html"><i class="ico ico--key"></i><b>Vente de villas</b><span>Villas basses, duplex et villas économiques.</span><em>Nos projets →</em></a>
+          <a class="qcard" href="services.html"><i class="ico ico--crane"></i><b>Construction</b><span>De l'étude technique à la remise des clés.</span><em>En savoir plus →</em></a>
+          <a class="qcard" href="services.html"><i class="ico ico--card"></i><b>Préfinancement</b><span>Jusqu'à 60 % de votre projet accompagné.</span><em>En savoir plus →</em></a>
+          <a class="qcard" href="services.html"><i class="ico ico--search"></i><b>Génie civil &amp; expertise</b><span>Plans 2D et 3D, contrôle des ouvrages.</span><em>En savoir plus →</em></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- NOS PROJETS EN COURS DE RÉALISATION (cartes plates, photos qui défilent) -->
     <section class="section" id="programmes">
       <div class="wrap">
         <div class="head head--row">
           <div>
-            <p class="kicker" data-anim>Nos programmes</p>
-            <h2 data-anim style="--d:.06s">Trouvez la villa <span class="hl">qui vous correspond</span></h2>
+            <p class="kicker" data-anim>Nos projets</p>
+            <h2 data-anim style="--d:.06s">Nos projets <span class="hl">en cours de réalisation</span></h2>
           </div>
-          <div class="tabs" role="tablist" data-tabs data-anim style="--d:.12s">
-            <button class="is-on" data-filter="all">Tous</button>
-            <button data-filter="basse">Villas basses</button>
-            <button data-filter="duplex">Duplex</button>
-            <button data-filter="eco">Économiques</button>
-          </div>
+          <a href="programmes.html" class="btn btn--ghost" data-anim>Tous les programmes</a>
         </div>
 
-        <div class="programs" data-programs>
+        <div class="programs programs--flat" data-programs>
           <!-- programmes:debut -->
           <a class="prog" href="programme-adiake.html" data-type="basse" data-ville="adiake" data-price="40" data-anim>
-            <div class="prog__img">
-              <img src="assets/img/villa-facade.jpg" alt="Villa basse, Cité Les Rives de l'Opulence" loading="lazy">
-              <span class="badge badge--ok">Clés remises</span>
-            </div>
+            <div class="prog__img" data-roll><img src="assets/img/villa-facade.jpg" alt="Cité Les Rives de l'Opulence" loading="lazy" class="is-on"><img src="assets/img/villa-nuit.jpg" alt="" loading="lazy"><img src="assets/img/salon.jpg" alt="" loading="lazy"><img src="assets/img/chambre.jpg" alt="" loading="lazy"><span class="badge badge--ok">Clés remises</span></div>
             <div class="prog__body">
               <p class="prog__city"><i class="ico ico--pin"></i>Adiaké</p>
               <h3>Cité Les Rives de l'Opulence</h3>
               <ul class="chips"><li>Villa basse</li><li>4 pièces</li><li>300 m²</li></ul>
-              <div class="prog__foot"><span>Dès <b>40 M FCFA</b></span><i class="arrow"></i></div>
+              <div class="prog__foot"><span>À partir de <b>40 M FCFA</b></span><span class="prog__more">Découvrir <i class="arrow"></i></span></div>
             </div>
           </a>
           <a class="prog" href="programme-djorobite.html" data-type="duplex" data-ville="djorobite" data-price="75" data-anim style="--d:.06s">
-            <div class="prog__img">
-              <img src="assets/img/djorobite-cite.jpg" alt="Villa duplex, Cité des Opulences 3" loading="lazy">
-              <span class="badge">En construction</span>
-            </div>
+            <div class="prog__img" data-roll><img src="assets/img/djorobite-cite.jpg" alt="Cité des Opulences 3" loading="lazy" class="is-on"><img src="assets/img/djorobite-1.jpg" alt="" loading="lazy"><img src="assets/img/djorobite-6.jpg" alt="" loading="lazy"><span class="badge">En construction</span></div>
             <div class="prog__body">
               <p class="prog__city"><i class="ico ico--pin"></i>Djorobité</p>
               <h3>Cité des Opulences 3</h3>
               <ul class="chips"><li>Duplex</li><li>5 pièces</li><li>150 m²</li></ul>
-              <div class="prog__foot"><span>Dès <b>75 M FCFA</b></span><i class="arrow"></i></div>
+              <div class="prog__foot"><span>À partir de <b>75 M FCFA</b></span><span class="prog__more">Découvrir <i class="arrow"></i></span></div>
             </div>
           </a>
           <a class="prog" href="programme-bingerville.html" data-type="duplex" data-ville="bingerville" data-price="75" data-anim style="--d:.12s">
-            <div class="prog__img">
-              <img src="assets/img/bingerville.jpg" alt="Villa duplex, Cité des Opulences 1" loading="lazy">
-              <span class="badge">En finitions</span>
-            </div>
+            <div class="prog__img" data-roll><img src="assets/img/bingerville.jpg" alt="Cité des Opulences 1" loading="lazy" class="is-on"><img src="assets/img/bingerville-salon.jpg" alt="" loading="lazy"><img src="assets/img/bingerville-2.jpg" alt="" loading="lazy"><img src="assets/img/bingerville-8.jpg" alt="" loading="lazy"><span class="badge">En finitions</span></div>
             <div class="prog__body">
               <p class="prog__city"><i class="ico ico--pin"></i>Bingerville</p>
               <h3>Cité des Opulences 1</h3>
               <ul class="chips"><li>Duplex</li><li>6 pièces</li><li>200 m²</li></ul>
-              <div class="prog__foot"><span>Dès <b>75 M FCFA</b></span><i class="arrow"></i></div>
+              <div class="prog__foot"><span>À partir de <b>75 M FCFA</b></span><span class="prog__more">Découvrir <i class="arrow"></i></span></div>
             </div>
           </a>
           <a class="prog" href="programme-abengourou.html" data-type="eco" data-ville="abengourou" data-price="10" data-anim style="--d:.18s">
-            <div class="prog__img">
-              <img src="assets/img/abengourou.jpg" alt="Pose de la première pierre à Abengourou" loading="lazy">
-              <span class="badge badge--new">Nouveau</span>
-            </div>
+            <div class="prog__img" data-roll><img src="assets/img/abengourou.jpg" alt="Villas économiques d'Abengourou" loading="lazy" class="is-on"><img src="assets/img/abengourou-1.jpg" alt="" loading="lazy"><img src="assets/img/abengourou-2.jpg" alt="" loading="lazy"><span class="badge badge--new">Nouveau</span></div>
             <div class="prog__body">
               <p class="prog__city"><i class="ico ico--pin"></i>Abengourou</p>
               <h3>Villas économiques</h3>
               <ul class="chips"><li>3 et 4 pièces</li><li>200 m²</li></ul>
-              <div class="prog__foot"><span>Dès <b>10 M FCFA</b></span><i class="arrow"></i></div>
+              <div class="prog__foot"><span>À partir de <b>10 M FCFA</b></span><span class="prog__more">Découvrir <i class="arrow"></i></span></div>
             </div>
           </a>
           <!-- programmes:fin -->
         </div>
-        <p class="empty" data-empty hidden>Aucun programme ne correspond à ce choix pour le moment. <a href="#contact">Parlez-en à un conseiller</a>.</p>
       </div>
     </section>
 
-    <!-- À PROPOS -->
-    <section class="section section--soft">
-      <div class="wrap about">
-        <div class="about__media" data-anim>
-          <img src="assets/img/equipe.jpg" alt="L'équipe de Global Empire Immobilier sur le chantier d'Adiaké" loading="lazy">
-          <div class="about__tag"><b>Depuis 2014</b><span>au service de vos projets</span></div>
+    <!-- GEI EN IMAGES · NOS RÉALISATIONS (modifiable depuis le tableau de bord : « Réalisations ») -->
+    <section class="section section--soft" id="realisations">
+      <div class="wrap">
+        <div class="head head--row">
+          <div>
+            <p class="kicker" data-anim>GEI en images</p>
+            <h2 data-anim style="--d:.06s">Nos réalisations <span class="hl">livrées</span></h2>
+          </div>
+          <p data-anim>Des projets terminés, validés et remis à leurs propriétaires.</p>
         </div>
-        <div class="about__text">
-          <p class="kicker" data-anim>Qui sommes-nous</p>
-          <h2 data-anim style="--d:.06s">Un constructeur qui <span class="hl">tient parole</span></h2>
-          <p data-anim style="--d:.12s">Né en 2014 sous le nom d'Ivoirbatgroup, devenu <b>Global Empire Immobilier SARL</b> le 7 janvier 2023, GEI intervient sur tout projet immobilier : étude technique, plans 2D et 3D, construction, expertise et préfinancement.</p>
-          <ul class="checks" data-anim style="--d:.18s">
-            <li><b>Nous construisons nous-mêmes</b>, avec nos propres équipes.</li>
-            <li><b>Documents en règle</b> : ACD et permis de construire.</li>
-            <li><b>Délais tenus</b> : nous préfinançons nos chantiers.</li>
-            <li><b>Un accompagnement de A à Z</b>, jusqu'à la remise des clés.</li>
-          </ul>
-          <a href="a-propos.html" class="btn btn--ghost" data-anim style="--d:.24s">Découvrir l'entreprise</a>
+        <div class="reals">
+          <!-- realisations:debut -->
+          <article class="real" data-anim>
+            <div class="real__img"><img src="assets/img/korhogo-villa.jpg" alt="Villa duplex de 25 pièces" loading="lazy"><span class="real__date">Livrée le 4 septembre 2026</span></div>
+            <div class="real__body">
+              <p class="prog__city"><i class="ico ico--pin"></i>Korhogo</p>
+              <h3>Villa duplex de 25 pièces</h3>
+              <p>Une villa duplex de 25 pièces et une cour avec trois studios, trois magasins et une cuisine africaine, construites en six mois.</p>
+              <ul class="chips"><li>25 pièces</li><li>6 mois</li><li>Clés remises</li></ul>
+            </div>
+          </article>
+          <article class="real" data-anim style="--d:.06s">
+            <div class="real__img"><img src="assets/img/remise-cles.jpg" alt="Cité Les Rives de l'Opulence" loading="lazy"><span class="real__date">Premières clés le 10 octobre 2026</span></div>
+            <div class="real__body">
+              <p class="prog__city"><i class="ico ico--pin"></i>Adiaké</p>
+              <h3>Cité Les Rives de l'Opulence</h3>
+              <p>Lancés en avril 2026, les travaux ont abouti à la remise des clés aux premiers propriétaires, six mois plus tard.</p>
+              <ul class="chips"><li>Villas basses</li><li>4 pièces</li><li>300 m²</li></ul>
+              <a class="prog__more" href="programme-adiake.html">En savoir plus <i class="arrow"></i></a>
+            </div>
+          </article>
+          <article class="real" data-anim style="--d:.12s">
+            <div class="real__img"><img src="assets/img/djorobite-1.jpg" alt="Cités des Opulences 1 et 2" loading="lazy"><span class="real__date">2024 — 2025</span></div>
+            <div class="real__body">
+              <p class="prog__city"><i class="ico ico--pin"></i>Djorobité</p>
+              <h3>Cités des Opulences 1 et 2</h3>
+              <p>Nos premiers programmes de villas duplex de standing, à Djorobité.</p>
+              <ul class="chips"><li>Villas duplex</li><li>Livrées</li></ul>
+            </div>
+          </article>
+          <!-- realisations:fin -->
         </div>
+        <p class="center-btn" data-anim><a href="realisations.html" class="btn btn--primary">Toutes nos réalisations</a></p>
       </div>
     </section>
 
-    <!-- COMMENT DEVENIR PROPRIÉTAIRE -->
+    <!-- DEVENIR PROPRIÉTAIRE -->
     <section class="section">
       <div class="wrap">
         <div class="head head--center">
@@ -226,7 +231,7 @@
       </div>
     </section>
 
-    <!-- SERVICES -->
+    <!-- UN SEUL INTERLOCUTEUR -->
     <section class="section section--soft" id="services">
       <div class="wrap">
         <div class="head head--row">
@@ -237,6 +242,7 @@
           <a href="services.html" class="btn btn--ghost" data-anim>Tous nos services</a>
         </div>
         <div class="services">
+          <!-- services:debut -->
           <article class="svc svc--big" data-anim>
             <img src="assets/img/villa-ouvrier.jpg" alt="" loading="lazy">
             <div class="svc__body">
@@ -261,39 +267,23 @@
               <p>Jusqu'à 60 % de votre projet préfinancé, ou votre terrain valorisé grâce au crédit-bail.</p>
             </div>
           </article>
+          <!-- services:fin -->
         </div>
       </div>
     </section>
 
-    <!-- KORHOGO -->
+    <!-- LA PREUVE DE NOTRE ENGAGEMENT -->
     <section class="section">
-      <div class="wrap feature">
-        <div class="feature__text">
-          <p class="kicker" data-anim>Réalisation phare · Korhogo</p>
-          <h2 data-anim style="--d:.06s">25 pièces livrées <span class="hl">en 6 mois</span></h2>
-          <p data-anim style="--d:.12s">Une villa duplex de 25 pièces et une cour entière avec trois studios, trois magasins et une cuisine africaine, construites du 18 mars au 4 septembre 2026.</p>
-          <div class="timeline" data-anim style="--d:.18s">
-            <div><b>18 mars</b><span>Premier coup de pioche</span></div>
-            <i></i>
-            <div><b>4 septembre</b><span>Remise des clés</span></div>
-          </div>
-          <a href="realisations.html" class="btn btn--primary" data-anim style="--d:.24s">Voir nos réalisations</a>
-        </div>
-        <div class="feature__media" data-anim>
-          <img src="assets/img/korhogo-villa.jpg" alt="Villa duplex de 25 pièces livrée à Korhogo" loading="lazy">
-          <div class="feature__chips">
-            <span><b>25</b> pièces</span><span><b>3</b> studios</span><span><b>3</b> magasins</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ENGAGEMENTS -->
-    <section class="section section--soft">
       <div class="wrap">
         <div class="head head--center">
           <p class="kicker" data-anim>Nos engagements</p>
-          <h2 data-anim style="--d:.06s">Ce que nous vous <span class="hl">garantissons</span></h2>
+          <h2 data-anim style="--d:.06s">La preuve de <span class="hl">notre engagement</span></h2>
+        </div>
+        <div class="stats stats--band" data-anim>
+          <div><b data-count="12">0</b><span>ans d'expérience</span></div>
+          <div><b data-count="300" data-suffix="+">0</b><span>collaborateurs</span></div>
+          <div><b data-count="4">0</b><span>programmes en cours</span></div>
+          <div><b data-count="6">0</b><span>mois pour livrer 25 pièces</span></div>
         </div>
         <div class="promises">
           <div class="promise" data-anim><i class="ico-lg ico--doc"></i><h3>Documents en règle</h3><p>ACD et permis de construire sur chacun de nos programmes.</p></div>
@@ -307,7 +297,7 @@
     </section>
 
     <!-- QUESTIONS FRÉQUENTES -->
-    <section class="section">
+    <section class="section section--soft">
       <div class="wrap faq-wrap">
         <div class="head">
           <p class="kicker" data-anim>Questions fréquentes</p>
@@ -354,6 +344,7 @@
               </select>
             </label>
             <label><span>Message</span><textarea name="message" rows="3" placeholder="Quelques mots sur votre projet"></textarea></label>
+            <label class="hp" aria-hidden="true">Site <input name="site" tabindex="-1" autocomplete="off"></label>
             <button class="btn btn--light" type="submit">Être rappelé sur WhatsApp</button>
           </form>
         </div>

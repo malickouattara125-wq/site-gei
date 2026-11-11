@@ -1,0 +1,50 @@
+[
+  {
+    "id": "a1b2c3d4e5f6",
+    "image": "assets/img/slide-villa.jpg",
+    "kicker": "Adiaké · Cité Les Rives de l'Opulence",
+    "titre1": "L'art de bâtir",
+    "titre2": "votre avenir",
+    "texte": "Des villas construites par nos propres équipes, de la fondation à la finition.",
+    "bouton": "Découvrir le programme",
+    "lien": "programme-adiake.html",
+    "publie": true,
+    "ordre": 1
+  },
+  {
+    "id": "b2c3d4e5f6a1",
+    "image": "assets/img/slide-salon.jpg",
+    "kicker": "Finitions · Adiaké",
+    "titre1": "Le soin du détail",
+    "titre2": "dans chaque pièce",
+    "texte": "Faux plafonds lumineux, carrelage grand format, salles d'eau équipées.",
+    "bouton": "Voir nos projets",
+    "lien": "programmes.html",
+    "publie": true,
+    "ordre": 2
+  },
+  {
+    "id": "c3d4e5f6a1b2",
+    "image": "assets/img/slide-korhogo.jpg",
+    "kicker": "Réalisation · Korhogo",
+    "titre1": "25 pièces livrées",
+    "titre2": "en 6 mois",
+    "texte": "Une villa duplex remise à son propriétaire le 4 septembre 2026.",
+    "bouton": "Nos réalisations",
+    "lien": "realisations.html",
+    "publie": true,
+    "ordre": 3
+  },
+  {
+    "id": "d4e5f6a1b2c3",
+    "image": "assets/img/slide-cles.jpg",
+    "kicker": "10 octobre 2026 · Adiaké",
+    "titre1": "Les premières clés",
+    "titre2": "remises",
+    "texte": "Six mois après le premier coup de pioche, nos premiers propriétaires emménagent.",
+    "bouton": "Devenir propriétaire",
+    "lien": "contact.html",
+    "publie": true,
+    "ordre": 4
+  }
+]

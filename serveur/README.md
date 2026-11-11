@@ -48,7 +48,7 @@ Dans le dépôt GitHub, le site est à la racine et le serveur dans `serveur/` :
 Sur l'ordinateur de départ, l'organisation est la suivante :
 
 ```
-N'Gaman/
+N'Gaman/5_Site_web/
 ├── Site_GEI/        les pages, le style, les images et les vidéos du site
 ├── GEI_Serveur/     ce dossier
 │   ├── server.js    le serveur
