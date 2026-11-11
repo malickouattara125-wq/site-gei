@@ -66,14 +66,20 @@ Ces deux dossiers ne doivent **jamais** être mis sur GitHub : ils contiennent l
 
 ## Mettre en ligne plus tard
 
-Il faut un hébergeur qui accepte **Node.js 18 ou plus** : un VPS, Render, Railway, o2switch, Hostinger, etc.
+**Chez LWS :** le site est en ligne sur https://geisarl.com, voir [`HEBERGEMENT-LWS.md`](../HEBERGEMENT-LWS.md).
+
+Il faut un hébergeur qui accepte **Node.js 18 ou plus** : LWS (cPanel L ou plus), un VPS, Render, Railway, o2switch, Hostinger, etc.
 
 1. Envoyer les dossiers `Site_GEI` et `GEI_Serveur` côte à côte, sans `data/` si vous partez de zéro.
 2. Lancer `node server.js` depuis `GEI_Serveur`.
 3. Réglages possibles, par variables d'environnement :
    - `PORT` : le port, 8765 par défaut ;
    - `SITE_DIR` : le chemin du dossier du site, `../Site_GEI` par défaut ;
-   - `ADMIN_USER` et `ADMIN_PASSWORD` : les identifiants du premier compte.
+   - `ADMIN_USER` et `ADMIN_PASSWORD` : les identifiants du premier compte ;
+   - `FORCE_HTTPS=1` : à mettre une fois le certificat SSL actif (cookie de connexion protégé).
+
+Le serveur supporte que l'hébergeur lance plusieurs copies de lui-même (cas de cPanel/Passenger) :
+les connexions et les données sont partagées par les fichiers de `data/`.
 4. Mettre le site en **HTTPS**. La plupart des hébergeurs le font automatiquement.
 
 Sur GitHub Pages ou Vercel, le site reste visible, mais **sans** tableau de bord : le formulaire ouvre simplement WhatsApp.

@@ -1,4 +1,4 @@
-// Connexion au tableau de bord : mot de passe haché (scrypt), sessions en mémoire, limite d'essais.
+// Connexion au tableau de bord : mot de passe haché (scrypt), sessions enregistrées dans data/, limite d'essais.
 "use strict";
 const crypto = require("crypto");
 const fs = require("fs");
@@ -6,7 +6,15 @@ const path = require("path");
 const store = require("./store");
 
 const SESSION_HOURS = 8;
-const sessions = new Map();          // jeton -> { user, expire }
+// Sessions dans un fichier (et non en mémoire) : elles survivent aux redémarrages du serveur
+// et sont partagées si l'hébergeur lance plusieurs copies. On n'y garde que l'empreinte du jeton.
+const sid = (token) => crypto.createHash("sha256").update(token).digest("hex");
+const sessions = () => store.load("sessions", {});
+function saveSessions(list) {
+  const now = Date.now();
+  for (const k of Object.keys(list)) if (list[k].expire < now) delete list[k];
+  store.save("sessions", list);
+}
 const failures = new Map();          // ip -> { count, until }
 
 function hash(password, salt) {
@@ -50,27 +58,35 @@ function login(ip, user, password) {
   }
   failures.delete(ip);
   const token = crypto.randomBytes(32).toString("hex");
-  sessions.set(token, { user, expire: Date.now() + SESSION_HOURS * 3600 * 1000 });
+  const list = sessions();
+  list[sid(token)] = { user, expire: Date.now() + SESSION_HOURS * 3600 * 1000 };
+  saveSessions(list);
   return { token };
 }
 
 function check(token) {
-  if (!token) return null;
-  const s = sessions.get(token);
+  if (!token || typeof token !== "string") return null;
+  const list = sessions();
+  const s = list[sid(token)];
   if (!s) return null;
-  if (s.expire < Date.now()) { sessions.delete(token); return null; }
+  if (s.expire < Date.now()) { delete list[sid(token)]; saveSessions(list); return null; }
   return s;
 }
 
-function logout(token) { sessions.delete(token); }
+function logout(token) {
+  if (!token) return;
+  const list = sessions();
+  delete list[sid(token)];
+  saveSessions(list);
+}
 
 function changePassword(current, next) {
   const admin = store.load("admin", null);
-  if (hash(current || "", admin.salt) !== admin.hash) return { error: "Mot de passe actuel incorrect." };
+  if (typeof current !== "string" || !crypto.timingSafeEqual(Buffer.from(hash(current, admin.salt), "hex"), Buffer.from(admin.hash, "hex"))) return { error: "Mot de passe actuel incorrect." };
   if (typeof next !== "string" || next.length < 10) return { error: "Le nouveau mot de passe doit faire au moins 10 caractères." };
   const salt = crypto.randomBytes(16).toString("hex");
   store.save("admin", { ...admin, salt, hash: hash(next, salt) });
-  sessions.clear();
+  store.save("sessions", {});
   const f = path.join(store.DATA, "premier-acces.txt");
   if (fs.existsSync(f)) fs.unlinkSync(f);
   return { ok: true };

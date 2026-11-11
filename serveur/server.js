@@ -34,7 +34,18 @@ const actualites = () => store.load("actualites", []);
 const publiees = () => actualites().filter((a) => a.publie !== false).sort((a, b) => String(b.date).localeCompare(String(a.date)));
 const enLigne = (name) => store.load(name, []).filter((x) => x.publie !== false).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
 
-function ip(req) { return (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress || ""; }
+// Adresse du visiteur (pour limiter les essais de connexion et les envois du formulaire).
+// On ne croit l'en-tête X-Forwarded-For que si la requête vient d'un relais installé sur la même machine
+// (Apache/Passenger chez LWS, Nginx…), et on prend la DERNIÈRE adresse : celle ajoutée par ce relais.
+// La première peut être inventée par n'importe qui.
+const LOCAL = /^(127\.|::1$|::ffff:127\.)/;
+function ip(req) {
+  const direct = req.socket.remoteAddress || "";
+  const fwd = (req.headers["x-forwarded-for"] || "").split(",").map((s) => s.trim()).filter(Boolean);
+  return LOCAL.test(direct) && fwd.length ? fwd[fwd.length - 1] : direct;
+}
+// Le site est-il servi en HTTPS ? (FORCE_HTTPS=1 à mettre chez l'hébergeur une fois le certificat SSL actif)
+const isHttps = (req) => process.env.FORCE_HTTPS === "1" || req.headers["x-forwarded-proto"] === "https" || req.headers["x-forwarded-ssl"] === "on";
 
 function cookies(req) {
   const out = {};
@@ -231,7 +242,7 @@ async function api(req, res, pathname) {
     const b = await readBody(req, 5000);
     const r = auth.login(ip(req), b.user, b.password);
     if (r.error) return json(res, 401, { error: r.error });
-    const secure = req.headers["x-forwarded-proto"] === "https" ? "; Secure" : "";
+    const secure = isHttps(req) ? "; Secure" : "";
     return json(res, 200, { ok: true }, { "Set-Cookie": `gei_sid=${r.token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${auth.SESSION_HOURS * 3600}${secure}` });
   }
 
@@ -384,13 +395,13 @@ const server = http.createServer(async (req, res) => {
     const html = dynamicPage(pathname);
     if (html === false) return notFound(res);
     if (typeof html === "string") {
-      stats.record(req, pathname);
+      stats.record(req, pathname, ip(req));
       return send(res, 200, html, "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
     }
 
     const f = safeJoin(SITE, pathname.endsWith("/") ? pathname + "index.html" : pathname);
     if (!f) return notFound(res);
-    if (f.endsWith(".html") && fs.existsSync(f)) stats.record(req, pathname);
+    if (f.endsWith(".html") && fs.existsSync(f)) stats.record(req, pathname, ip(req));
     return sendFile(res, f, req);
   } catch (e) {
     const status = e.status || 500;

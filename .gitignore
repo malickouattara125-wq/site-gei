@@ -10,3 +10,6 @@ serveur/node_modules/
 
 # Outils de construction locaux
 .claude/
+
+# Fichier de redémarrage créé lors de la mise en ligne
+serveur/tmp/

@@ -10,11 +10,16 @@ fs.mkdirSync(DATA, { recursive: true });
 
 const cache = {};
 const timers = {};
+const stamps = {};   // date de modification du fichier lu, pour relire si un autre processus l'a changé
+
+function stamp(name) { try { return fs.statSync(file(name)).mtimeMs; } catch { return 0; } }
 
 function file(name) { return path.join(DATA, name + ".json"); }
 
 function load(name, fallback) {
-  if (cache[name] !== undefined) return cache[name];
+  // Chez certains hébergeurs (LWS, cPanel…), plusieurs copies du serveur tournent en même temps :
+  // on relit le fichier s'il a été modifié par une autre copie (sauf écriture en attente ici).
+  if (cache[name] !== undefined && (timers[name] || stamps[name] === stamp(name))) return cache[name];
   let value = fallback;
   if (fs.existsSync(file(name))) {
     value = JSON.parse(fs.readFileSync(file(name), "utf8"));
@@ -23,6 +28,7 @@ function load(name, fallback) {
     writeNow(name, value);
   }
   cache[name] = value;
+  stamps[name] = stamp(name);
   return value;
 }
 
@@ -30,6 +36,7 @@ function writeNow(name, value) {
   const tmp = file(name) + ".tmp";
   fs.writeFileSync(tmp, JSON.stringify(value, null, 2), "utf8");
   fs.renameSync(tmp, file(name));
+  stamps[name] = stamp(name);
 }
 
 // Sauvegarde immédiate
