@@ -19,16 +19,16 @@ Dans votre **Espace client LWS**, ouvrez votre hébergement. Notez :
 - le **mot de passe cPanel** ;
 - votre **nom de domaine** (sans `https://` ni `www`, par exemple `gei-ci.com`).
 
+Le serveur (`web57.lws-hosting.com`) et le domaine (`geisarl.com`) sont déjà réglés. Pour un autre hébergement, ajoutez aussi les secrets `LWS_HOST` et `LWS_DOMAIN`.
+
 ### 2. Les ranger dans le coffre-fort de GitHub
 1. Ouvrez https://github.com/malickouattara125-wq/site-gei/settings/secrets/actions
 2. Pour chaque ligne ci-dessous, cliquez sur **New repository secret**, écrivez le **Name** exactement comme indiqué, collez la valeur, puis **Add secret** :
 
 | Name | Valeur |
 |---|---|
-| `LWS_HOST` | le nom du serveur cPanel |
 | `LWS_USER` | l'identifiant cPanel |
 | `LWS_PASSWORD` | le mot de passe cPanel |
-| `LWS_DOMAIN` | votre nom de domaine |
 | `ADMIN_PASSWORD` | le mot de passe que vous voulez pour le tableau de bord (12 caractères ou plus, notez-le) |
 
 Personne ne peut relire ces valeurs, pas même Claude : GitHub les utilise seulement pour la mise en ligne.

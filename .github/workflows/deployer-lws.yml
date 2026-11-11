@@ -2,7 +2,7 @@
 # - Se lance tout seul à chaque modification de la branche main.
 # - Peut aussi être lancé à la main : onglet Actions → « Déployer sur LWS » → Run workflow.
 # Les accès LWS sont rangés dans les secrets du dépôt (Settings → Secrets and variables → Actions) :
-#   LWS_HOST, LWS_USER, LWS_PASSWORD, LWS_DOMAIN, ADMIN_PASSWORD
+#   LWS_USER, LWS_PASSWORD, ADMIN_PASSWORD  (LWS_HOST et LWS_DOMAIN : facultatifs, valeurs GEI par défaut)
 name: Déployer sur LWS
 
 on:
@@ -26,10 +26,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      LWS_HOST: ${{ secrets.LWS_HOST }}
+      LWS_HOST: ${{ secrets.LWS_HOST || 'web57.lws-hosting.com' }}
       LWS_USER: ${{ secrets.LWS_USER }}
       LWS_PASSWORD: ${{ secrets.LWS_PASSWORD }}
-      LWS_DOMAIN: ${{ secrets.LWS_DOMAIN }}
+      LWS_DOMAIN: ${{ secrets.LWS_DOMAIN || 'geisarl.com' }}
       ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
     steps:
       - name: Accès LWS enregistrés ?
@@ -60,7 +60,7 @@ jobs:
         if: steps.secrets.outputs.ready == '1' && inputs.mode != 'diagnostic'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
-          server: ${{ secrets.LWS_HOST }}
+          server: ${{ env.LWS_HOST }}
           username: ${{ secrets.LWS_USER }}
           password: ${{ secrets.LWS_PASSWORD }}
           protocol: ftps
