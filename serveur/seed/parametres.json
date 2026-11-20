@@ -1,23 +1,54 @@
 {
-  "telephones": ["07 09 71 85 30", "07 04 75 53 06", "07 08 62 30 38"],
-  "whatsapp": "07 09 71 85 30",
+  "telephones": [
+    "07 09 71 85 30",
+    "07 04 75 53 06",
+    "07 08 62 30 38"
+  ],
+  "whatsapp": "07 04 75 53 06",
   "email": "contact@gei-sarl.ci",
   "adresse": "Abidjan, Cocody · Cité des Arts",
   "adresseDetail": "Cocody, Cité des Arts (derrière la banque NSIA)",
   "horaires": "Lundi au vendredi · 8h – 16h30",
   "horairesCourt": "Lun – Ven · 8h – 16h30",
-  "reseaux": { "facebook": "", "instagram": "", "tiktok": "", "linkedin": "", "youtube": "" },
+  "reseaux": {
+    "facebook": "",
+    "instagram": "",
+    "tiktok": "",
+    "linkedin": "",
+    "youtube": ""
+  },
   "slogan": "Promoteur et constructeur en Côte d'Ivoire. Votre confiance, notre engagement.",
   "chiffresAccueil": [
-    { "valeur": "12", "libelle": "ans d'expérience" },
-    { "valeur": "+300", "libelle": "employés" },
-    { "valeur": "+10", "libelle": "programmes immobiliers" }
+    {
+      "valeur": "12",
+      "libelle": "ans d'expérience"
+    },
+    {
+      "valeur": "+300",
+      "libelle": "employés"
+    },
+    {
+      "valeur": "+10",
+      "libelle": "programmes immobiliers"
+    }
   ],
   "chiffresAPropos": [
-    { "valeur": "2014", "libelle": "année de création" },
-    { "valeur": "+300", "libelle": "employés" },
-    { "valeur": "+10", "libelle": "programmes immobiliers" },
-    { "valeur": "12", "libelle": "ans d'expérience" }
+    {
+      "valeur": "2014",
+      "libelle": "année de création"
+    },
+    {
+      "valeur": "+300",
+      "libelle": "employés"
+    },
+    {
+      "valeur": "+10",
+      "libelle": "programmes immobiliers"
+    },
+    {
+      "valeur": "12",
+      "libelle": "ans d'expérience"
+    }
   ],
   "histoireSurtitre": "Notre histoire",
   "histoireTitre": "Douze ans à bâtir *la confiance*",
@@ -35,14 +66,50 @@
   ],
   "citation": "En près d'une décennie, nous avons beaucoup changé. Mais notre philosophie reste la même : *nous ne construisons pas que des maisons, nous tenons parole.*",
   "dates": [
-    { "date": "2014", "titre": "Naissance d'Ivoirbatgroup", "texte": "L'aventure commence avec Ivoirbatgroup, entreprise de génie civil unipersonnelle." },
-    { "date": "7 janvier 2023", "titre": "Global Empire Immobilier SARL", "texte": "L'entreprise devient une SARL et prend le nom de Global Empire Immobilier. Lancement officiel le même jour." },
-    { "date": "2 avril 2023", "titre": "Appartements Lucy et Agnibilékrou", "texte": "Remise des clés des appartements Lucy, et déploiement de GEI à Agnibilékrou." },
-    { "date": "2024", "titre": "Cité des Opulences 1 · Djorobité", "texte": "Premier programme immobilier de GEI : des villas duplex de standing." },
-    { "date": "2025", "titre": "Cité des Opulences 2 · Djorobité", "texte": "L'entreprise poursuit son développement à Djorobité." },
-    { "date": "Décembre 2025", "titre": "Première pierre à Adiaké", "texte": "Lancement de la Cité Les Rives de l'Opulence." },
-    { "date": "2026", "titre": "Djorobité, Bingerville, Abengourou", "texte": "Cité des Opulences 3 à Djorobité, Cité des Opulences 1 à Bingerville, et première pierre des villas économiques d'Abengourou." },
-    { "date": "4 septembre 2026", "titre": "Korhogo : 25 pièces en 6 mois", "texte": "Remise officielle des clés d'une villa duplex de 25 pièces." },
-    { "date": "10 octobre 2026", "titre": "Premières clés à Adiaké", "texte": "Les premiers propriétaires de la Cité Les Rives de l'Opulence reçoivent leurs clés." }
+    {
+      "date": "2014",
+      "titre": "Naissance d'Ivoirbatgroup",
+      "texte": "L'aventure commence avec Ivoirbatgroup, entreprise de génie civil unipersonnelle."
+    },
+    {
+      "date": "7 janvier 2023",
+      "titre": "Global Empire Immobilier SARL",
+      "texte": "L'entreprise devient une SARL et prend le nom de Global Empire Immobilier. Lancement officiel le même jour."
+    },
+    {
+      "date": "2 avril 2023",
+      "titre": "Appartements Lucy et Agnibilékrou",
+      "texte": "Remise des clés des appartements Lucy, et déploiement de GEI à Agnibilékrou."
+    },
+    {
+      "date": "2024",
+      "titre": "Cité des Opulences 1 · Djorobité",
+      "texte": "Premier programme immobilier de GEI : des villas duplex de standing."
+    },
+    {
+      "date": "2025",
+      "titre": "Cité des Opulences 2 · Djorobité",
+      "texte": "L'entreprise poursuit son développement à Djorobité."
+    },
+    {
+      "date": "Décembre 2025",
+      "titre": "Première pierre à Adiaké",
+      "texte": "Lancement de la Cité Les Rives de l'Opulence."
+    },
+    {
+      "date": "2026",
+      "titre": "Djorobité, Bingerville, Abengourou",
+      "texte": "Cité des Opulences 3 à Djorobité, Cité des Opulences 1 à Bingerville, et première pierre des villas économiques d'Abengourou."
+    },
+    {
+      "date": "4 septembre 2026",
+      "titre": "Korhogo : 25 pièces en 6 mois",
+      "texte": "Remise officielle des clés d'une villa duplex de 25 pièces."
+    },
+    {
+      "date": "10 octobre 2026",
+      "titre": "Premières clés à Adiaké",
+      "texte": "Les premiers propriétaires de la Cité Les Rives de l'Opulence reçoivent leurs clés."
+    }
   ]
 }

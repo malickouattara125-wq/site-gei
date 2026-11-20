@@ -514,7 +514,7 @@
       <form class="form" id="pf" novalidate>
         <section class="panel"><h2>Coordonnées</h2><div class="grid">
           ${area("telephones", "Numéros de téléphone", (p.telephones || []).join("\n"), 3, "Un numéro par ligne, par exemple 07 09 71 85 30. Le premier apparaît en haut de chaque page.")}
-          ${inp("whatsapp", "Numéro WhatsApp", p.whatsapp, "07 09 71 85 30", "Bouton vert WhatsApp et formulaires de contact.")}
+          ${inp("whatsapp", "Numéro WhatsApp", p.whatsapp, "07 04 75 53 06", "Bouton vert WhatsApp et formulaires de contact.")}
           ${inp("email", "Adresse e-mail", p.email, "contact@…")}
           ${inp("adresse", "Adresse courte (haut des pages)", p.adresse, "Abidjan, Cocody · Cité des Arts")}
           ${inp("adresseDetail", "Adresse complète (bloc contact)", p.adresseDetail, "Cocody, Cité des Arts (derrière…)")}

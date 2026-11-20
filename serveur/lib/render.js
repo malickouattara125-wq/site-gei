@@ -265,7 +265,7 @@ function souscrire(p, waText) {
           </div>
           <div class="sub-docs__cta">
             <p>Prêt à réserver votre villa à ${esc(p.ville)} ?</p>
-            <a href="https://wa.me/2250709718530?text=${waText}" class="btn btn--gold" target="_blank" rel="noopener">Souscrire sur WhatsApp</a>
+            <a href="https://wa.me/2250704755306?text=${waText}" class="btn btn--gold" target="_blank" rel="noopener">Souscrire sur WhatsApp</a>
             <a href="#contact" class="btn btn--line">Être rappelé</a>
           </div>
         </div>
@@ -321,7 +321,7 @@ function programmePage(p, all) {
           ${p.noteOffre ? `<p class="offer__note">${esc(p.noteOffre)}</p>` : ""}
           <ul class="tags"><li>ACD</li><li>Permis de construire</li><li>Frais de dossier 300 000 FCFA</li></ul>
           <a href="#contact" class="btn btn--primary">Réserver une visite</a>
-          <a href="https://wa.me/2250709718530?text=${waText}" class="btn btn--wa" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
+          <a href="https://wa.me/2250704755306?text=${waText}" class="btn btn--wa" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
         </aside>
       </div>
     </section>

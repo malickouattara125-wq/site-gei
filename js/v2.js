@@ -209,7 +209,7 @@
     } catch (_) { /* site statique : on passe directement à WhatsApp */ }
     const msg = [`Bonjour GEI, je suis ${f.get("nom")} (${f.get("tel")}).`,
       f.get("programme") && `Programme : ${f.get("programme")}`, f.get("message")].filter(Boolean).join("\n");
-    const wa = (($(".wa") || {}).href || "").replace(/\D/g, "") || "2250709718530";
+    const wa = (($(".wa") || {}).href || "").replace(/\D/g, "") || "2250704755306";
     open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
   }));
 
