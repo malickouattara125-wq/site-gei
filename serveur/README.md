@@ -38,6 +38,7 @@ Changez le mot de passe dans l'onglet « Mon compte ». Le fichier est ensuite s
 | Demandes | Messages envoyés par le formulaire du site. Bouton WhatsApp, « Marquer traitée », suppression |
 | Programmes | Ajouter, modifier, masquer ou supprimer un programme : prix, statut, textes, photos, galerie, vidéo |
 | Actualités | Écrire, publier ou retirer une actualité |
+| Paramètres du site | Téléphones, WhatsApp, e-mail, adresse, horaires, réseaux sociaux, chiffres clés, textes « Notre histoire » et « À propos », dates clés, phrase du pied de page |
 | Mon compte | Changer le mot de passe |
 
 Les changements apparaissent **tout de suite** sur le site : accueil, page Programmes, fiches et Actualités.

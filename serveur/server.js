@@ -10,6 +10,7 @@ const store = require("./lib/store");
 const auth = require("./lib/auth");
 const stats = require("./lib/stats");
 const R = require("./lib/render");
+const site = require("./lib/site");
 
 const PORT = +process.env.PORT || 8765;
 // Dossier du site : variable SITE_DIR, sinon ../Site_GEI (sur ton ordinateur), sinon le dossier parent (dépôt GitHub : site + serveur/)
@@ -32,6 +33,8 @@ const programmes = () => store.load("programmes", []);
 const visibles = () => programmes().filter((p) => p.visible !== false).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
 const actualites = () => store.load("actualites", []);
 const publiees = () => actualites().filter((a) => a.publie !== false).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+const parametres = () => store.load("parametres", null);
+const avecParametres = (html) => site.apply(html, parametres());
 const enLigne = (name) => store.load(name, []).filter((x) => x.publie !== false).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
 
 // Adresse du visiteur (pour limiter les essais de connexion et les envois du formulaire).
@@ -108,7 +111,7 @@ function safeJoin(root, urlPath) {
 
 function notFound(res) {
   const f = path.join(SITE, "404.html");
-  send(res, 404, fs.existsSync(f) ? fs.readFileSync(f) : "Page introuvable");
+  send(res, 404, fs.existsSync(f) ? avecParametres(fs.readFileSync(f, "utf8")) : "Page introuvable");
 }
 
 /* ---------------- Pages publiques dynamiques ---------------- */
@@ -220,6 +223,26 @@ const COLLECTIONS = {
   },
 };
 
+function cleanParametres(b) {
+  const lines = (v, n, max) => (Array.isArray(v) ? v : []).map((x) => str(x, max)).filter(Boolean).slice(0, n);
+  const url = (v) => { const u = str(v, 300); return /^https:\/\/[^\s"'<>]+$/i.test(u) ? u : ""; };
+  const r = b.reseaux || {};
+  const p = {
+    telephones: lines(b.telephones, 8, 30), whatsapp: str(b.whatsapp, 30), email: /^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(str(b.email, 120)) ? str(b.email, 120) : "",
+    adresse: str(b.adresse, 120), adresseDetail: str(b.adresseDetail, 200), horaires: str(b.horaires, 80), horairesCourt: str(b.horairesCourt, 40),
+    reseaux: Object.fromEntries(site.RESEAUX.map(([k]) => [k, url(r[k])])),
+    slogan: str(b.slogan, 200),
+    chiffresAccueil: (Array.isArray(b.chiffresAccueil) ? b.chiffresAccueil : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
+    chiffresAPropos: (Array.isArray(b.chiffresAPropos) ? b.chiffresAPropos : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
+    histoireSurtitre: str(b.histoireSurtitre, 60), histoireTitre: str(b.histoireTitre, 120), histoireTexte: lines(b.histoireTexte, 6, 1500),
+    dgNom: str(b.dgNom, 80), dgTitre: str(b.dgTitre, 80),
+    aproposTitre: str(b.aproposTitre, 120), aproposTexte: lines(b.aproposTexte, 8, 1500), citation: str(b.citation, 600),
+    dates: (Array.isArray(b.dates) ? b.dates : []).map((d) => ({ date: str(d && d.date, 40), titre: str(d && d.titre, 120), texte: str(d && d.texte, 400) })).filter((d) => d.date && d.titre).slice(0, 30),
+  };
+  if (!p.telephones.length) throw Object.assign(new Error("Il faut au moins un numéro de téléphone."), { status: 400 });
+  return p;
+}
+
 async function api(req, res, pathname) {
   const method = req.method;
 
@@ -328,6 +351,14 @@ async function api(req, res, pathname) {
     return json(res, 200, list[i] || { ok: true });
   }
 
+  // Paramètres du site : coordonnées, réseaux sociaux, chiffres clés, textes
+  if (pathname === "/api/parametres" && method === "GET") return json(res, 200, parametres() || {});
+  if (pathname === "/api/parametres" && method === "PUT") {
+    const p = cleanParametres(await readBody(req, 100000));
+    store.save("parametres", p);
+    return json(res, 200, p);
+  }
+
   // Slides et réalisations
   m = /^\/api\/(slides|realisations|services)(?:\/([a-f0-9]+))?$/.exec(pathname);
   if (m) {
@@ -396,12 +427,15 @@ const server = http.createServer(async (req, res) => {
     if (html === false) return notFound(res);
     if (typeof html === "string") {
       stats.record(req, pathname, ip(req));
-      return send(res, 200, html, "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
+      return send(res, 200, avecParametres(html), "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
     }
 
     const f = safeJoin(SITE, pathname.endsWith("/") ? pathname + "index.html" : pathname);
     if (!f) return notFound(res);
-    if (f.endsWith(".html") && fs.existsSync(f)) stats.record(req, pathname, ip(req));
+    if (f.endsWith(".html") && fs.existsSync(f) && fs.statSync(f).isFile()) {
+      stats.record(req, pathname, ip(req));
+      return send(res, 200, avecParametres(fs.readFileSync(f, "utf8")), "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
+    }
     return sendFile(res, f, req);
   } catch (e) {
     const status = e.status || 500;

@@ -20,10 +20,11 @@
       const el = e.target;
       const end = +el.dataset.count;
       const suffix = el.dataset.suffix || "";
+      const prefix = el.dataset.prefix || "";
       const t0 = performance.now();
       const step = (now) => {
         const k = Math.min((now - t0) / 1600, 1);
-        el.textContent = Math.round(end * (1 - Math.pow(1 - k, 3))) + (k === 1 ? suffix : "");
+        el.textContent = prefix + Math.round(end * (1 - Math.pow(1 - k, 3))) + (k === 1 ? suffix : "");
         if (k < 1) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
@@ -208,7 +209,8 @@
     } catch (_) { /* site statique : on passe directement à WhatsApp */ }
     const msg = [`Bonjour GEI, je suis ${f.get("nom")} (${f.get("tel")}).`,
       f.get("programme") && `Programme : ${f.get("programme")}`, f.get("message")].filter(Boolean).join("\n");
-    open(`https://wa.me/2250709718530?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+    const wa = (($(".wa") || {}).href || "").replace(/\D/g, "") || "2250709718530";
+    open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
   }));
 
   /* ---------- Galerie : agrandissement des photos ---------- */

@@ -1136,3 +1136,10 @@ a.pcard:hover h3 { color: var(--olive-d); }
 .head--center p { margin-inline: auto; }
 @media (max-width: 1000px) { .pune__row { flex: none; min-height: 0; } .pune__thumb { min-height: 130px; } }
 @media (max-width: 560px) { .pune__row { grid-template-columns: 38% 1fr; } .pune__info { padding: 12px 12px 12px 0; } }
+
+/* Réseaux sociaux (pied de page et bloc contact) — liens gérés dans le tableau de bord */
+.social { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.social a { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .08); color: #fff; transition: background .25s, transform .25s; }
+.social a:hover { background: var(--olive); transform: translateY(-2px); }
+.social svg { width: 18px; height: 18px; fill: currentColor; }
+.contact__list .social { margin-top: 4px; }

@@ -9,8 +9,8 @@ const esc = (s) => String(s == null ? "" : s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 const num = (n) => String(n).replace(".", ",");
 
-const NAV = [["index.html", "Accueil"], ["programmes.html", "Programmes"], ["realisations.html", "Réalisations"],
-  ["services.html", "Services"], ["a-propos.html", "À propos"], ["contact.html", "Contact"]];
+const NAV = [["index.html", "Accueil"], ["a-propos.html", "À propos"], ["programmes.html", "Programmes"],
+  ["realisations.html", "Réalisations"], ["services.html", "Services"], ["contact.html", "Contact"]];
 
 const EXTRA_OPTIONS = ["Construction ou rénovation", "Préfinancement ou bail", "Autre demande"];
 
@@ -205,10 +205,12 @@ function contactBlock(programmes, selected, titleHtml) {
             <h2>${titleHtml || "Parlons de votre <span>future maison</span>"}</h2>
             <p>Les rendez-vous sont gratuits et sans engagement. Un conseiller vous rappelle rapidement sur WhatsApp.</p>
             <ul class="contact__list">
+              <!-- p-contact:debut -->
               <li><i class="ico ico--phone"></i><a href="tel:+2250709718530">07 09 71 85 30</a> · <a href="tel:+2250704755306">07 04 75 53 06</a></li>
               <li><i class="ico ico--mail"></i><a href="mailto:contact@gei-sarl.ci">contact@gei-sarl.ci</a></li>
               <li><i class="ico ico--pin"></i>Cocody, Cité des Arts (derrière la banque NSIA)</li>
               <li><i class="ico ico--clock"></i>Lundi au vendredi · 8h – 16h30</li>
+              <!-- p-contact:fin -->
             </ul>
           </div>
           <form class="cform" data-form>

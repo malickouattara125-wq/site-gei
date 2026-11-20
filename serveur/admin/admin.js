@@ -56,7 +56,7 @@
   /* ---------- Navigation ---------- */
   const views = { accueil: viewAccueil, demandes: viewDemandes, programmes: viewProgrammes, programme: viewProgramme, actualites: viewActualites, actualite: viewActualite, compte: viewCompte,
     slides: () => viewListe(SLIDES), slide: (id) => viewFiche(SLIDES, id), realisations: () => viewListe(REALS), realisation: (id) => viewFiche(REALS, id),
-    services: () => viewListe(SERVICES), service: (id) => viewFiche(SERVICES, id) };
+    services: () => viewListe(SERVICES), service: (id) => viewFiche(SERVICES, id), parametres: viewParametres };
   let dirty = false;
   function route() {
     const [name, arg] = (location.hash.slice(1) || "accueil").split("/");
@@ -495,6 +495,86 @@
     if (del) del.addEventListener("click", async () => {
       if (!confirm(`Supprimer définitivement ${c.nom} ?\n\nAstuce : pour le cacher sans le supprimer, décochez plutôt la case « Afficher ».`)) return;
       try { await api(c.api + "/" + x.id, { method: "DELETE" }); dirty = false; toast("Supprimé"); location.hash = "#" + c.list; } catch (err) { fail(err); }
+    });
+  }
+
+  /* ---------- Paramètres du site ---------- */
+  const RESEAUX = [["facebook", "Facebook"], ["instagram", "Instagram"], ["tiktok", "TikTok"], ["linkedin", "LinkedIn"], ["youtube", "YouTube"]];
+  async function viewParametres() {
+    const p = await api("/api/parametres");
+    const r = p.reseaux || {};
+    const inp = (k, label, v, ph = "", hint = "", full = false) =>
+      `<label${full ? ' class="full"' : ""}><span>${label}</span><input name="${k}" value="${esc(v == null ? "" : v)}" placeholder="${esc(ph)}">${hint ? `<p class="hint">${hint}</p>` : ""}</label>`;
+    const area = (k, label, v, rows, hint = "") =>
+      `<label class="full"><span>${label}</span><textarea name="${k}" rows="${rows}">${esc(v)}</textarea>${hint ? `<p class="hint">${hint}</p>` : ""}</label>`;
+    const chiffres = (l) => (l || []).map((c) => `${c.valeur} | ${c.libelle}`).join("\n");
+    const HL = "Mettez des *étoiles* autour des mots à afficher en vert.";
+    main.innerHTML = `
+      <div class="top"><div><h1>Paramètres du site</h1><p>Coordonnées, réseaux sociaux, chiffres clés et textes. Les changements apparaissent tout de suite sur toutes les pages.</p></div></div>
+      <form class="form" id="pf" novalidate>
+        <section class="panel"><h2>Coordonnées</h2><div class="grid">
+          ${area("telephones", "Numéros de téléphone", (p.telephones || []).join("\n"), 3, "Un numéro par ligne, par exemple 07 09 71 85 30. Le premier apparaît en haut de chaque page.")}
+          ${inp("whatsapp", "Numéro WhatsApp", p.whatsapp, "07 09 71 85 30", "Bouton vert WhatsApp et formulaires de contact.")}
+          ${inp("email", "Adresse e-mail", p.email, "contact@…")}
+          ${inp("adresse", "Adresse courte (haut des pages)", p.adresse, "Abidjan, Cocody · Cité des Arts")}
+          ${inp("adresseDetail", "Adresse complète (bloc contact)", p.adresseDetail, "Cocody, Cité des Arts (derrière…)")}
+          ${inp("horaires", "Horaires", p.horaires, "Lundi au vendredi · 8h – 16h30")}
+          ${inp("horairesCourt", "Horaires en abrégé (haut des pages)", p.horairesCourt, "Lun – Ven · 8h – 16h30")}
+        </div></section>
+
+        <section class="panel"><h2>Réseaux sociaux</h2><p class="hint" style="margin:-6px 0 14px">Collez l'adresse complète de chaque page (elle commence par https://). Laissez vide pour ne pas afficher l'icône.</p><div class="grid">
+          ${RESEAUX.map(([k, l]) => inp("r_" + k, l, r[k], `https://www.${k}.com/…`)).join("")}
+        </div></section>
+
+        <section class="panel"><h2>Chiffres clés</h2><div class="grid">
+          ${area("chiffresAccueil", "Accueil (3 chiffres)", chiffres(p.chiffresAccueil), 4, "Un par ligne : valeur | texte. Exemple : +10 | programmes immobiliers")}
+          ${area("chiffresAPropos", "Page À propos (4 chiffres)", chiffres(p.chiffresAPropos), 4, "Un par ligne : valeur | texte. Exemple : +300 | employés")}
+        </div></section>
+
+        <section class="panel"><h2>Accueil · Notre histoire</h2><div class="grid">
+          ${inp("histoireSurtitre", "Petite ligne au-dessus du titre", p.histoireSurtitre, "Notre histoire")}
+          ${inp("histoireTitre", "Titre", p.histoireTitre, "", HL)}
+          ${area("histoireTexte", "Texte", (p.histoireTexte || []).join("\n\n"), 6, "Laissez une ligne vide entre deux paragraphes.")}
+          ${inp("dgNom", "Nom du Directeur Général", p.dgNom)}
+          ${inp("dgTitre", "Fonction", p.dgTitre)}
+        </div></section>
+
+        <section class="panel"><h2>Page À propos</h2><div class="grid">
+          ${inp("aproposTitre", "Titre « Qui sommes-nous »", p.aproposTitre, "", HL, true)}
+          ${area("aproposTexte", "Texte « Qui sommes-nous »", (p.aproposTexte || []).join("\n\n"), 8, "Laissez une ligne vide entre deux paragraphes.")}
+          ${area("citation", "Citation du Directeur Général", p.citation, 3, HL)}
+          ${area("dates", "Dates clés (« Notre histoire »)", (p.dates || []).map((d) => [d.date, d.titre, d.texte].join(" | ")).join("\n"), 10, "Une date par ligne : date | titre | texte. Exemple : 2024 | Cité des Opulences 1 | Premier programme de GEI.")}
+        </div></section>
+
+        <section class="panel"><h2>Pied de page</h2><div class="grid">
+          ${inp("slogan", "Phrase sous le logo", p.slogan, "", "", true)}
+        </div></section>
+
+        <div class="savebar"><a class="btn btn--ghost" href="/" target="_blank" rel="noopener">Voir le site ↗</a><button type="submit" class="btn btn--primary">Enregistrer</button></div>
+      </form>`;
+    const form = $("#pf");
+    form.addEventListener("input", () => { dirty = true; });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const g = (k) => String(fd.get(k) || "").trim();
+      const pairs = (k) => lines(g(k)).map((l) => { const [valeur, ...rest] = l.split("|"); return { valeur: valeur.trim(), libelle: rest.join("|").trim() }; });
+      const body = {
+        telephones: lines(g("telephones")), whatsapp: g("whatsapp"), email: g("email"), adresse: g("adresse"), adresseDetail: g("adresseDetail"),
+        horaires: g("horaires"), horairesCourt: g("horairesCourt"),
+        reseaux: Object.fromEntries(RESEAUX.map(([k]) => [k, g("r_" + k)])),
+        chiffresAccueil: pairs("chiffresAccueil"), chiffresAPropos: pairs("chiffresAPropos"),
+        histoireSurtitre: g("histoireSurtitre"), histoireTitre: g("histoireTitre"), histoireTexte: paras(g("histoireTexte")), dgNom: g("dgNom"), dgTitre: g("dgTitre"),
+        aproposTitre: g("aproposTitre"), aproposTexte: paras(g("aproposTexte")), citation: g("citation"),
+        dates: lines(g("dates")).map((l) => { const [date, titre, ...t] = l.split("|").map((x) => x.trim()); return { date, titre: titre || "", texte: t.join(" | ") }; }),
+        slogan: g("slogan"),
+      };
+      const bad = RESEAUX.filter(([k]) => body.reseaux[k] && !/^https:\/\//i.test(body.reseaux[k]));
+      if (bad.length) return toast(`Adresse ${bad.map(([, l]) => l).join(", ")} : elle doit commencer par https://`, true);
+      const btn = $("[type=submit]", form); btn.disabled = true;
+      try { await api("/api/parametres", { method: "PUT", body }); dirty = false; toast("Paramètres enregistrés : visibles sur le site"); }
+      catch (err) { fail(err); }
+      btn.disabled = false;
     });
   }
 
