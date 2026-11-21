@@ -56,7 +56,8 @@
   /* ---------- Navigation ---------- */
   const views = { accueil: viewAccueil, demandes: viewDemandes, programmes: viewProgrammes, programme: viewProgramme, actualites: viewActualites, actualite: viewActualite, compte: viewCompte,
     slides: () => viewListe(SLIDES), slide: (id) => viewFiche(SLIDES, id), realisations: () => viewListe(REALS), realisation: (id) => viewFiche(REALS, id),
-    services: () => viewListe(SERVICES), service: (id) => viewFiche(SERVICES, id), parametres: viewParametres };
+    services: () => viewListe(SERVICES), service: (id) => viewFiche(SERVICES, id), parametres: viewParametres,
+    references: () => viewListe(REFS), reference: (id) => viewFiche(REFS, id) };
   let dirty = false;
   function route() {
     const [name, arg] = (location.hash.slice(1) || "accueil").split("/");
@@ -432,6 +433,23 @@
     ],
   };
 
+  const REFS = {
+    api: "/api/references", list: "references", one: "reference", titre: "Chantiers de référence", nouveau: "+ Nouveau chantier", nom: "ce chantier",
+    sous: "Les chantiers réalisés pour nos clients et nos actions sociales (page Réalisations). Ne mettez pas le nom des clients sans leur accord.",
+    vide: { publie: true, ordre: 200, categorie: "Construction", photos: [] },
+    label: (x) => x.titre, sub: (x) => [x.categorie, x.lieu, x.annee].filter(Boolean).join(" · "),
+    fields: [
+      { k: "titre", label: "Titre *", ph: "Ex. Immeuble R+3", full: true },
+      { k: "categorie", type: "select", label: "Catégorie", options: ["Construction", "Finitions", "Action sociale"], hint: "« Action sociale » apparaît dans le bloc « Engagement social »." },
+      { k: "lieu", label: "Lieu", ph: "Ex. Yamoussoukro" },
+      { k: "annee", label: "Année (facultatif)", ph: "Ex. 2023" },
+      { k: "texte", type: "textarea", label: "Description", full: true },
+      { k: "photos", type: "gallery", label: "Photos", hint: "La première photo est la photo principale. Utilisez ← → pour changer l'ordre." },
+      { k: "ordre", type: "number", label: "Ordre d'affichage", hint: "Le plus petit numéro passe en premier." },
+      { k: "publie", type: "check", label: "Afficher sur le site" },
+    ],
+  };
+
   async function viewListe(c) {
     const list = (await api(c.api)).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
     main.innerHTML = `
@@ -439,7 +457,7 @@
         <div class="top__actions"><a class="btn btn--primary" href="#${c.one}/nouveau">${c.nouveau}</a></div></div>
       <div class="items">${list.map((x) => `
         <article class="item">
-          <img src="${esc(img(x.image))}" alt="" loading="lazy">
+          <img src="${esc(img(x.image || (x.photos && x.photos[0] && x.photos[0].src)))}" alt="" loading="lazy">
           <div class="item__body"><small>${esc(c.sub(x))}</small><h3>${esc(c.label(x))}</h3>
             <p>Ordre ${esc(x.ordre || 0)} · ${x.publie === false ? '<span class="tag tag--off">Masqué du site</span>' : '<span class="tag">En ligne</span>'}</p></div>
           <div class="item__foot"><a class="btn btn--sm btn--primary" href="#${c.one}/${esc(x.id)}">Modifier</a></div>
@@ -450,10 +468,13 @@
     const isNew = id === "nouveau";
     const x = isNew ? { ...c.vide } : (await api(c.api)).find((y) => y.id === id);
     if (!x) { main.innerHTML = '<p class="empty">Élément introuvable.</p>'; return; }
+    const gals = {};
     const field = (f) => {
       const v = x[f.k];
       const hint = f.hint ? `<p class="hint">${f.hint}</p>` : "";
       if (f.type === "img") return imgField(f.k, f.label, v);
+      if (f.type === "select") return `<label><span>${f.label}</span><select name="${f.k}">${f.options.map((o) => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>${hint}</label>`;
+      if (f.type === "gallery") { gals[f.k] = (v || []).map((g) => ({ ...g })); return `<div class="full"><span class="lbl">${f.label}</span><div class="gal" data-gal="${f.k}"></div><p><button type="button" class="btn btn--sm btn--ghost" data-addgal="${f.k}">+ Ajouter une photo</button></p>${hint}</div>`; }
       if (f.type === "check") return `<label class="check"><input type="checkbox" name="${f.k}"${v !== false ? " checked" : ""}> ${f.label}</label>`;
       if (f.type === "textarea") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="3">${esc(v)}</textarea>${hint}</label>`;
       if (f.type === "lines") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="4">${esc((v || []).join("\n"))}</textarea>${hint}</label>`;
@@ -471,8 +492,31 @@
         </div>
       </form>`;
     const form = $("#cf");
+    const drawGal = (k) => {
+      const list = gals[k];
+      $(`[data-gal="${k}"]`, form).innerHTML = list.length ? list.map((g, i) => `<figure data-i="${i}"><img src="${esc(img(g.src))}" alt="">
+        <figcaption><input value="${esc(g.legende || "")}" placeholder="Légende" aria-label="Légende">
+        <div><button type="button" class="btn btn--text" data-mv="-1" title="Avancer">←</button><button type="button" class="btn btn--text" data-mv="1" title="Reculer">→</button><button type="button" class="btn btn--danger" data-rm>Retirer</button></div></figcaption></figure>`).join("")
+        : '<p class="empty">Aucune photo.</p>';
+    };
+    Object.keys(gals).forEach((k) => {
+      const box = $(`[data-gal="${k}"]`, form);
+      box.addEventListener("input", (e) => { gals[k][e.target.closest("figure").dataset.i].legende = e.target.value; });
+      box.addEventListener("click", (e) => {
+        const fig = e.target.closest("figure"); if (!fig) return;
+        const i = +fig.dataset.i, list = gals[k];
+        if (e.target.matches("[data-rm]")) list.splice(i, 1);
+        else if (e.target.dataset.mv) { const j = i + +e.target.dataset.mv; if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; }
+        else return;
+        dirty = true; drawGal(k);
+      });
+      drawGal(k);
+    });
     form.addEventListener("input", () => { dirty = true; });
-    form.addEventListener("click", (e) => { const n = e.target.dataset.pick; if (n) pick(([src]) => setImg(form, n, src)); });
+    form.addEventListener("click", (e) => {
+      const n = e.target.dataset.pick; if (n) pick(([src]) => setImg(form, n, src));
+      const g = e.target.dataset.addgal; if (g) pick((srcs) => { srcs.forEach((src) => gals[g].push({ src, legende: "" })); drawGal(g); dirty = true; }, true);
+    });
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(form);
@@ -481,6 +525,7 @@
         if (f.type === "check") body[f.k] = fd.get(f.k) === "on";
         else if (f.type === "lines") body[f.k] = lines(fd.get(f.k));
         else if (f.type === "paras") body[f.k] = paras(fd.get(f.k));
+        else if (f.type === "gallery") body[f.k] = gals[f.k];
         else body[f.k] = fd.get(f.k) || "";
       });
       const btn = $("[type=submit]", form); btn.disabled = true;

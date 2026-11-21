@@ -173,6 +173,27 @@ function realisations(list) {
   }).join("\n");
 }
 
+// Réalisations : chantiers de référence (une carte par projet, photos agrandissables)
+function references(list) {
+  return list.map((r, i) => {
+    const ph = (r.photos || []).filter((p) => p && p.src);
+    if (!ph.length) return "";
+    const btn = (p, cls, extra = "") => `<button type="button" class="${cls}" data-lightbox="${esc(p.src)}"${extra}><img src="${esc(p.src)}" alt="${esc([r.titre, p.legende].filter(Boolean).join(" · "))}" loading="lazy">`;
+    const thumbs = ph.slice(1, 4).map((p, k) => btn(p, "ref__thumb") + (k === 2 && ph.length > 4 ? `<span class="ref__more">+${ph.length - 4}</span>` : "") + "</button>").join("");
+    const hidden = ph.slice(4).map((p) => btn(p, "ref__thumb", " hidden") + "</button>").join("");
+    const meta = [r.lieu, r.annee].filter(Boolean).join(" · ");
+    return `          <article class="ref" data-anim style="--d:${((i % 2) * 0.06).toFixed(2)}s">
+            <div class="ref__photos">${btn(ph[0], "ref__main")}${r.categorie ? `<span class="ref__cat">${esc(r.categorie)}</span>` : ""}</button>${thumbs ? `<div class="ref__thumbs">${thumbs}</div>` : ""}${hidden}</div>
+            <div class="ref__body">
+              <h3>${esc(r.titre)}</h3>
+              ${meta ? `<p class="ref__lieu">${esc(meta)}</p>` : ""}
+              ${r.texte ? `<p>${esc(r.texte)}</p>` : ""}
+              <p class="ref__hint">${ph.length} photo${ph.length > 1 ? "s" : ""} · cliquez pour agrandir</p>
+            </div>
+          </article>`;
+  }).join("\n");
+}
+
 // Accueil : réalisations en cartes blanches (badge « Livré »)
 function realisationsCards(list) {
   return list.map((r) => {
@@ -403,4 +424,4 @@ function between(html, name, content) {
   return html.replace(re, (_, a, b) => `${a}\n${content}\n          ${b}`);
 }
 
-module.exports = { esc, layout, card, cards, projetsOnglets, projetsUne, slides, realisations, realisationsCards, servicesCards, servicesRows, programmePage, newsList, between, contactBlock };
+module.exports = { esc, layout, card, cards, references, projetsOnglets, projetsUne, slides, realisations, realisationsCards, servicesCards, servicesRows, programmePage, newsList, between, contactBlock };

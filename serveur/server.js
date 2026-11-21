@@ -129,7 +129,10 @@ function dynamicPage(pathname) {
     return R.between(html, "realisations", R.realisationsCards(enLigne("realisations")));
   }
   if (pathname === "/realisations.html") {
-    return R.between(page("realisations.html"), "realisations", R.realisations(enLigne("realisations")));
+    const refs = enLigne("references");
+    let html = R.between(page("realisations.html"), "realisations", R.realisations(enLigne("realisations")));
+    html = R.between(html, "references", R.references(refs.filter((r) => r.categorie !== "Action sociale")));
+    return R.between(html, "social", R.references(refs.filter((r) => r.categorie === "Action sociale")));
   }
   if (pathname === "/services.html") {
     const sv = enLigne("services");
@@ -213,6 +216,14 @@ const COLLECTIONS = {
     const r = { titre: str(b.titre, 120), lieu: str(b.lieu, 60), date: str(b.date, 60), texte: str(b.texte, 600), image: str(b.image, 300),
       chiffres: (Array.isArray(b.chiffres) ? b.chiffres : []).map((x) => str(x, 40)).filter(Boolean).slice(0, 6),
       lien: okLink(b.lien), publie: b.publie !== false, ordre: Number.isInteger(+b.ordre) ? +b.ordre : 0 };
+    if (!r.titre) throw Object.assign(new Error("Le titre est obligatoire."), { status: 400 });
+    return r;
+  },
+  references: (b) => {
+    const r = { titre: str(b.titre, 120), lieu: str(b.lieu, 60), annee: str(b.annee, 30), texte: str(b.texte, 600),
+      categorie: ["Construction", "Finitions", "Action sociale"].includes(b.categorie) ? b.categorie : "Construction",
+      photos: (Array.isArray(b.photos) ? b.photos : []).map((p) => ({ src: str(p && p.src, 300), legende: str(p && p.legende, 80) })).filter((p) => p.src).slice(0, 40),
+      publie: b.publie !== false, ordre: Number.isInteger(+b.ordre) ? +b.ordre : 0 };
     if (!r.titre) throw Object.assign(new Error("Le titre est obligatoire."), { status: 400 });
     return r;
   },
@@ -365,7 +376,7 @@ async function api(req, res, pathname) {
   }
 
   // Slides et réalisations
-  m = /^\/api\/(slides|realisations|services)(?:\/([a-f0-9]+))?$/.exec(pathname);
+  m = /^\/api\/(slides|realisations|services|references)(?:\/([a-f0-9]+))?$/.exec(pathname);
   if (m) {
     const name = m[1], clean = COLLECTIONS[name];
     const list = store.load(name, []);
@@ -401,7 +412,8 @@ async function api(req, res, pathname) {
   // Liste des images disponibles (pour les choisir dans le formulaire)
   if (pathname === "/api/images" && method === "GET") {
     const list = (dir, prefix) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /\.(jpe?g|png|webp)$/i.test(f)).map((f) => prefix + f) : []);
-    return json(res, 200, [...list(UPLOADS, "uploads/").reverse(), ...list(path.join(SITE, "assets", "img"), "assets/img/").filter((f) => !/\.webp$/.test(f))]);
+    return json(res, 200, [...list(UPLOADS, "uploads/").reverse(), ...list(path.join(SITE, "assets", "img"), "assets/img/").filter((f) => !/\.webp$/.test(f)),
+      ...list(path.join(SITE, "assets", "img", "references"), "assets/img/references/")]);
   }
 
   return json(res, 404, { error: "Introuvable" });

@@ -1,0 +1,422 @@
+[
+  {
+    "id": "000ae0",
+    "titre": "Immeuble R+3",
+    "lieu": "Yamoussoukro",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "De la maquette 3D au chantier : fondations, élévation et suivi quotidien par nos équipes.",
+    "photos": [
+      {
+        "src": "assets/img/references/immeuble-yamoussoukro-1.jpg",
+        "legende": "Maquette 3D"
+      },
+      {
+        "src": "assets/img/references/immeuble-yamoussoukro-2.jpg",
+        "legende": "Façade"
+      },
+      {
+        "src": "assets/img/references/immeuble-yamoussoukro-3.jpg",
+        "legende": "Fondations"
+      },
+      {
+        "src": "assets/img/references/immeuble-yamoussoukro-4.jpg",
+        "legende": "Équipe sur le chantier"
+      },
+      {
+        "src": "assets/img/references/immeuble-yamoussoukro-5.jpg",
+        "legende": "Bétonnage"
+      },
+      {
+        "src": "assets/img/references/immeuble-yamoussoukro-6.jpg",
+        "legende": "Suivi de chantier"
+      }
+    ],
+    "publie": true,
+    "ordre": 10
+  },
+  {
+    "id": "000ae1",
+    "titre": "Résidence de villas duplex",
+    "lieu": "",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Conception 3D et construction d'une résidence de villas duplex.",
+    "photos": [
+      {
+        "src": "assets/img/references/residence-duplex-1.jpg",
+        "legende": "Vue 3D de la résidence"
+      },
+      {
+        "src": "assets/img/references/residence-duplex-2.jpg",
+        "legende": "Maquette 3D"
+      },
+      {
+        "src": "assets/img/references/residence-duplex-3.jpg",
+        "legende": "Élévation"
+      },
+      {
+        "src": "assets/img/references/residence-duplex-4.jpg",
+        "legende": "Gros œuvre"
+      },
+      {
+        "src": "assets/img/references/residence-duplex-5.jpg",
+        "legende": "Villa en cours"
+      },
+      {
+        "src": "assets/img/references/residence-duplex-6.jpg",
+        "legende": "Villa en cours"
+      }
+    ],
+    "publie": true,
+    "ordre": 20
+  },
+  {
+    "id": "000ae2",
+    "titre": "Six villas duplex",
+    "lieu": "",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Étude 3D, implantation et terrassement d'un ensemble de six villas duplex avec parking.",
+    "photos": [
+      {
+        "src": "assets/img/references/six-villas-duplex-1.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/six-villas-duplex-2.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/six-villas-duplex-3.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/six-villas-duplex-4.jpg",
+        "legende": "Équipe sur le terrain"
+      },
+      {
+        "src": "assets/img/references/six-villas-duplex-5.jpg",
+        "legende": "Implantation"
+      }
+    ],
+    "publie": true,
+    "ordre": 30
+  },
+  {
+    "id": "000ae3",
+    "titre": "Immeuble R+2",
+    "lieu": "Angré, Abidjan",
+    "categorie": "Finitions",
+    "annee": "",
+    "texte": "Finitions d'un immeuble résidentiel : façades en pierre, balcons et garde-corps.",
+    "photos": [
+      {
+        "src": "assets/img/references/immeuble-angre-1.jpg",
+        "legende": "Façade terminée"
+      },
+      {
+        "src": "assets/img/references/immeuble-angre-2.jpg",
+        "legende": "Façade terminée"
+      },
+      {
+        "src": "assets/img/references/immeuble-angre-3.jpg",
+        "legende": "Terrasse"
+      },
+      {
+        "src": "assets/img/references/immeuble-angre-4.jpg",
+        "legende": "Vue d'ensemble"
+      },
+      {
+        "src": "assets/img/references/immeuble-angre-5.jpg",
+        "legende": "Façade"
+      }
+    ],
+    "publie": true,
+    "ordre": 40
+  },
+  {
+    "id": "000ae4",
+    "titre": "Villa sur trois niveaux",
+    "lieu": "Bingerville",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Construction d'une villa sur trois niveaux, du gros œuvre aux façades.",
+    "photos": [
+      {
+        "src": "assets/img/references/villa-bingerville-1.jpg",
+        "legende": "Villa terminée"
+      },
+      {
+        "src": "assets/img/references/villa-bingerville-2.jpg",
+        "legende": "Villa terminée"
+      },
+      {
+        "src": "assets/img/references/villa-bingerville-3.jpg",
+        "legende": "Gros œuvre"
+      },
+      {
+        "src": "assets/img/references/villa-bingerville-4.jpg",
+        "legende": "Élévation"
+      },
+      {
+        "src": "assets/img/references/villa-bingerville-5.jpg",
+        "legende": "Escalier intérieur"
+      },
+      {
+        "src": "assets/img/references/villa-bingerville-6.jpg",
+        "legende": "Coffrage"
+      }
+    ],
+    "publie": true,
+    "ordre": 50
+  },
+  {
+    "id": "000ae5",
+    "titre": "Magasins avec mezzanine",
+    "lieu": "Abidjan Mall",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Fondations, voiles en béton armé et mezzanine pour des boutiques aujourd'hui en activité.",
+    "photos": [
+      {
+        "src": "assets/img/references/magasins-abidjan-mall-1.jpg",
+        "legende": "Boutiques terminées"
+      },
+      {
+        "src": "assets/img/references/magasins-abidjan-mall-2.jpg",
+        "legende": "Boutiques terminées"
+      },
+      {
+        "src": "assets/img/references/magasins-abidjan-mall-3.jpg",
+        "legende": "Coffrage"
+      },
+      {
+        "src": "assets/img/references/magasins-abidjan-mall-4.jpg",
+        "legende": "Ferraillage"
+      },
+      {
+        "src": "assets/img/references/magasins-abidjan-mall-5.jpg",
+        "legende": "Voiles en béton"
+      }
+    ],
+    "publie": true,
+    "ordre": 60
+  },
+  {
+    "id": "000ae6",
+    "titre": "Villa duplex",
+    "lieu": "Saint-Viateur",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Plans 3D et construction d'une villa duplex moderne.",
+    "photos": [
+      {
+        "src": "assets/img/references/villa-saint-viateur-1.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/villa-saint-viateur-2.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/villa-saint-viateur-3.jpg",
+        "legende": "Élévation"
+      },
+      {
+        "src": "assets/img/references/villa-saint-viateur-4.jpg",
+        "legende": "Gros œuvre"
+      },
+      {
+        "src": "assets/img/references/villa-saint-viateur-5.jpg",
+        "legende": "Fondations"
+      }
+    ],
+    "publie": true,
+    "ordre": 70
+  },
+  {
+    "id": "000ae7",
+    "titre": "Villa duplex contemporaine",
+    "lieu": "",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Construction d'une villa duplex contemporaine, de la vue 3D à la livraison du gros œuvre.",
+    "photos": [
+      {
+        "src": "assets/img/references/villa-cnps-1.jpg",
+        "legende": "Villa"
+      },
+      {
+        "src": "assets/img/references/villa-cnps-2.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/villa-cnps-3.jpg",
+        "legende": "Villa"
+      },
+      {
+        "src": "assets/img/references/villa-cnps-4.jpg",
+        "legende": "Élévation"
+      }
+    ],
+    "publie": true,
+    "ordre": 80
+  },
+  {
+    "id": "000ae8",
+    "titre": "Villa basse avec toit-terrasse",
+    "lieu": "Ouragahio",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Conception 3D et construction d'une villa basse avec toit-terrasse.",
+    "photos": [
+      {
+        "src": "assets/img/references/villa-ouragahio-1.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/villa-ouragahio-2.jpg",
+        "legende": "Villa"
+      },
+      {
+        "src": "assets/img/references/villa-ouragahio-3.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/villa-ouragahio-4.jpg",
+        "legende": "Chantier"
+      }
+    ],
+    "publie": true,
+    "ordre": 90
+  },
+  {
+    "id": "000ae9",
+    "titre": "Immeuble de logements R+1",
+    "lieu": "",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Construction d'un immeuble de logements, du chaînage à la peinture des façades.",
+    "photos": [
+      {
+        "src": "assets/img/references/immeuble-r1-1.jpg",
+        "legende": "Immeuble terminé"
+      },
+      {
+        "src": "assets/img/references/immeuble-r1-2.jpg",
+        "legende": "Visite de fin de chantier"
+      },
+      {
+        "src": "assets/img/references/immeuble-r1-3.jpg",
+        "legende": "Gros œuvre"
+      },
+      {
+        "src": "assets/img/references/immeuble-r1-4.jpg",
+        "legende": "Dalle"
+      }
+    ],
+    "publie": true,
+    "ordre": 100
+  },
+  {
+    "id": "000aea",
+    "titre": "Finitions d'immeuble",
+    "lieu": "Cité CIR",
+    "categorie": "Finitions",
+    "annee": "",
+    "texte": "Accès, escaliers et finitions extérieures d'un immeuble résidentiel.",
+    "photos": [
+      {
+        "src": "assets/img/references/finition-cite-cir-1.jpg",
+        "legende": "Entrée"
+      },
+      {
+        "src": "assets/img/references/finition-cite-cir-2.jpg",
+        "legende": "Escalier d'accès"
+      },
+      {
+        "src": "assets/img/references/finition-cite-cir-3.jpg",
+        "legende": "Travaux"
+      },
+      {
+        "src": "assets/img/references/finition-cite-cir-4.jpg",
+        "legende": "Travaux"
+      }
+    ],
+    "publie": true,
+    "ordre": 110
+  },
+  {
+    "id": "000aeb",
+    "titre": "Villa basse de quatre pièces",
+    "lieu": "",
+    "categorie": "Action sociale",
+    "annee": "",
+    "texte": "Construction d'une villa basse de quatre pièces dans le cadre de nos actions sociales.",
+    "photos": [
+      {
+        "src": "assets/img/references/social-villa-1.jpg",
+        "legende": "Villa terminée"
+      },
+      {
+        "src": "assets/img/references/social-villa-2.jpg",
+        "legende": "Élévation"
+      },
+      {
+        "src": "assets/img/references/social-villa-3.jpg",
+        "legende": "Fondations"
+      }
+    ],
+    "publie": true,
+    "ordre": 120
+  },
+  {
+    "id": "000aec",
+    "titre": "Finition d'une église",
+    "lieu": "",
+    "categorie": "Action sociale",
+    "annee": "",
+    "texte": "Travaux de finition d'un lieu de culte : sol, autel et façade.",
+    "photos": [
+      {
+        "src": "assets/img/references/social-eglise-2.jpg",
+        "legende": "Intérieur"
+      },
+      {
+        "src": "assets/img/references/social-eglise-4.jpg",
+        "legende": "Entrée"
+      },
+      {
+        "src": "assets/img/references/social-eglise-1.jpg",
+        "legende": "Façade"
+      },
+      {
+        "src": "assets/img/references/social-eglise-3.jpg",
+        "legende": "Intérieur"
+      }
+    ],
+    "publie": true,
+    "ordre": 130
+  },
+  {
+    "id": "000aed",
+    "titre": "Distribution de dons",
+    "lieu": "",
+    "categorie": "Action sociale",
+    "annee": "",
+    "texte": "Nos équipes à la rencontre des populations pour une distribution de dons.",
+    "photos": [
+      {
+        "src": "assets/img/references/social-dons-1.jpg",
+        "legende": "Distribution"
+      },
+      {
+        "src": "assets/img/references/social-dons-2.jpg",
+        "legende": "Distribution"
+      }
+    ],
+    "publie": true,
+    "ordre": 140
+  }
+]
