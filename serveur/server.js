@@ -235,6 +235,8 @@ function cleanParametres(b) {
     reseaux: Object.fromEntries(site.RESEAUX.map(([k]) => [k, url(r[k])])),
     slogan: str(b.slogan, 200),
     chiffresAccueil: (Array.isArray(b.chiffresAccueil) ? b.chiffresAccueil : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
+    chiffresRealisations: (Array.isArray(b.chiffresRealisations) ? b.chiffresRealisations : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
+    chiffresServices: (Array.isArray(b.chiffresServices) ? b.chiffresServices : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
     chiffresProgrammes: (Array.isArray(b.chiffresProgrammes) ? b.chiffresProgrammes : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
     chiffresAPropos: (Array.isArray(b.chiffresAPropos) ? b.chiffresAPropos : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
     histoireSurtitre: str(b.histoireSurtitre, 60), histoireTitre: str(b.histoireTitre, 120), histoireTexte: lines(b.histoireTexte, 6, 1500),

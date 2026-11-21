@@ -129,5 +129,41 @@
       "titre": "Premières clés à Adiaké",
       "texte": "Les premiers propriétaires de la Cité Les Rives de l'Opulence reçoivent leurs clés."
     }
+  ],
+  "chiffresRealisations": [
+    {
+      "valeur": "25",
+      "libelle": "pièces à Korhogo"
+    },
+    {
+      "valeur": "6",
+      "libelle": "mois de chantier"
+    },
+    {
+      "valeur": "3",
+      "libelle": "studios et 3 magasins"
+    },
+    {
+      "valeur": "12",
+      "libelle": "ans d'expérience"
+    }
+  ],
+  "chiffresServices": [
+    {
+      "valeur": "3",
+      "libelle": "pôles d'expertise"
+    },
+    {
+      "valeur": "60%",
+      "libelle": "de préfinancement"
+    },
+    {
+      "valeur": "100%",
+      "libelle": "en crédit-bail"
+    },
+    {
+      "valeur": "12",
+      "libelle": "ans d'expérience"
+    }
   ]
 }

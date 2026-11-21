@@ -529,6 +529,8 @@
         <section class="panel"><h2>Chiffres clés</h2><div class="grid">
           ${area("chiffresAccueil", "Accueil (3 chiffres)", chiffres(p.chiffresAccueil), 4, "Un par ligne : valeur | texte. Exemple : +10 | programmes immobiliers")}
           ${area("chiffresAPropos", "Page À propos (4 chiffres)", chiffres(p.chiffresAPropos), 4, "Un par ligne : valeur | texte. Exemple : +300 | employés")}
+          ${area("chiffresRealisations", "Page Réalisations (4 chiffres)", chiffres(p.chiffresRealisations), 4, "Un par ligne : valeur | texte. Exemple : 25 | pièces à Korhogo")}
+          ${area("chiffresServices", "Page Services (4 chiffres)", chiffres(p.chiffresServices), 4, "Un par ligne : valeur | texte. Exemple : 60% | de préfinancement")}
           ${area("chiffresProgrammes", "Page Programmes (4 chiffres)", chiffres(p.chiffresProgrammes), 4, "Un par ligne : valeur | texte. Exemple : 10 | M FCFA, prix d'entrée")}
         </div></section>
 
@@ -564,7 +566,7 @@
         telephones: lines(g("telephones")), whatsapp: g("whatsapp"), email: g("email"), adresse: g("adresse"), adresseDetail: g("adresseDetail"),
         horaires: g("horaires"), horairesCourt: g("horairesCourt"),
         reseaux: Object.fromEntries(RESEAUX.map(([k]) => [k, g("r_" + k)])),
-        chiffresAccueil: pairs("chiffresAccueil"), chiffresAPropos: pairs("chiffresAPropos"), chiffresProgrammes: pairs("chiffresProgrammes"),
+        chiffresAccueil: pairs("chiffresAccueil"), chiffresAPropos: pairs("chiffresAPropos"), chiffresProgrammes: pairs("chiffresProgrammes"), chiffresServices: pairs("chiffresServices"), chiffresRealisations: pairs("chiffresRealisations"),
         histoireSurtitre: g("histoireSurtitre"), histoireTitre: g("histoireTitre"), histoireTexte: paras(g("histoireTexte")), dgNom: g("dgNom"), dgTitre: g("dgTitre"),
         aproposTitre: g("aproposTitre"), aproposTexte: paras(g("aproposTexte")), citation: g("citation"),
         dates: lines(g("dates")).map((l) => { const [date, titre, ...t] = l.split("|").map((x) => x.trim()); return { date, titre: titre || "", texte: t.join(" | ") }; }),
