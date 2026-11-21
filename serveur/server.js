@@ -28,6 +28,20 @@ const TYPES = {
 
 auth.ensureAdmin();
 
+// Mises à jour du contenu : ajoute une seule fois les nouveaux éléments du dossier seed
+// à un site déjà en ligne (sans toucher à ce qui a été modifié ou supprimé dans le tableau de bord).
+(function ajouterNouveautes() {
+  const faites = store.load("migrations", {});
+  const lot = "realisations-2026-11";
+  if (faites[lot]) return;
+  const seed = JSON.parse(fs.readFileSync(path.join(__dirname, "seed", "realisations.json"), "utf8"));
+  const list = store.load("realisations", []);
+  const ids = new Set(list.map((x) => x.id));
+  const ajouts = seed.filter((x) => x.id.startsWith("b7c1d2e3f4") && !ids.has(x.id));
+  if (ajouts.length) store.save("realisations", list.concat(ajouts));
+  store.save("migrations", { ...faites, [lot]: new Date().toISOString() });
+})();
+
 /* ---------------- Outils ---------------- */
 const programmes = () => store.load("programmes", []);
 const visibles = () => programmes().filter((p) => p.visible !== false).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));

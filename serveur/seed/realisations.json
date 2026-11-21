@@ -45,5 +45,101 @@
     "lien": "",
     "publie": true,
     "ordre": 3
+  },
+  {
+    "id": "b7c1d2e3f401",
+    "titre": "Immeuble R+2",
+    "lieu": "Angré, Abidjan",
+    "date": "Finitions livrées",
+    "texte": "Finitions d'un immeuble résidentiel : façades en pierre, balcons et garde-corps.",
+    "chiffres": [
+      "Immeuble R+2",
+      "Finitions",
+      "Abidjan"
+    ],
+    "image": "assets/img/references/immeuble-angre-1.jpg",
+    "lien": "realisations.html#references",
+    "publie": true,
+    "ordre": 10
+  },
+  {
+    "id": "b7c1d2e3f402",
+    "titre": "Villa sur trois niveaux",
+    "lieu": "Bingerville",
+    "date": "Livrée",
+    "texte": "Construction d'une villa sur trois niveaux, du gros œuvre aux façades.",
+    "chiffres": [
+      "3 niveaux",
+      "Gros œuvre",
+      "Façades"
+    ],
+    "image": "assets/img/references/villa-bingerville-1.jpg",
+    "lien": "realisations.html#references",
+    "publie": true,
+    "ordre": 11
+  },
+  {
+    "id": "b7c1d2e3f403",
+    "titre": "Magasins avec mezzanine",
+    "lieu": "Abidjan Mall",
+    "date": "Livrés",
+    "texte": "Fondations, voiles en béton armé et mezzanine pour des boutiques aujourd'hui en activité.",
+    "chiffres": [
+      "Commerces",
+      "Mezzanine",
+      "En activité"
+    ],
+    "image": "assets/img/references/magasins-abidjan-mall-1.jpg",
+    "lien": "realisations.html#references",
+    "publie": true,
+    "ordre": 12
+  },
+  {
+    "id": "b7c1d2e3f404",
+    "titre": "Immeuble de logements R+1",
+    "lieu": "",
+    "date": "Livré",
+    "texte": "Construction d'un immeuble de logements, du chaînage à la peinture des façades.",
+    "chiffres": [
+      "Immeuble",
+      "Logements",
+      "Livré"
+    ],
+    "image": "assets/img/references/immeuble-r1-1.jpg",
+    "lien": "realisations.html#references",
+    "publie": true,
+    "ordre": 13
+  },
+  {
+    "id": "b7c1d2e3f405",
+    "titre": "Villa duplex contemporaine",
+    "lieu": "",
+    "date": "Livrée",
+    "texte": "Construction d'une villa duplex contemporaine, de la vue 3D à la livraison du gros œuvre.",
+    "chiffres": [
+      "Villa duplex",
+      "Plans 3D",
+      "Gros œuvre"
+    ],
+    "image": "assets/img/references/villa-cnps-1.jpg",
+    "lien": "realisations.html#references",
+    "publie": true,
+    "ordre": 14
+  },
+  {
+    "id": "b7c1d2e3f406",
+    "titre": "Villa basse avec toit-terrasse",
+    "lieu": "Ouragahio",
+    "date": "Livrée",
+    "texte": "Conception 3D et construction d'une villa basse avec toit-terrasse.",
+    "chiffres": [
+      "Villa basse",
+      "Toit-terrasse",
+      "Plans 3D"
+    ],
+    "image": "assets/img/references/villa-ouragahio-2.jpg",
+    "lien": "realisations.html#references",
+    "publie": true,
+    "ordre": 15
   }
 ]
