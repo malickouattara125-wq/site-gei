@@ -33,7 +33,8 @@
       }
     ],
     "publie": true,
-    "ordre": 10
+    "ordre": 10,
+    "videos": []
   },
   {
     "id": "000ae1",
@@ -69,7 +70,8 @@
       }
     ],
     "publie": true,
-    "ordre": 20
+    "ordre": 20,
+    "videos": []
   },
   {
     "id": "000ae2",
@@ -101,7 +103,8 @@
       }
     ],
     "publie": true,
-    "ordre": 30
+    "ordre": 30,
+    "videos": []
   },
   {
     "id": "000ae3",
@@ -133,7 +136,8 @@
       }
     ],
     "publie": true,
-    "ordre": 40
+    "ordre": 40,
+    "videos": []
   },
   {
     "id": "000ae4",
@@ -169,7 +173,8 @@
       }
     ],
     "publie": true,
-    "ordre": 50
+    "ordre": 50,
+    "videos": []
   },
   {
     "id": "000ae5",
@@ -201,7 +206,8 @@
       }
     ],
     "publie": true,
-    "ordre": 60
+    "ordre": 60,
+    "videos": []
   },
   {
     "id": "000ae6",
@@ -233,7 +239,8 @@
       }
     ],
     "publie": true,
-    "ordre": 70
+    "ordre": 70,
+    "videos": []
   },
   {
     "id": "000ae7",
@@ -261,7 +268,8 @@
       }
     ],
     "publie": true,
-    "ordre": 80
+    "ordre": 80,
+    "videos": []
   },
   {
     "id": "000ae8",
@@ -289,7 +297,8 @@
       }
     ],
     "publie": true,
-    "ordre": 90
+    "ordre": 90,
+    "videos": []
   },
   {
     "id": "000ae9",
@@ -317,7 +326,8 @@
       }
     ],
     "publie": true,
-    "ordre": 100
+    "ordre": 100,
+    "videos": []
   },
   {
     "id": "000aea",
@@ -345,7 +355,253 @@
       }
     ],
     "publie": true,
-    "ordre": 110
+    "ordre": 110,
+    "videos": []
+  },
+  {
+    "id": "000aee",
+    "titre": "Deux villas duplex avec piscine",
+    "lieu": "",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Conception 3D et construction de deux villas duplex avec piscine et toit-terrasse.",
+    "photos": [
+      {
+        "src": "assets/img/references/deux-villas-piscine-1.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/deux-villas-piscine-2.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/deux-villas-piscine-3.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/deux-villas-piscine-4.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/deux-villas-piscine-5.jpg",
+        "legende": "Gros œuvre"
+      }
+    ],
+    "videos": [],
+    "publie": true,
+    "ordre": 120
+  },
+  {
+    "id": "000aef",
+    "titre": "Immeuble R+2",
+    "lieu": "8e Tranche, Abidjan",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Construction d'un immeuble R+2 avec balcons et garde-corps, jusqu'aux façades peintes.",
+    "photos": [
+      {
+        "src": "assets/img/references/immeuble-8e-tranche-1.jpg",
+        "legende": "Façade terminée"
+      },
+      {
+        "src": "assets/img/references/immeuble-8e-tranche-2.jpg",
+        "legende": "Façade terminée"
+      },
+      {
+        "src": "assets/img/references/immeuble-8e-tranche-3.jpg",
+        "legende": "Façade"
+      },
+      {
+        "src": "assets/img/references/immeuble-8e-tranche-4.jpg",
+        "legende": "Travaux de façade"
+      },
+      {
+        "src": "assets/img/references/immeuble-8e-tranche-5.jpg",
+        "legende": "Rez-de-chaussée"
+      }
+    ],
+    "videos": [],
+    "publie": true,
+    "ordre": 130
+  },
+  {
+    "id": "000af0",
+    "titre": "Quatre appartements de trois pièces",
+    "lieu": "",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Étude 3D et construction d'un immeuble de quatre appartements de trois pièces avec parking.",
+    "photos": [
+      {
+        "src": "assets/img/references/quatre-appartements-1.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/quatre-appartements-2.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/quatre-appartements-3.jpg",
+        "legende": "Vue 3D"
+      },
+      {
+        "src": "assets/img/references/quatre-appartements-4.jpg",
+        "legende": "Équipe sur le chantier"
+      }
+    ],
+    "videos": [],
+    "publie": true,
+    "ordre": 140
+  },
+  {
+    "id": "000af1",
+    "titre": "Villa duplex pour un client de la diaspora",
+    "lieu": "",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Construction d'une villa duplex pour un client installé en France, suivie à distance en photos et en vidéo jusqu'aux finitions.",
+    "photos": [
+      {
+        "src": "assets/img/references/villa-diaspora-1.jpg",
+        "legende": "Façade"
+      },
+      {
+        "src": "assets/img/references/villa-diaspora-2.jpg",
+        "legende": "Façade"
+      },
+      {
+        "src": "assets/img/references/villa-diaspora-3.jpg",
+        "legende": "Gros œuvre"
+      },
+      {
+        "src": "assets/img/references/villa-diaspora-4.jpg",
+        "legende": "Faux plafond"
+      }
+    ],
+    "videos": [
+      {
+        "src": "assets/video/references/villa-diaspora-visite.mp4",
+        "affiche": "assets/img/references/villa-diaspora-visite-affiche.jpg",
+        "legende": "Visite du chantier avec l'équipe"
+      },
+      {
+        "src": "assets/video/references/villa-diaspora-interieur.mp4",
+        "affiche": "assets/img/references/villa-diaspora-interieur-affiche.jpg",
+        "legende": "Visite de l'intérieur"
+      }
+    ],
+    "publie": true,
+    "ordre": 150
+  },
+  {
+    "id": "000af2",
+    "titre": "Logements en bande",
+    "lieu": "Mille Carreaux",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Construction d'une cour de logements en bande : élévation, enduits et pose des menuiseries.",
+    "photos": [
+      {
+        "src": "assets/img/references/logements-en-bande-1.jpg",
+        "legende": "Élévation"
+      },
+      {
+        "src": "assets/img/references/logements-en-bande-2.jpg",
+        "legende": "Murs"
+      },
+      {
+        "src": "assets/img/references/logements-en-bande-3.jpg",
+        "legende": "Enduits"
+      },
+      {
+        "src": "assets/img/references/logements-en-bande-4.jpg",
+        "legende": "Pose des portes"
+      },
+      {
+        "src": "assets/img/references/logements-en-bande-5.jpg",
+        "legende": "Pose des portes"
+      }
+    ],
+    "videos": [],
+    "publie": true,
+    "ordre": 160
+  },
+  {
+    "id": "000af3",
+    "titre": "Réhabilitation et extension d'une villa",
+    "lieu": "Cité Oribat 2",
+    "categorie": "Finitions",
+    "annee": "",
+    "texte": "Réhabilitation d'une villa basse existante et construction d'une extension.",
+    "photos": [
+      {
+        "src": "assets/img/references/rehabilitation-villa-1.jpg",
+        "legende": "Villa avant travaux"
+      },
+      {
+        "src": "assets/img/references/rehabilitation-villa-2.jpg",
+        "legende": "Façade avant travaux"
+      },
+      {
+        "src": "assets/img/references/rehabilitation-villa-3.jpg",
+        "legende": "Villa avant travaux"
+      },
+      {
+        "src": "assets/img/references/rehabilitation-villa-4.jpg",
+        "legende": "Façade"
+      }
+    ],
+    "videos": [
+      {
+        "src": "assets/video/references/rehabilitation-villa-chantier.mp4",
+        "affiche": "assets/img/references/rehabilitation-villa-chantier-affiche.jpg",
+        "legende": "Le chantier en vidéo"
+      }
+    ],
+    "publie": true,
+    "ordre": 170
+  },
+  {
+    "id": "000af4",
+    "titre": "Villa basse",
+    "lieu": "Gagnoa",
+    "categorie": "Construction",
+    "annee": "",
+    "texte": "Construction d'une villa basse à Gagnoa : fondations et élévation des murs.",
+    "photos": [
+      {
+        "src": "assets/img/references/villa-gagnoa-1.jpg",
+        "legende": "Élévation des murs"
+      }
+    ],
+    "videos": [],
+    "publie": true,
+    "ordre": 180
+  },
+  {
+    "id": "000af5",
+    "titre": "Études et plans d'une cité résidentielle",
+    "lieu": "",
+    "categorie": "Études",
+    "annee": "",
+    "texte": "Plan de masse et plans d'exécution réalisés par notre bureau d'études : implantation des bâtiments, appartements, escaliers et parkings.",
+    "photos": [
+      {
+        "src": "assets/img/references/etude-plans-1.jpg",
+        "legende": "Plan de masse de la cité"
+      },
+      {
+        "src": "assets/img/references/etude-plans-2.jpg",
+        "legende": "Vue en plan de l'étage"
+      },
+      {
+        "src": "assets/img/references/etude-plans-3.jpg",
+        "legende": "Vue en plan du rez-de-chaussée"
+      }
+    ],
+    "videos": [],
+    "publie": true,
+    "ordre": 190
   },
   {
     "id": "000aeb",
@@ -369,7 +625,8 @@
       }
     ],
     "publie": true,
-    "ordre": 120
+    "ordre": 200,
+    "videos": []
   },
   {
     "id": "000aec",
@@ -397,7 +654,8 @@
       }
     ],
     "publie": true,
-    "ordre": 130
+    "ordre": 210,
+    "videos": []
   },
   {
     "id": "000aed",
@@ -417,6 +675,7 @@
       }
     ],
     "publie": true,
-    "ordre": 140
+    "ordre": 220,
+    "videos": []
   }
 ]

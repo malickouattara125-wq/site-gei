@@ -188,6 +188,7 @@ function references(list) {
               <h3>${esc(r.titre)}</h3>
               ${meta ? `<p class="ref__lieu">${esc(meta)}</p>` : ""}
               ${r.texte ? `<p>${esc(r.texte)}</p>` : ""}
+              ${(r.videos || []).filter((v) => v && v.src).map((v) => `<figure class="ref__video"><video controls muted playsinline preload="none"${v.affiche ? ` poster="${esc(v.affiche)}"` : ""}><source src="${esc(v.src)}" type="video/mp4"></video>${v.legende ? `<figcaption>${esc(v.legende)}</figcaption>` : ""}</figure>`).join("")}
               <p class="ref__hint">${ph.length} photo${ph.length > 1 ? "s" : ""} · cliquez pour agrandir</p>
             </div>
           </article>`;

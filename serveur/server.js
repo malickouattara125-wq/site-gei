@@ -235,8 +235,9 @@ const COLLECTIONS = {
   },
   references: (b) => {
     const r = { titre: str(b.titre, 120), lieu: str(b.lieu, 60), annee: str(b.annee, 30), texte: str(b.texte, 600),
-      categorie: ["Construction", "Finitions", "Action sociale"].includes(b.categorie) ? b.categorie : "Construction",
+      categorie: ["Construction", "Finitions", "Études", "Action sociale"].includes(b.categorie) ? b.categorie : "Construction",
       photos: (Array.isArray(b.photos) ? b.photos : []).map((p) => ({ src: str(p && p.src, 300), legende: str(p && p.legende, 80) })).filter((p) => p.src).slice(0, 40),
+      videos: (Array.isArray(b.videos) ? b.videos : []).map((v) => ({ src: str(v && v.src, 300), affiche: str(v && v.affiche, 300), legende: str(v && v.legende, 80) })).filter((v) => /^assets\/video\/[\w\/.-]+\.mp4$/.test(v.src)).slice(0, 6),
       publie: b.publie !== false, ordre: Number.isInteger(+b.ordre) ? +b.ordre : 0 };
     if (!r.titre) throw Object.assign(new Error("Le titre est obligatoire."), { status: 400 });
     return r;
@@ -266,6 +267,8 @@ function cleanParametres(b) {
     chiffresAPropos: (Array.isArray(b.chiffresAPropos) ? b.chiffresAPropos : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
     histoireSurtitre: str(b.histoireSurtitre, 60), histoireTitre: str(b.histoireTitre, 120), histoireTexte: lines(b.histoireTexte, 6, 1500),
     dgNom: str(b.dgNom, 80), dgTitre: str(b.dgTitre, 80),
+    visionSurtitre: str(b.visionSurtitre, 60), visionTitre: str(b.visionTitre, 140), visionTexte: lines(b.visionTexte, 4, 1200),
+    visionOffres: (Array.isArray(b.visionOffres) ? b.visionOffres : []).map((o) => ({ titre: str(o && o.titre, 80), texte: str(o && o.texte, 400) })).filter((o) => o.titre).slice(0, 6),
     aproposTitre: str(b.aproposTitre, 120), aproposTexte: lines(b.aproposTexte, 8, 1500), citation: str(b.citation, 600),
     dates: (Array.isArray(b.dates) ? b.dates : []).map((d) => ({ date: str(d && d.date, 40), titre: str(d && d.titre, 120), texte: str(d && d.texte, 400) })).filter((d) => d.date && d.titre).slice(0, 30),
   };

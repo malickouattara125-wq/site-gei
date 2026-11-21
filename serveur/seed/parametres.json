@@ -83,6 +83,26 @@
     "Chaque projet suit un cahier des charges fondé sur la rigueur, la qualité du travail et la sincérité dans nos relations avec nos clients."
   ],
   "citation": "En près d'une décennie, nous avons beaucoup changé. Mais notre philosophie reste la même : *nous ne construisons pas que des maisons, nous tenons parole.*",
+  "visionSurtitre": "Notre vision",
+  "visionTitre": "Un toit de qualité, *accessible au plus grand nombre*",
+  "visionTexte": [
+    "En Côte d'Ivoire, l'accès au logement reste une préoccupation majeure. Global Empire Immobilier est née pour y répondre : construire des logements de qualité, à un coût maîtrisé, pour les familles ivoiriennes comme pour la diaspora.",
+    "Pour que chacun puisse réaliser son projet, nous proposons trois formules adaptées à chaque situation."
+  ],
+  "visionOffres": [
+    {
+      "titre": "Clé en main, tout corps d'état",
+      "texte": "Conception, permis de construire, plans d'exécution, validation des matériaux avec vous, jusqu'à la remise des clés."
+    },
+    {
+      "titre": "Préfinancement",
+      "texte": "Nous finançons la seconde partie de votre construction, remboursable par échéancier ou en une seule fois."
+    },
+    {
+      "titre": "Bail à construction",
+      "texte": "Vous avez un terrain mais pas le budget : nous finançons la construction et l'exploitons le temps convenu, par acte notarié."
+    }
+  ],
   "dates": [
     {
       "date": "2014",

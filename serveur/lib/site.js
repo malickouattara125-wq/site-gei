@@ -56,6 +56,15 @@ const blocks = {
           <h2 data-anim style="--d:.06s">${hl(p.histoireTitre)}</h2>
           ${(p.histoireTexte || []).map((t, i) => `<p data-anim style="--d:${(0.1 + i * 0.02).toFixed(2)}s">${hl(t)}</p>`).join("\n          ")}
           ${p.dgNom ? `<p class="story-v__sign" data-anim style="--d:.14s">${esc(p.dgNom)}<span>${esc(p.dgTitre)}</span></p>` : ""}`,
+  "p-vision": (p) => `
+        <div class="head head--center">
+          <p class="kicker" data-anim>${esc(p.visionSurtitre || "Notre vision")}</p>
+          <h2 data-anim style="--d:.06s">${hl(p.visionTitre)}</h2>
+          ${(p.visionTexte || []).map((t) => `<p data-anim style="--d:.1s">${hl(t)}</p>`).join("\n          ")}
+        </div>
+        <div class="promises" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr))">
+          ${(p.visionOffres || []).map((o, i) => `<div class="promise" data-anim style="--d:${(i * 0.06).toFixed(2)}s"><i class="ico-lg ${["ico--key", "ico--card", "ico--doc"][i % 3]}"></i><h3>${esc(o.titre)}</h3><p>${esc(o.texte)}</p></div>`).join("\n          ")}
+        </div>`,
   "p-apropos": (p) => `
           <p class="kicker" data-anim>Qui sommes-nous</p>
           <h2 data-anim style="--d:.06s">${hl(p.aproposTitre)}</h2>

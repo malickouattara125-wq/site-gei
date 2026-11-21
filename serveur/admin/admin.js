@@ -440,11 +440,12 @@
     label: (x) => x.titre, sub: (x) => [x.categorie, x.lieu, x.annee].filter(Boolean).join(" · "),
     fields: [
       { k: "titre", label: "Titre *", ph: "Ex. Immeuble R+3", full: true },
-      { k: "categorie", type: "select", label: "Catégorie", options: ["Construction", "Finitions", "Action sociale"], hint: "« Action sociale » apparaît dans le bloc « Engagement social »." },
+      { k: "categorie", type: "select", label: "Catégorie", options: ["Construction", "Finitions", "Études", "Action sociale"], hint: "« Action sociale » apparaît dans le bloc « Engagement social »." },
       { k: "lieu", label: "Lieu", ph: "Ex. Yamoussoukro" },
       { k: "annee", label: "Année (facultatif)", ph: "Ex. 2023" },
       { k: "texte", type: "textarea", label: "Description", full: true },
       { k: "photos", type: "gallery", label: "Photos", hint: "La première photo est la photo principale. Utilisez ← → pour changer l'ordre." },
+      { k: "videos", type: "videos", label: "Vidéos (facultatif)", full: true, hint: "Une vidéo par ligne : chemin de la vidéo | légende. Exemple : assets/video/references/visite.mp4 | Visite du chantier. Les vidéos sont déposées sur le serveur par votre webmaster." },
       { k: "ordre", type: "number", label: "Ordre d'affichage", hint: "Le plus petit numéro passe en premier." },
       { k: "publie", type: "check", label: "Afficher sur le site" },
     ],
@@ -477,6 +478,7 @@
       if (f.type === "gallery") { gals[f.k] = (v || []).map((g) => ({ ...g })); return `<div class="full"><span class="lbl">${f.label}</span><div class="gal" data-gal="${f.k}"></div><p><button type="button" class="btn btn--sm btn--ghost" data-addgal="${f.k}">+ Ajouter une photo</button></p>${hint}</div>`; }
       if (f.type === "check") return `<label class="check"><input type="checkbox" name="${f.k}"${v !== false ? " checked" : ""}> ${f.label}</label>`;
       if (f.type === "textarea") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="3">${esc(v)}</textarea>${hint}</label>`;
+      if (f.type === "videos") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="3">${esc((v || []).map((x) => [x.src, x.legende].filter(Boolean).join(" | ")).join("\n"))}</textarea>${hint}</label>`;
       if (f.type === "lines") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="4">${esc((v || []).join("\n"))}</textarea>${hint}</label>`;
       if (f.type === "paras") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="9">${esc((v || []).join("\n\n"))}</textarea>${hint}</label>`;
       return `<label${f.full ? ' class="full"' : ""}><span>${f.label}</span><input name="${f.k}"${f.type === "number" ? ' type="number"' : ""} value="${esc(v == null ? "" : v)}" placeholder="${esc(f.ph || "")}">${hint}</label>`;
@@ -526,6 +528,7 @@
         else if (f.type === "lines") body[f.k] = lines(fd.get(f.k));
         else if (f.type === "paras") body[f.k] = paras(fd.get(f.k));
         else if (f.type === "gallery") body[f.k] = gals[f.k];
+        else if (f.type === "videos") body[f.k] = lines(fd.get(f.k)).map((l) => { const [src, ...lg] = l.split("|").map((t) => t.trim()); const old = (x[f.k] || []).find((o) => o.src === src); return { src, legende: lg.join(" | "), affiche: old ? old.affiche : "" }; });
         else body[f.k] = fd.get(f.k) || "";
       });
       const btn = $("[type=submit]", form); btn.disabled = true;
@@ -591,6 +594,9 @@
           ${inp("aproposTitre", "Titre « Qui sommes-nous »", p.aproposTitre, "", HL, true)}
           ${area("aproposTexte", "Texte « Qui sommes-nous »", (p.aproposTexte || []).join("\n\n"), 8, "Laissez une ligne vide entre deux paragraphes.")}
           ${area("citation", "Citation du Directeur Général", p.citation, 3, HL)}
+          ${inp("visionTitre", "Titre « Notre vision »", p.visionTitre, "", HL, true)}
+          ${area("visionTexte", "Texte « Notre vision »", (p.visionTexte || []).join("\n\n"), 5, "Laissez une ligne vide entre deux paragraphes.")}
+          ${area("visionOffres", "Formules proposées", (p.visionOffres || []).map((o) => `${o.titre} | ${o.texte}`).join("\n"), 4, "Une formule par ligne : titre | texte.")}
           ${area("dates", "Dates clés (« Notre histoire »)", (p.dates || []).map((d) => [d.date, d.titre, d.texte].join(" | ")).join("\n"), 10, "Une date par ligne : date | titre | texte. Exemple : 2024 | Cité des Opulences 1 | Premier programme de GEI.")}
         </div></section>
 
@@ -613,6 +619,8 @@
         reseaux: Object.fromEntries(RESEAUX.map(([k]) => [k, g("r_" + k)])),
         chiffresAccueil: pairs("chiffresAccueil"), chiffresAPropos: pairs("chiffresAPropos"), chiffresProgrammes: pairs("chiffresProgrammes"), chiffresServices: pairs("chiffresServices"), chiffresRealisations: pairs("chiffresRealisations"),
         histoireSurtitre: g("histoireSurtitre"), histoireTitre: g("histoireTitre"), histoireTexte: paras(g("histoireTexte")), dgNom: g("dgNom"), dgTitre: g("dgTitre"),
+        visionSurtitre: p.visionSurtitre || "Notre vision", visionTitre: g("visionTitre"), visionTexte: paras(g("visionTexte")),
+        visionOffres: lines(g("visionOffres")).map((l) => { const [titre, ...t] = l.split("|"); return { titre: titre.trim(), texte: t.join("|").trim() }; }),
         aproposTitre: g("aproposTitre"), aproposTexte: paras(g("aproposTexte")), citation: g("citation"),
         dates: lines(g("dates")).map((l) => { const [date, titre, ...t] = l.split("|").map((x) => x.trim()); return { date, titre: titre || "", texte: t.join(" | ") }; }),
         slogan: g("slogan"),
