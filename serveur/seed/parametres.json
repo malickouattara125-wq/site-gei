@@ -50,6 +50,24 @@
       "libelle": "ans d'expérience"
     }
   ],
+  "chiffresProgrammes": [
+    {
+      "valeur": "4",
+      "libelle": "villes"
+    },
+    {
+      "valeur": "10",
+      "libelle": "M FCFA, prix d'entrée"
+    },
+    {
+      "valeur": "+300",
+      "libelle": "employés"
+    },
+    {
+      "valeur": "100%",
+      "libelle": "construit par nos équipes"
+    }
+  ],
   "histoireSurtitre": "Notre histoire",
   "histoireTitre": "Douze ans à bâtir *la confiance*",
   "histoireTexte": [

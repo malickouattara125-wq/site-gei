@@ -48,6 +48,7 @@ const blocks = {
   "p-slogan": (p) => `<p>${esc(p.slogan)}</p>${reseaux(p, "social")}`,
   "p-chiffres": (p) => chiffres(p.chiffresAccueil),
   "p-chiffres2": (p) => chiffres(p.chiffresAPropos),
+  "p-chiffres3": (p) => chiffres(p.chiffresProgrammes),
   "p-histoire": (p) => `
           <p class="kicker" data-anim>${esc(p.histoireSurtitre || "Notre histoire")}</p>
           <h2 data-anim style="--d:.06s">${hl(p.histoireTitre)}</h2>

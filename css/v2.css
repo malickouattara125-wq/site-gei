@@ -143,7 +143,7 @@ h1, h2, h3 { color: var(--ink); line-height: 1.12; letter-spacing: -.02em; margi
 .stats div { padding: 22px 26px; text-align: center; }
 .stats div + div { border-left: 1px solid var(--line); }
 .stats b { display: block; font-size: 42px; font-weight: 700; color: var(--blue); line-height: 1; letter-spacing: -.03em; }
-.stats span { font-size: 14.5px; font-weight: 700; color: var(--muted); }
+.stats span { display: block; margin-top: 8px; font-size: 15.5px; font-weight: 700; color: #3A3F5C; }
 
 /* ---------- Sections ---------- */
 .section { padding: 110px 0; }
@@ -818,7 +818,7 @@ body { background: #fff; }
 .figures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 26px 0 0; }
 .figures div { padding: 16px 0; }
 .figures b { display: block; font-size: 34px; font-weight: 600; color: var(--blue); line-height: 1; }
-.figures span { font-size: 13px; color: var(--muted); }
+.figures span { display: block; margin-top: 6px; font-size: 14.5px; font-weight: 600; color: #3A3F5C; }
 
 /* ---- Nos catalogues ---- */
 .catal { display: grid; grid-template-columns: .8fr 1.2fr; gap: 0; background: var(--blue); color: rgba(255, 255, 255, .85); overflow: hidden; }
