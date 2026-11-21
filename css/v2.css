@@ -13,7 +13,7 @@
   --sand: #EEE6D4;
   --ink: #131735;
   --text: #464A63;
-  --muted: #7C7F93;
+  --muted: #555A74;
   --line: #E6E8EF;
   --soft: #F6F8F3;
   --white: #fff;
@@ -68,8 +68,8 @@ h1, h2, h3 { color: var(--ink); line-height: 1.12; letter-spacing: -.02em; margi
 .btn--ghost:hover { background: var(--blue); color: #fff; }
 .btn--light { background: #fff; color: var(--blue); }
 .btn--light:hover { background: var(--olive); color: var(--blue-d); }
-.btn--wa { background: #25D366; color: #fff; }
-.btn--wa:hover { background: #1eb457; }
+.btn--wa { background: #0F7A36; color: #fff; }
+.btn--wa:hover { background: #0B632B; }
 
 /* ---------- Bandeau d'infos ---------- */
 .topbar { background: var(--blue-d); color: #D9DCF2; font-size: 13.5px; }
@@ -508,7 +508,7 @@ h1, h2, h3 { color: var(--ink); line-height: 1.12; letter-spacing: -.02em; margi
   .finder label + label { border-left: 0; border-top: 1px solid var(--line); }
   .programs { grid-template-columns: 1fr; }
   .mosaic { height: 300px; grid-template-columns: 1fr 1fr; }
-  .tabs { overflow-x: auto; max-width: 100%; }
+  .tabs { flex-wrap: wrap; justify-content: center; border-radius: 22px; max-width: 100%; }
   .tabs button { flex: none; }
   .stats b { font-size: 34px; }
   .footer__grid { grid-template-columns: 1fr; }
@@ -811,6 +811,9 @@ body { background: #fff; }
 .story-v__media { position: relative; aspect-ratio: 16 / 10; background: var(--blue-l); overflow: hidden; }
 .story-v__media video, .story-v__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .story-v__media img { object-position: 50% 20%; }
+/* Photo du Directeur Général : format portrait, visage entièrement visible */
+.story-v__media--photo { aspect-ratio: 550 / 620; width: 100%; max-width: 440px; justify-self: center; border-radius: var(--r); box-shadow: var(--shadow); background: #4a4a4a; }
+.story-v__media--photo img { object-fit: cover; object-position: 50% 0; }
 .story-v h2 { font-size: clamp(28px, 3vw, 40px); font-weight: 600; margin: 0 0 16px; }
 .story-v p { margin: 0 0 14px; color: var(--text); }
 .story-v__sign { margin-top: 18px; font-weight: 600; color: var(--ink); }
