@@ -399,7 +399,7 @@ h1, h2, h3 { color: var(--ink); line-height: 1.12; letter-spacing: -.02em; margi
 .quote { margin: 0; background: var(--blue); color: #fff; border-radius: var(--r); padding: 40px; position: relative; box-shadow: var(--shadow-h); }
 .quote::before { content: "“"; position: absolute; top: -10px; left: 26px; font-size: 120px; line-height: 1; color: var(--olive); font-weight: 700; }
 .quote blockquote { margin: 34px 0 24px; font-size: 21px; font-weight: 700; line-height: 1.5; }
-.quote blockquote em { font-style: normal; color: var(--olive); }
+.quote blockquote em, .quote blockquote .hl { font-style: normal; font-weight: 700; color: var(--olive); }
 .quote figcaption { display: flex; gap: 14px; align-items: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, .15); }
 .quote figcaption img { width: 52px; height: 52px; border-radius: 14px; background: #fff; padding: 4px; }
 .quote strong { display: block; }
