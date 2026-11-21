@@ -1183,3 +1183,7 @@ a.pcard:hover h3 { color: var(--olive-d); }
   .nav a { padding: 8px 7px; font-size: 13.5px; }
   .header__cta { font-size: 12px; letter-spacing: .08em; }
 }
+
+/* Bloc de chiffres sous les grandes photos : il déborde volontairement sous la photo.
+   Le haut de page ne coupe plus que sur les côtés, pour que les légendes restent visibles. */
+.phero { overflow: visible; overflow-x: clip; z-index: 1; }
