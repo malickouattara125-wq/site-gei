@@ -42,6 +42,17 @@ auth.ensureAdmin();
   store.save("migrations", { ...faites, [lot]: new Date().toISOString() });
 })();
 
+// Parcours (dates clés) : remplacé par la nouvelle version seulement s'il n'a pas été modifié dans le tableau de bord
+(function majParcours() {
+  const faites = store.load("migrations", {});
+  const lot = "parcours-2026-11";
+  if (faites[lot]) return;
+  const p = store.load("parametres", null);
+  const anciennes = JSON.parse(fs.readFileSync(path.join(__dirname, "seed", "anciennes-dates.json"), "utf8"));
+  if (p && JSON.stringify(p.dates) === JSON.stringify(anciennes)) store.save("parametres", { ...p, dates: JSON.parse(fs.readFileSync(path.join(__dirname, "seed", "parametres.json"), "utf8")).dates });
+  store.save("migrations", { ...faites, [lot]: new Date().toISOString() });
+})();
+
 /* ---------------- Outils ---------------- */
 const programmes = () => store.load("programmes", []);
 const visibles = () => programmes().filter((p) => p.visible !== false).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
