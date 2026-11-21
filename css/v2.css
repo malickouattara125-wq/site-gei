@@ -954,7 +954,7 @@ a.re-item:hover h3 { color: var(--olive-d); }
 .duo-title--light { color: #fff; }
 
 /* Bande bleue */
-.band-c { background: var(--blue); padding: 90px 0 80px; }
+.band-c { background: var(--blue); padding: 90px 0 80px; overflow-x: clip; }
 .band-c .center-btn { margin-top: 40px; }
 .btn--light { background: #fff; color: var(--blue); }
 .btn--light:hover { background: var(--olive); color: var(--blue); }
@@ -1172,3 +1172,14 @@ a.pcard:hover h3 { color: var(--olive-d); }
 .ref__video { margin: 14px 0 0; }
 .ref__video video { width: 100%; max-height: 420px; border-radius: 10px; background: #000; display: block; }
 .ref__video figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+/* Menu à 7 rubriques : une seule ligne, plus serré sur les écrans moyens */
+.nav a, .brand b, .brand small, .header__cta { white-space: nowrap; }
+.brand { flex: none; }
+.nav { gap: 2px; }
+.nav a { padding: 8px 10px; font-size: 14px; }
+.header__cta { padding-left: 18px; padding-right: 18px; }
+@media (max-width: 1260px) {
+  .nav a { padding: 8px 7px; font-size: 13.5px; }
+  .header__cta { font-size: 12px; letter-spacing: .08em; }
+}

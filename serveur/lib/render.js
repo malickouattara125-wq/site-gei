@@ -10,7 +10,7 @@ const esc = (s) => String(s == null ? "" : s)
 const num = (n) => String(n).replace(".", ",");
 
 const NAV = [["index.html", "Accueil"], ["a-propos.html", "À propos"], ["programmes.html", "Programmes"],
-  ["realisations.html", "Réalisations"], ["services.html", "Services"], ["contact.html", "Contact"]];
+  ["realisations.html", "Réalisations"], ["actualites.html", "Actualités"], ["services.html", "Services"], ["contact.html", "Contact"]];
 
 const EXTRA_OPTIONS = ["Construction ou rénovation", "Préfinancement ou bail", "Autre demande"];
 
@@ -419,10 +419,18 @@ function newsList(list) {
   }).join("\n");
 }
 
+// Accueil : les 3 dernières actualités
+function newsCards(list) {
+  return list.slice(0, 3).map((a, i) => `          <article class="post" data-anim style="--d:${(i * 0.06).toFixed(2)}s">
+            <div class="post__img${a.image ? "" : " post__img--logo"}"><img src="${esc(a.image || "assets/img/logo-gei.png")}" alt="${esc(a.image ? a.titre : "")}" loading="lazy"></div>
+            <div class="post__body"><time>${esc(dateFr(a))}</time><h3>${esc(a.titre)}</h3><p>${esc(a.texte)}</p></div>
+          </article>`).join("\n");
+}
+
 // Remplace le contenu entre deux repères <!-- nom:debut --> et <!-- nom:fin -->
 function between(html, name, content) {
   const re = new RegExp(`(<!-- ${name}:debut -->)[\\s\\S]*?(<!-- ${name}:fin -->)`);
   return html.replace(re, (_, a, b) => `${a}\n${content}\n          ${b}`);
 }
 
-module.exports = { esc, layout, card, cards, references, projetsOnglets, projetsUne, slides, realisations, realisationsCards, servicesCards, servicesRows, programmePage, newsList, between, contactBlock };
+module.exports = { esc, layout, card, cards, references, projetsOnglets, projetsUne, slides, realisations, realisationsCards, servicesCards, servicesRows, programmePage, newsList, newsCards, between, contactBlock };
