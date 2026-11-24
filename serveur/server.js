@@ -18,6 +18,7 @@ const PORT = +process.env.PORT || 8765;
 const SITE = path.resolve(process.env.SITE_DIR ||
   (fs.existsSync(path.join(__dirname, "..", "Site_GEI", "index.html")) ? path.join(__dirname, "..", "Site_GEI") : path.join(__dirname, "..")));
 const ADMIN = path.join(__dirname, "admin");
+const GESTION_APP = path.join(__dirname, "gestion");
 const UPLOADS = path.join(__dirname, "uploads");
 fs.mkdirSync(UPLOADS, { recursive: true });
 
@@ -307,33 +308,48 @@ async function api(req, res, pathname) {
   }
 
   // --- Connexion ---
-  if (pathname === "/api/login" && method === "POST") {
+  // Deux applications séparées, chacune avec sa propre connexion :
+  //  - /admin   : tableau de bord du site (DG uniquement), cookie gei_sid
+  //  - /gestion : application de gestion (DG et comptable), cookie gei_g, API /api/g/…
+  const enGestion = pathname.startsWith("/api/g/");
+  const COOKIE = enGestion ? "gei_g" : "gei_sid";
+  const secure = isHttps(req) ? "; Secure" : "";
+  if ((pathname === "/api/login" || pathname === "/api/g/login") && method === "POST") {
     const b = await readBody(req, 5000);
     const r = auth.login(ip(req), b.user, b.password);
     if (r.error) return json(res, 401, { error: r.error });
-    const secure = isHttps(req) ? "; Secure" : "";
-    return json(res, 200, { ok: true }, { "Set-Cookie": `gei_sid=${r.token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${auth.SESSION_HOURS * 3600}${secure}` });
+    if (!enGestion && auth.check(r.token).role !== "dg") {
+      auth.logout(r.token);
+      return json(res, 403, { error: "Ce compte donne accès uniquement à l'application de gestion : geisarl.com/gestion" });
+    }
+    return json(res, 200, { ok: true }, { "Set-Cookie": `${COOKIE}=${r.token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${auth.SESSION_HOURS * 3600}${secure}` });
   }
 
   // --- Tout le reste demande d'être connecté ---
-  const token = cookies(req).gei_sid;
+  const token = cookies(req)[COOKIE];
   const session = auth.check(token);
   if (!session) return json(res, 401, { error: "Non connecté" });
   // Protection contre les requêtes venant d'un autre site
   if (method !== "GET" && req.headers["x-gei"] !== "1") return json(res, 403, { error: "Requête refusée" });
+  // Le tableau de bord du site est réservé au DG
+  if (!enGestion && session.role !== "dg") return json(res, 403, { error: "Accès réservé au Directeur." });
 
-  // Le comptable n'accède qu'à la gestion (pas au contenu du site ni aux comptes)
-  const pourTous = /^\/api\/(me|logout|password|images|upload|g(\/.*)?)$/.test(pathname);
-  if (session.role !== "dg" && !pourTous) return json(res, 403, { error: "Accès réservé au Directeur." });
+  if (enGestion && pathname === "/api/g/logout" && method === "POST") {
+    auth.logout(token);
+    return json(res, 200, { ok: true }, { "Set-Cookie": "gei_g=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0" });
+  }
+  // Fonctions communes (compte, photos) aussi disponibles pour l'application de gestion
+  if (enGestion && /^\/api\/g\/(me|password|images|upload)$/.test(pathname)) pathname = pathname.replace("/api/g/", "/api/");
 
-  // --- Comptes (DG) ---
-  if (pathname === "/api/comptes" && method === "GET") return json(res, 200, { comptes: auth.listAccounts(), roles: auth.ROLES });
-  if (pathname === "/api/comptes" && method === "POST") {
+  // --- Comptes (DG, depuis l'application de gestion) ---
+  if (pathname.startsWith("/api/g/comptes") && session.role !== "dg") return json(res, 403, { error: "Accès réservé au Directeur." });
+  if (pathname === "/api/g/comptes" && method === "GET") return json(res, 200, { comptes: auth.listAccounts(), roles: auth.ROLES });
+  if (pathname === "/api/g/comptes" && method === "POST") {
     const b = await readBody(req, 5000);
     const r = auth.addAccount(b.user, b.password, b.role);
     return r.error ? json(res, 400, r) : json(res, 200, r);
   }
-  let mc = /^\/api\/comptes\/([a-z0-9._-]{3,30})(\/password)?$/.exec(pathname);
+  let mc = /^\/api\/g\/comptes\/([a-z0-9._-]{3,30})(\/password)?$/.exec(pathname);
   if (mc) {
     if (method === "DELETE" && !mc[2]) { const r = auth.removeAccount(mc[1]); return r.error ? json(res, 400, r) : json(res, 200, r); }
     if (method === "POST" && mc[2]) { const b = await readBody(req, 5000); const r = auth.resetPassword(mc[1], b.password); return r.error ? json(res, 400, r) : json(res, 200, r); }
@@ -508,6 +524,12 @@ const server = http.createServer(async (req, res) => {
     if (req.method !== "GET" && req.method !== "HEAD") return send(res, 405, "Méthode non permise");
 
     if (pathname === "/admin") { res.writeHead(301, { Location: "/admin/" }); return res.end(); }
+    if (pathname === "/gestion") { res.writeHead(301, { Location: "/gestion/" }); return res.end(); }
+    if (pathname.startsWith("/gestion/")) {
+      const f = safeJoin(GESTION_APP, pathname.slice(9) || "index.html");
+      if (!f) return notFound(res);
+      return sendFile(res, pathname === "/gestion/" ? path.join(GESTION_APP, "index.html") : f, req);
+    }
     if (pathname.startsWith("/admin/")) {
       const f = safeJoin(ADMIN, pathname.slice(7) || "index.html");
       if (!f) return notFound(res);

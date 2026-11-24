@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>GEI Gestion</title>
+  <link rel="icon" href="/assets/img/logo-gei.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/gestion/app.css">
+</head>
+<body>
+
+  <!-- Connexion -->
+  <section class="login" id="login" hidden>
+    <form class="login__card" id="loginForm">
+      <img src="/assets/img/logo-gei.png" alt="" width="64" height="64">
+      <h1>GEI Gestion</h1>
+      <p>Chantiers · Maisons et clients · Dépenses · Équipes</p>
+      <label><span>Identifiant</span><input name="user" autocomplete="username" required></label>
+      <label><span>Mot de passe</span><input name="password" type="password" autocomplete="current-password" required></label>
+      <p class="err" id="loginErr" hidden></p>
+      <button class="btn btn--primary" type="submit">Se connecter</button>
+    </form>
+  </section>
+
+  <!-- Application -->
+  <div class="app" id="app" hidden>
+    <aside class="side">
+      <a class="side__brand" href="#gestion"><img src="/assets/img/logo-gei.png" alt="" width="40" height="40"><span><b>GEI Gestion</b><small>Global Empire Immobilier</small></span></a>
+      <button class="btn btn--sm btn--ghost burger-g" id="burger" type="button" aria-label="Menu">☰ Menu</button>
+      <nav class="side__nav" id="nav">
+        <a href="#gestion" data-view="gestion"><i class="i i--chart"></i>Tableau de gestion</a>
+        <a href="#g-chantiers" data-view="g-chantiers"><i class="i i--home"></i>Chantiers</a>
+        <a href="#g-maisons" data-view="g-maisons"><i class="i i--trophy"></i>Maisons et clients</a>
+        <a href="#g-depenses" data-view="g-depenses"><i class="i i--news"></i>Dépenses</a>
+        <a href="#g-equipes" data-view="g-equipes"><i class="i i--user"></i>Équipes et paie</a>
+        <a href="#compte" data-view="compte"><i class="i i--gear"></i>Mon compte</a>
+      </nav>
+      <div class="side__foot">
+        <p class="who">Connecté : <b id="who"></b></p>
+        <button class="btn btn--text btn--sm" id="logout">Se déconnecter</button>
+      </div>
+    </aside>
+    <main class="main" id="main"></main>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Photos de chantier -->
+  <dialog class="modal" id="picker">
+    <div class="modal__head"><h3>Photos de chantier</h3><button class="btn btn--text" data-close>Fermer</button></div>
+    <div class="modal__tools">
+      <label class="btn btn--primary btn--sm">Envoyer des photos<input type="file" accept="image/*" multiple hidden id="pickerUpload"></label>
+      <input type="search" placeholder="Rechercher…" id="pickerSearch">
+    </div>
+    <div class="modal__grid" id="pickerGrid"></div>
+  </dialog>
+
+  <script src="/gestion/core.js" defer></script>
+  <script src="/gestion/gestion.js" defer></script>
+</body>
+</html>

@@ -31,13 +31,7 @@
 
   /* ---------- Connexion ---------- */
   function showLogin() { $("#app").hidden = true; $("#login").hidden = false; $("[name=user]", $("#loginForm")).focus(); }
-  let me = { role: "dg" };
-  function showApp(m) {
-    if (m && m.role) me = m;
-    document.body.classList.toggle("role-comptable", me.role !== "dg");
-    if (me.role !== "dg" && !/^#(g-|gestion|compte)/.test(location.hash)) history.replaceState(null, "", "#gestion");
-    $("#login").hidden = true; $("#app").hidden = false; route(); if (me.role === "dg") refreshBadge();
-  }
+  function showApp() { $("#login").hidden = true; $("#app").hidden = false; route(); refreshBadge(); }
 
   $("#loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -45,7 +39,7 @@
     const btn = $("button", e.target); btn.disabled = true; $("#loginErr").hidden = true;
     try {
       await api("/api/login", { method: "POST", body: { user: f.get("user"), password: f.get("password") } });
-      e.target.reset(); showApp(await api("/api/me"));
+      e.target.reset(); showApp();
     } catch (err) { $("#loginErr").textContent = err.message; $("#loginErr").hidden = false; }
     btn.disabled = false;
   });
@@ -66,10 +60,10 @@
     references: () => viewListe(REFS), reference: (id) => viewFiche(REFS, id) };
   let dirty = false;
   function route() {
-    const h = location.hash.slice(1) || (me.role === "dg" ? "accueil" : "gestion");
+    const h = location.hash.slice(1) || "accueil";
     const cut = h.indexOf("/");
     const name = cut < 0 ? h : h.slice(0, cut), arg = cut < 0 ? "" : h.slice(cut + 1);
-    const v = views[name] || (me.role === "dg" ? viewAccueil : views.gestion);
+    const v = views[name] || viewAccueil;
     $$("#nav a").forEach((a) => a.classList.toggle("is-on", name.startsWith(a.dataset.view.replace(/s$/, ""))));
     dirty = false;
     main.innerHTML = '<p class="empty">Chargement…</p>';
@@ -721,8 +715,6 @@
     onPick && onPick(multi ? done : [done[0]]);
   });
 
-  /* ---------- Outils partagés avec le module « Gestion » (gestion.js) ---------- */
-  window.GEI = { api, esc, toast, fail, pick, img, lines, views, main, $, $$, me: () => me, setDirty: (v) => { dirty = v; } };
 
   /* ---------- Démarrage ---------- */
   api("/api/me").then(showApp).catch(showLogin);

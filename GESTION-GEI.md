@@ -1,16 +1,21 @@
 # Gestion GEI — mode d'emploi
 
-Espace privé du tableau de bord (**https://geisarl.com/admin**, menu « Gestion GEI ») pour suivre
-les chantiers, les maisons et les clients, les dépenses, les ouvriers et la paie.
-Ces données ne sont **jamais** affichées sur le site public.
+Application **séparée** du tableau de bord du site, à l'adresse **https://geisarl.com/gestion**,
+pour suivre les chantiers, les maisons et les clients, les dépenses, les ouvriers et la paie.
+Elle a sa propre connexion. Ses données ne sont **jamais** affichées sur le site public.
+
+| Application | Adresse | Sert à |
+|---|---|---|
+| Tableau de bord du site | geisarl.com/admin | Modifier le site (programmes, actualités, photos…) — DG uniquement |
+| **GEI Gestion** | **geisarl.com/gestion** | Gérer l'entreprise — DG et comptable |
 
 ## Les comptes
 | Compte | Accès |
 |---|---|
-| **DG** (compte principal `admin`) | Tout : site, gestion, comptes, sauvegarde |
-| **Comptable** | Seulement « Gestion GEI » (pas le site, ni les comptes) |
+| **DG** (compte principal `admin`) | Les deux applications ; dans GEI Gestion : comptes et sauvegarde |
+| **Comptable** | Seulement GEI Gestion (il ne peut pas se connecter au tableau de bord du site) |
 
-Créer le compte du comptable : **Mon compte** → « Comptes d'accès » → identifiant, mot de passe, rôle « Comptable » → **Créer le compte**.
+Créer le compte du comptable : **GEI Gestion** → **Mon compte** → « Comptes d'accès » → identifiant, mot de passe, rôle « Comptable » → **Créer le compte**.
 
 ## Au quotidien
 | Je veux… | Où |
@@ -27,7 +32,7 @@ Créer le compte du comptable : **Mon compte** → « Comptes d'accès » → id
 Le coût d'un chantier = ses dépenses **+** la paie des ouvriers pointés sur ce chantier.
 
 ## Sauvegarde (une fois par mois)
-**Mon compte** → « Sauvegarde de la gestion » → **Télécharger la sauvegarde**. Gardez le fichier en lieu sûr (Google Drive, clé USB).
+**GEI Gestion** → **Mon compte** → « Sauvegarde de la gestion » → **Télécharger la sauvegarde**. Gardez le fichier en lieu sûr (Google Drive, clé USB).
 
 ## Reprendre les fichiers Excel existants
 Envoyez vos fichiers Excel actuels (clients, paiements, dépenses, ouvriers) : ils peuvent être importés dans la gestion.

@@ -1,5 +1,5 @@
-/* Tableau de bord GEI — module « Gestion » : chantiers, maisons et clients, dépenses, équipes et paie.
-   S'appuie sur les outils de admin.js (window.GEI). Montants en FCFA. */
+/* Application « GEI Gestion » : chantiers, maisons et clients, dépenses, équipes et paie.
+   S'appuie sur le socle core.js (window.GEI). Montants en FCFA. */
 (() => {
   "use strict";
   const G = window.GEI;
@@ -374,7 +374,7 @@
   views.compte = async () => {
     await compteOriginal();
     if (G.me().role !== "dg") return;
-    const r = await api("/api/comptes");
+    const r = await api("/api/g/comptes");
     const box = document.createElement("div");
     box.innerHTML = `<section class="panel" style="margin-top:18px"><h2>Comptes d'accès</h2>
       <p class="muted">Le comptable n'accède qu'à la partie « Gestion GEI » (pas au site, ni aux comptes).</p>
@@ -391,12 +391,13 @@
     main.appendChild(box);
     $("#nc").addEventListener("submit", async (e) => {
       e.preventDefault(); const v = Object.fromEntries(new FormData(e.target));
-      try { await api("/api/comptes", { method: "POST", body: v }); toast(`Compte « ${v.user} » créé`); views.compte(); } catch (err) { fail(err); }
+      try { await api("/api/g/comptes", { method: "POST", body: v }); toast(`Compte « ${v.user} » créé`); views.compte(); } catch (err) { fail(err); }
     });
     box.addEventListener("click", async (e) => {
       const del = e.target.dataset.del, reset = e.target.dataset.reset;
-      if (del && confirm(`Supprimer le compte « ${del} » ?`)) { try { await api(`/api/comptes/${del}`, { method: "DELETE" }); toast("Compte supprimé"); views.compte(); } catch (err) { fail(err); } }
-      if (reset) { const pw = prompt(`Nouveau mot de passe pour « ${reset} » (10 caractères ou plus) :`); if (pw) { try { await api(`/api/comptes/${reset}/password`, { method: "POST", body: { password: pw } }); toast("Mot de passe changé"); } catch (err) { fail(err); } } }
+      if (del && confirm(`Supprimer le compte « ${del} » ?`)) { try { await api(`/api/g/comptes/${del}`, { method: "DELETE" }); toast("Compte supprimé"); views.compte(); } catch (err) { fail(err); } }
+      if (reset) { const pw = prompt(`Nouveau mot de passe pour « ${reset} » (10 caractères ou plus) :`); if (pw) { try { await api(`/api/g/comptes/${reset}/password`, { method: "POST", body: { password: pw } }); toast("Mot de passe changé"); } catch (err) { fail(err); } } }
     });
   };
+  window.GEI_START();
 })();
