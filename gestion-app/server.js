@@ -69,6 +69,14 @@ function safeJoin(root, name) {
   const full = path.join(root, name);
   return full.startsWith(root + path.sep) ? full : null;
 }
+// Utilisation sur l'ordinateur (lanceur DEMARRER, variable GEI_LOCAL=1) : connexion automatique du DG,
+// uniquement pour les requêtes venant de cet ordinateur lui-même (jamais via un relais ni depuis Internet).
+function sessionLocale(req) {
+  if (process.env.GEI_LOCAL !== "1") return null;
+  if (!LOCAL.test(req.socket.remoteAddress || "") || req.headers["x-forwarded-for"] || req.headers["x-real-ip"]) return null;
+  const admin = store.load("admin", null);
+  return admin ? { user: admin.user, role: "dg", locale: true } : null;
+}
 const str = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const slugify = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
 const id = () => crypto.randomBytes(6).toString("hex");
@@ -85,7 +93,7 @@ async function api(req, res, pathname) {
     return json(res, 200, { ok: true }, { "Set-Cookie": `gei_g=${r.token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${auth.SESSION_HOURS * 3600}${secure}` });
   }
   const token = cookies(req).gei_g;
-  const session = auth.check(token);
+  const session = auth.check(token) || sessionLocale(req);
   if (!session) return json(res, 401, { error: "Non connecté" });
   if (method !== "GET" && req.headers["x-gei"] !== "1") return json(res, 403, { error: "Requête refusée" });
 
@@ -218,7 +226,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method !== "GET" && req.method !== "HEAD") return send(res, 405, "Méthode non permise");
     // Photos de chantier : seulement pour les comptes connectés
     if (pathname.startsWith("/uploads/")) {
-      if (!auth.check(cookies(req).gei_g)) return send(res, 401, "Connexion requise", "text/plain; charset=utf-8");
+      if (!auth.check(cookies(req).gei_g) && !sessionLocale(req)) return send(res, 401, "Connexion requise", "text/plain; charset=utf-8");
       const f = safeJoin(UPLOADS, pathname.slice(9));
       return f ? sendFile(res, f, "private, max-age=3600") : send(res, 404, "Introuvable");
     }

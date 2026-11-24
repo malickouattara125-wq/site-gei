@@ -15,6 +15,7 @@ if errorlevel 1 (
   exit /b
 )
 
+set GEI_LOCAL=1
 if not exist "data\admin.json" set ADMIN_PASSWORD=gei-local-2026
 
 echo.
@@ -23,7 +24,7 @@ echo.
 if exist "data\premier-acces.txt" type "data\premier-acces.txt"
 if not exist "data\admin.json" echo   Identifiant : admin      Mot de passe : gei-local-2026
 echo.
-echo   Mot de passe refuse ? Fermez cette fenetre et lancez REINITIALISER-MOT-DE-PASSE.
+echo   Sur cet ordinateur, l'application s'ouvre sans mot de passe.
 echo   Laissez cette fenetre ouverte. Fermez-la pour arreter.
 echo.
 start "" http://localhost:8780
