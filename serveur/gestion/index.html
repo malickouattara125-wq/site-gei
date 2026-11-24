@@ -32,11 +32,16 @@
       <a class="side__brand" href="#gestion"><img src="/assets/img/logo-gei.png" alt="" width="40" height="40"><span><b>GEI Gestion</b><small>Global Empire Immobilier</small></span></a>
       <button class="btn btn--sm btn--ghost burger-g" id="burger" type="button" aria-label="Menu">☰ Menu</button>
       <nav class="side__nav" id="nav">
-        <a href="#gestion" data-view="gestion"><i class="i i--chart"></i>Tableau de gestion</a>
+        <a href="#gestion" data-view="gestion" data-roles="dg comptable"><i class="i i--chart"></i>Tableau de gestion</a>
         <a href="#g-chantiers" data-view="g-chantiers"><i class="i i--home"></i>Chantiers</a>
-        <a href="#g-maisons" data-view="g-maisons"><i class="i i--trophy"></i>Maisons et clients</a>
-        <a href="#g-depenses" data-view="g-depenses"><i class="i i--news"></i>Dépenses</a>
+        <a href="#g-planning" data-view="g-planning"><i class="i i--news"></i>Planning</a>
+        <a href="#g-maisons" data-view="g-maisons" data-roles="dg comptable"><i class="i i--trophy"></i>Maisons et clients</a>
+        <a href="#g-depenses" data-view="g-depenses" data-roles="dg comptable"><i class="i i--news"></i>Dépenses</a>
+        <a href="#g-tresorerie" data-view="g-tresorerie" data-roles="dg comptable"><i class="i i--chart"></i>Trésorerie</a>
+        <a href="#g-stock" data-view="g-stock"><i class="i i--tools"></i>Stock de matériaux</a>
         <a href="#g-equipes" data-view="g-equipes"><i class="i i--user"></i>Équipes et paie</a>
+        <a href="#g-rapport" data-view="g-rapport" data-roles="dg comptable"><i class="i i--news"></i>Rapport mensuel</a>
+        <a href="#g-import" data-view="g-import" data-roles="dg comptable"><i class="i i--photo"></i>Importer (Excel)</a>
         <a href="#compte" data-view="compte"><i class="i i--gear"></i>Mon compte</a>
       </nav>
       <div class="side__foot">
@@ -60,6 +65,7 @@
   </dialog>
 
   <script src="/gestion/core.js" defer></script>
+  <script src="/gestion/gestion-plus.js" defer></script>
   <script src="/gestion/gestion.js" defer></script>
 </body>
 </html>

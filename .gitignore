@@ -13,3 +13,6 @@ serveur/node_modules/
 
 # Fichier de redémarrage créé lors de la mise en ligne
 serveur/tmp/
+
+# Pièces jointes privées de la gestion (factures, contrats…)
+serveur/fichiers/

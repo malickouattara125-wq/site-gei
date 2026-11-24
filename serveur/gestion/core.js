@@ -36,7 +36,9 @@
   function showApp(m) {
     if (m && m.role) me = m;
     document.body.classList.toggle("role-dg", me.role === "dg");
-    $("#who").textContent = me.user || "";
+    $$("#nav [data-roles]").forEach((a) => { a.hidden = !a.dataset.roles.split(" ").includes(me.role); });
+    if (me.role === "chef" && (!location.hash || location.hash === "#gestion")) history.replaceState(null, "", "#g-chantiers");
+    $("#who").textContent = (me.user || "") + (me.role === "chef" ? " (chef de chantier)" : me.role === "comptable" ? " (comptable)" : "");
     $("#login").hidden = true; $("#app").hidden = false; route();
   }
   $("#loginForm").addEventListener("submit", async (e) => {

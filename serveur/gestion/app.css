@@ -242,3 +242,36 @@ textarea { resize: vertical; min-height: 90px; }
 .who { font-size: 12.5px; color: rgba(255,255,255,.6); padding: 0 12px; }
 .burger-g { display: none !important; }
 .side__nav { align-content: start; }
+#nav a[hidden] { display: none; }
+.rows .r--head { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+.docs { list-style: none; padding: 0; margin: 0 0 10px; display: grid; gap: 6px; }
+.docs li { display: flex; align-items: center; gap: 10px; background: var(--soft); padding: 8px 12px; border-radius: 10px; }
+.docs a { font-weight: 700; color: var(--blue); }
+.docs .btn--text { margin-left: auto; }
+
+/* Planning */
+.gantt { position: relative; display: grid; gap: 4px; overflow-x: auto; }
+.gantt__row { display: grid; grid-template-columns: 240px 1fr; align-items: center; min-width: 720px; }
+.gantt__row--sub .gantt__nom { padding-left: 18px; font-size: 13px; color: var(--muted); }
+.gantt__row--head { height: 26px; }
+.gantt__nom { font-size: 14px; padding-right: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.gantt__track { position: relative; height: 22px; background: #f3f4f8; border-radius: 6px; }
+.gantt__row--head .gantt__track { background: none; }
+.gantt__row--head span { position: absolute; top: 4px; font-size: 11.5px; font-weight: 700; color: var(--muted); text-transform: capitalize; }
+.gantt__bar { position: absolute; top: 3px; height: 16px; background: #c9cff0; border-radius: 99px; overflow: hidden; }
+.gantt__bar i { display: block; height: 100%; background: var(--blue); }
+.gantt__bar--late { background: #f3c4c0; }
+.gantt__bar--late i { background: #c0392b; }
+.gantt__today { position: absolute; top: 0; height: 22px; width: 2px; background: #d9822b; z-index: 2; }
+
+/* Rapport mensuel */
+.rapport__titre { display: none; align-items: center; gap: 14px; margin-bottom: 16px; }
+@media print {
+  .side, .top__actions, .toast, .savebar { display: none !important; }
+  .app { display: block; }
+  .main { padding: 0; }
+  body { background: #fff; }
+  .rapport__titre { display: flex; }
+  .panel { box-shadow: none; border: 1px solid #ddd; break-inside: avoid; }
+  .kpis { grid-template-columns: repeat(4, 1fr) !important; }
+}

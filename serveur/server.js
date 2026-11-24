@@ -19,6 +19,8 @@ const SITE = path.resolve(process.env.SITE_DIR ||
   (fs.existsSync(path.join(__dirname, "..", "Site_GEI", "index.html")) ? path.join(__dirname, "..", "Site_GEI") : path.join(__dirname, "..")));
 const ADMIN = path.join(__dirname, "admin");
 const GESTION_APP = path.join(__dirname, "gestion");
+const FICHIERS = path.join(__dirname, "fichiers");   // pièces jointes privées (factures, contrats…), jamais servies publiquement
+fs.mkdirSync(FICHIERS, { recursive: true });
 const UPLOADS = path.join(__dirname, "uploads");
 fs.mkdirSync(UPLOADS, { recursive: true });
 
@@ -356,8 +358,52 @@ async function api(req, res, pathname) {
     return json(res, 405, { error: "Méthode non permise" });
   }
 
-  // --- Gestion GEI : chantiers, maisons, dépenses, ouvriers, pointages ---
+  // --- Gestion GEI ---
   if (pathname === "/api/g/listes") return json(res, 200, gestion.LISTES);
+  if (pathname === "/api/g/entreprise") { const p = parametres(); return json(res, 200, { nom: "Global Empire Immobilier SARL", adresse: p.adresseDetail || p.adresse, telephones: p.telephones, email: p.email, whatsapp: site.waNumber(p.whatsapp || (p.telephones || [])[0]) }); }
+  const chef = session.role === "chef";
+  const ARGENT = /^\/api\/g\/(maisons|depenses|mouvements|import|sauvegarde)/;
+  if (chef && ARGENT.test(pathname)) return json(res, 403, { error: "Accès réservé à la direction et à la comptabilité." });
+
+  // Pièces jointes privées
+  if (pathname === "/api/g/fichiers" && method === "POST") {
+    if (chef) return json(res, 403, { error: "Accès réservé à la direction et à la comptabilité." });
+    const b = await readBody(req, 12 * 1024 * 1024);
+    const mm = /^data:(application\/pdf|image\/jpeg|image\/png|image\/webp);base64,([A-Za-z0-9+/=]+)$/.exec(b.data || "");
+    if (!mm) return json(res, 400, { error: "Fichier accepté : PDF, JPEG, PNG ou WebP." });
+    const buf = Buffer.from(mm[2], "base64");
+    const ext = { "application/pdf": "pdf", "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" }[mm[1]];
+    const sig = { pdf: /^25504446/, jpg: /^ffd8ff/, png: /^89504e47/, webp: /^52494646/ }[ext];
+    if (!sig.test(buf.subarray(0, 4).toString("hex"))) return json(res, 400, { error: "Le fichier ne correspond pas à son type." });
+    if (buf.length > 8 * 1024 * 1024) return json(res, 413, { error: "Fichier trop lourd (8 Mo au maximum)." });
+    const d = new Date();
+    const nom = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}-${slugify(b.name || "document").slice(0, 40) || "document"}-${crypto.randomBytes(4).toString("hex")}.${ext}`;
+    fs.writeFileSync(path.join(FICHIERS, nom), buf);
+    return json(res, 200, { fichier: nom, nom: str(b.name, 120) || nom });
+  }
+  const mf = /^\/api\/g\/fichiers\/([a-z0-9-]+\.(pdf|jpg|png|webp))$/.exec(pathname);
+  if (mf && method === "GET") {
+    const fp = path.join(FICHIERS, mf[1]);
+    if (!fs.existsSync(fp)) return json(res, 404, { error: "Fichier introuvable" });
+    const type = { pdf: "application/pdf", jpg: "image/jpeg", png: "image/png", webp: "image/webp" }[mf[2]];
+    res.writeHead(200, { "Content-Type": type, "Content-Disposition": `inline; filename="${mf[1]}"`, "Cache-Control": "private, no-store", "X-Content-Type-Options": "nosniff" });
+    return fs.createReadStream(fp).pipe(res);
+  }
+
+  // Import depuis Excel (CSV converti dans le navigateur)
+  const mi = /^\/api\/g\/import\/(maisons|depenses|ouvriers|chantiers)$/.exec(pathname);
+  if (mi && method === "POST") {
+    const b = await readBody(req, 4 * 1024 * 1024);
+    const rows = Array.isArray(b.rows) ? b.rows.slice(0, 3000) : [];
+    const name = "g-" + mi[1], clean = gestion.COLLECTIONS[mi[1]];
+    const list = store.load(name, []); const erreurs = []; let ajoutes = 0;
+    rows.forEach((row, i) => {
+      try { list.push({ id: id(), ...clean(gestion.depuisImport(mi[1], row || {})), creePar: session.user, creeLe: new Date().toISOString(), importe: true }); ajoutes++; }
+      catch (e) { erreurs.push({ ligne: i + 2, message: e.message }); }
+    });
+    if (ajoutes) store.save(name, list);
+    return json(res, 200, { ajoutes, erreurs: erreurs.slice(0, 50), nbErreurs: erreurs.length });
+  }
   if (pathname === "/api/g/sauvegarde" && method === "GET") {
     if (session.role !== "dg") return json(res, 403, { error: "Accès réservé au Directeur." });
     const tout = { date: new Date().toISOString() };
@@ -365,10 +411,26 @@ async function api(req, res, pathname) {
     return send(res, 200, JSON.stringify(tout, null, 2), "application/json; charset=utf-8",
       { "Cache-Control": "no-store", "Content-Disposition": `attachment; filename="sauvegarde-gestion-gei-${tout.date.slice(0, 10)}.json"` });
   }
-  const mg = /^\/api\/g\/(chantiers|maisons|depenses|ouvriers|pointages)(?:\/([a-f0-9]+))?$/.exec(pathname);
+  const mg = /^\/api\/g\/(chantiers|maisons|depenses|ouvriers|pointages|mouvements|articles|stock)(?:\/([a-f0-9]+))?$/.exec(pathname);
   if (mg) {
     const name = "g-" + mg[1], clean = gestion.COLLECTIONS[mg[1]];
     const list = store.load(name, []);
+    // Chef de chantier : lecture sans les montants ; écriture limitée à l'avancement, au pointage et au stock
+    if (chef) {
+      const lecture = { chantiers: (c) => ({ ...c, budget: undefined }), ouvriers: (o) => ({ ...o, tarifJour: undefined }), articles: (a) => ({ ...a, prixUnitaire: undefined }) };
+      if (method === "GET" && !mg[2]) return json(res, 200, lecture[mg[1]] ? list.map(lecture[mg[1]]) : list);
+      const ecriture = { chantiers: ["PUT"], pointages: ["POST", "PUT", "DELETE"], stock: ["POST"] };
+      if (!(ecriture[mg[1]] || []).includes(method)) return json(res, 403, { error: "Accès réservé à la direction et à la comptabilité." });
+      if (mg[1] === "chantiers" && mg[2]) {
+        const i = list.findIndex((x) => x.id === mg[2]);
+        if (i < 0) return json(res, 404, { error: "Introuvable" });
+        const b = await readBody(req, 300000);
+        const avant = list[i];
+        list[i] = { ...avant, ...clean({ ...avant, statut: b.statut, etapes: b.etapes, photos: b.photos, notes: b.notes }), id: avant.id, creePar: avant.creePar, creeLe: avant.creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() };
+        store.save(name, list);
+        return json(res, 200, { ...list[i], budget: undefined });
+      }
+    }
     if (!mg[2]) {
       if (method === "GET") return json(res, 200, list);
       if (method === "POST") {

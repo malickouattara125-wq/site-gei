@@ -45,7 +45,7 @@ function tooMany(ip) {
 
 // Comptes : le DG est dans data/admin.json (compte principal, rôle « dg ») ;
 // les autres comptes (comptable…) sont dans data/comptes.json.
-const ROLES = { dg: "Directeur (accès complet)", comptable: "Comptable (gestion uniquement)" };
+const ROLES = { dg: "Directeur (accès complet)", comptable: "Comptable (gestion, sans les comptes)", chef: "Chef de chantier (avancement, photos, pointage, stock ; sans l'argent)" };
 const same = (pw, acc) => typeof pw === "string" && acc && acc.salt && crypto.timingSafeEqual(Buffer.from(hash(pw, acc.salt), "hex"), Buffer.from(acc.hash, "hex"));
 function findAccount(user) {
   const admin = store.load("admin", null);
