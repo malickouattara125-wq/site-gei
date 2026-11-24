@@ -2,7 +2,7 @@
 
 Le site est en ligne sur **https://geisarl.com** depuis le 11 novembre 2026.
 Tableau de bord du site : **https://geisarl.com/admin**
-Application de gestion : **https://geisarl.com/gestion** (voir [GESTION-GEI.md](GESTION-GEI.md))
+L'application de gestion **GEI Gestion** est un projet séparé, hébergé ailleurs : voir le dossier `gestion-app/` ([README](gestion-app/README.md)).
 
 > ⚠️ Ne donnez jamais vos mots de passe (LWS, cPanel, tableau de bord) dans une conversation, un e-mail ou un message WhatsApp.
 
@@ -18,7 +18,7 @@ Application de gestion : **https://geisarl.com/gestion** (voir [GESTION-GEI.md](
 | Variables | `FORCE_HTTPS=1`, `NODE_ENV=production` |
 | HTTPS | Certificat Let's Encrypt (automatique) ; `public_html/.htaccess` redirige tout vers `https://` |
 | Page par défaut LWS | renommée en `public_html/index-lws-defaut.html.bak` |
-| Données | `site-gei/serveur/data/` (programmes, actualités, demandes, comptes, **gestion : chantiers, maisons, paiements, dépenses, ouvriers**) et `site-gei/serveur/uploads/` (photos envoyées) |
+| Données | `site-gei/serveur/data/` (programmes, actualités, demandes) et `site-gei/serveur/uploads/` (photos envoyées) |
 
 ---
 
@@ -41,5 +41,4 @@ Faites de même pour `site-gei/serveur/uploads` (s'il existe).
 | Page d'erreur ou page blanche | cPanel → **Setup Node.js App** → **Restart**. |
 | Page « Bravo ! Votre domaine… » de LWS | Quelqu'un a remis un fichier `index.html` dans `public_html` : supprimez-le. |
 | Le tableau de bord refuse le mot de passe | Après 5 erreurs, il faut attendre 15 minutes. |
-| Mot de passe du DG oublié | Gestionnaire de fichiers : supprimez `site-gei/serveur/data/admin.json`, puis **Restart**. Un nouveau mot de passe est écrit dans `site-gei/serveur/data/premier-acces.txt`. Les autres comptes (comptable) et toutes les données de gestion sont conservés. |
-| Mot de passe du comptable oublié | Le DG se connecte à **geisarl.com/gestion** → **Mon compte** → « Nouveau mot de passe » à côté du compte. |
+| Mot de passe du DG oublié | Gestionnaire de fichiers : supprimez `site-gei/serveur/data/admin.json`, puis **Restart**. Un nouveau mot de passe est écrit dans `site-gei/serveur/data/premier-acces.txt`. |

@@ -175,7 +175,7 @@
     main.innerHTML = head(`Rapport de ${moisFr(m)}`, "Résumé du mois pour la direction. Bouton « Imprimer » pour l'enregistrer en PDF.",
       `<label class="muted">Mois <select id="rm">${moisDispo.map((x) => `<option value="${x}"${x === m ? " selected" : ""}>${moisFr(x)}</option>`).join("")}</select></label><button class="btn btn--primary" onclick="print()">Imprimer / PDF</button>`) + `
       <div class="rapport">
-        <div class="rapport__titre"><img src="/assets/img/logo-gei.png" alt="" width="48" height="48"><div><b>Global Empire Immobilier SARL</b><br>Rapport de gestion · ${moisFr(m)}</div></div>
+        <div class="rapport__titre"><img src="/logo-gei.png" alt="" width="48" height="48"><div><b>Global Empire Immobilier SARL</b><br>Rapport de gestion · ${moisFr(m)}</div></div>
         <div class="kpis"><div class="kpi"><small>Encaissé (ventes)</small><b>${fcfa(totalEnc)}</b><span>${enc.length} paiement(s)</span></div>
           <div class="kpi"><small>Dépenses de chantier</small><b>${fcfa(totalDep)}</b><span>${deps.length} dépense(s)</span></div>
           <div class="kpi"><small>Paie des ouvriers</small><b>${fcfa(paie)}</b><span>${sum(pts, (p) => p.presents.length)} journées</span></div>

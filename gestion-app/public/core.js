@@ -6,7 +6,7 @@
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const main = $("#main");
-  const img = (src) => (src ? (/^(https?:|\/)/.test(src) ? src : "/" + src) : "/assets/img/logo-gei.png");
+  const img = (src) => (src ? (/^(https?:|\/)/.test(src) ? src : "/" + src) : "/logo-gei.png");
   const lines = (v) => String(v || "").split("\n").map((s) => s.trim()).filter(Boolean);
 
   /* ---------- Échanges avec le serveur (toujours sous /api/g/) ---------- */

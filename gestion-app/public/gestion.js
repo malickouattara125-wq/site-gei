@@ -310,7 +310,7 @@
       h1{margin:0;font-size:22px;color:#0B1A6E}small{color:#555a74}table{width:100%;border-collapse:collapse;margin:18px 0}td{padding:8px 4px;border-bottom:1px solid #eef0f6}td:first-child{color:#555a74;width:42%}
       .big{font-size:26px;font-weight:700;color:#0B1A6E}.sign{display:flex;justify-content:space-between;margin-top:46px}.sign div{width:45%;border-top:1px solid #131735;padding-top:6px;text-align:center;font-size:13px}
       @media print{button{display:none}body{padding:0}}</style></head><body><div class="r">
-      <header><div><img src="${location.origin}/assets/img/logo-gei.png" alt=""><div><b>${esc(e.nom)}</b><br><small>${esc(e.adresse || "")}<br>${esc((e.telephones || []).join(" · "))} ${e.email ? "· " + esc(e.email) : ""}</small></div></div>
+      <header><div><img src="${location.origin}/logo-gei.png" alt=""><div><b>${esc(e.nom)}</b><br><small>${esc(e.adresse || "")}<br>${esc((e.telephones || []).join(" · "))} ${e.email ? "· " + esc(e.email) : ""}</small></div></div>
       <div style="text-align:right"><h1>REÇU DE PAIEMENT</h1><small>N° ${no}<br>Date : ${dfr(p.date)}</small></div></header>
       <table><tr><td>Reçu de</td><td><b>${esc(m.clientNom || "—")}</b>${m.clientTel ? " · " + esc(m.clientTel) : ""}</td></tr>
       <tr><td>Pour</td><td>${esc(m.programme)} · lot ${esc(m.lot)}${m.type ? " · " + esc(m.type) : ""}</td></tr>

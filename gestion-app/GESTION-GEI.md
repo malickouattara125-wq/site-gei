@@ -1,22 +1,24 @@
 # GEI Gestion — mode d'emploi
 
-Application **séparée** du tableau de bord du site, à l'adresse **https://geisarl.com/gestion**,
+Application **indépendante du site internet** (projet, hébergement et connexion séparés),
 pour gérer l'entreprise : chantiers, planning, maisons et clients, dépenses, trésorerie, stock,
 ouvriers et paie. Elle a sa propre connexion. Ses données ne sont **jamais** affichées sur le site public.
 
 | Application | Adresse | Sert à |
 |---|---|---|
 | Tableau de bord du site | geisarl.com/admin | Modifier le site (programmes, actualités, photos…) — DG uniquement |
-| **GEI Gestion** | **geisarl.com/gestion** | Gérer l'entreprise — DG, comptable, chefs de chantier |
+| **GEI Gestion** | sur son propre hébergement (ex. gestion.geisarl.com), ou http://localhost:8780 sur l'ordinateur | Gérer l'entreprise — DG, comptable, chefs de chantier |
+
+Installation et hébergement : voir [README.md](README.md).
 
 ## Les comptes
 | Compte | Voit et fait |
 |---|---|
 | **DG** (compte principal `admin`) | Tout ; crée les comptes et télécharge la sauvegarde |
-| **Comptable** | Tout GEI Gestion, sauf les comptes et la sauvegarde. Ne peut pas se connecter au tableau de bord du site |
+| **Comptable** | Tout GEI Gestion, sauf les comptes et la sauvegarde |
 | **Chef de chantier** | Chantiers (avancement, photos, notes), planning, pointage des ouvriers, entrées et sorties de stock. **Ne voit aucun montant** (budgets, ventes, dépenses, salaires) |
 
-Créer un compte : **GEI Gestion** → **Mon compte** → « Comptes d'accès » → identifiant, mot de passe, rôle → **Créer le compte**.
+Créer un compte : **Mon compte** → « Comptes d'accès » → identifiant, mot de passe, rôle → **Créer le compte**.
 
 ## Au quotidien
 | Je veux… | Où |
@@ -44,11 +46,11 @@ Créer un compte : **GEI Gestion** → **Mon compte** → « Comptes d'accès »
 
 ## Reprendre les fichiers Excel existants
 1. Dans Excel : **Fichier** → **Enregistrer sous** → type **« CSV (séparateur : point-virgule) »**.
-2. **GEI Gestion** → **Importer (Excel)** → choisir le type (maisons et clients, dépenses, ouvriers, chantiers) et le fichier.
+2. **Importer (Excel)** → choisir le type (maisons et clients, dépenses, ouvriers, chantiers) et le fichier.
 3. Vérifier que les colonnes sont bien reconnues, puis **Importer**. Les lignes incomplètes sont signalées avec leur numéro.
 
 Pour les maisons, la colonne « Déjà payé » crée un paiement « Reprise Excel » du montant total déjà versé.
 
 ## Sauvegarde (une fois par mois)
-- **GEI Gestion** → **Mon compte** → « Sauvegarde de la gestion » → **Télécharger la sauvegarde**. Gardez le fichier en lieu sûr (Google Drive, clé USB).
-- Les documents joints (PDF, photos) sont dans `site-gei/serveur/fichiers/` sur l'hébergement : les sauvegarder aussi depuis le Gestionnaire de fichiers du cPanel (clic droit → Compress → télécharger).
+- **Mon compte** → « Sauvegarde de la gestion » → **Télécharger la sauvegarde**. Gardez le fichier en lieu sûr (Google Drive, clé USB).
+- Les photos de chantier (`uploads/`) et les documents joints (`fichiers/`) sont à sauvegarder aussi (copie des dossiers depuis l'hébergement).

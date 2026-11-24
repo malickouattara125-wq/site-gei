@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
   <title>GEI Gestion</title>
-  <link rel="icon" href="/assets/img/logo-gei.png">
+  <link rel="icon" href="/logo-gei.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/gestion/app.css">
+  <link rel="stylesheet" href="/app.css">
 </head>
 <body>
 
   <!-- Connexion -->
   <section class="login" id="login" hidden>
     <form class="login__card" id="loginForm">
-      <img src="/assets/img/logo-gei.png" alt="" width="64" height="64">
+      <img src="/logo-gei.png" alt="" width="64" height="64">
       <h1>GEI Gestion</h1>
       <p>Chantiers · Maisons et clients · Dépenses · Équipes</p>
       <label><span>Identifiant</span><input name="user" autocomplete="username" required></label>
@@ -29,7 +29,7 @@
   <!-- Application -->
   <div class="app" id="app" hidden>
     <aside class="side">
-      <a class="side__brand" href="#gestion"><img src="/assets/img/logo-gei.png" alt="" width="40" height="40"><span><b>GEI Gestion</b><small>Global Empire Immobilier</small></span></a>
+      <a class="side__brand" href="#gestion"><img src="/logo-gei.png" alt="" width="40" height="40"><span><b>GEI Gestion</b><small>Global Empire Immobilier</small></span></a>
       <button class="btn btn--sm btn--ghost burger-g" id="burger" type="button" aria-label="Menu">☰ Menu</button>
       <nav class="side__nav" id="nav">
         <a href="#gestion" data-view="gestion" data-roles="dg comptable"><i class="i i--chart"></i>Tableau de gestion</a>
@@ -64,8 +64,8 @@
     <div class="modal__grid" id="pickerGrid"></div>
   </dialog>
 
-  <script src="/gestion/core.js" defer></script>
-  <script src="/gestion/gestion-plus.js" defer></script>
-  <script src="/gestion/gestion.js" defer></script>
+  <script src="/core.js" defer></script>
+  <script src="/gestion-plus.js" defer></script>
+  <script src="/gestion.js" defer></script>
 </body>
 </html>
