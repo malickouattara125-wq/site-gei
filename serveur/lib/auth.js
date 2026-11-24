@@ -43,13 +43,21 @@ function tooMany(ip) {
   return f && f.count >= 5 && f.until > Date.now();
 }
 
+// Comptes : le DG est dans data/admin.json (compte principal, rôle « dg ») ;
+// les autres comptes (comptable…) sont dans data/comptes.json.
+const ROLES = { dg: "Directeur (accès complet)", comptable: "Comptable (gestion uniquement)" };
+const same = (pw, acc) => typeof pw === "string" && acc && acc.salt && crypto.timingSafeEqual(Buffer.from(hash(pw, acc.salt), "hex"), Buffer.from(acc.hash, "hex"));
+function findAccount(user) {
+  const admin = store.load("admin", null);
+  if (admin && user === admin.user) return { ...admin, role: "dg", principal: true };
+  const c = store.load("comptes", []).find((x) => x.user === user);
+  return c ? { ...c, principal: false } : null;
+}
+
 function login(ip, user, password) {
   if (tooMany(ip)) return { error: "Trop d'essais. Réessayez dans 15 minutes." };
-  const admin = store.load("admin", null);
-  const ok = admin && typeof user === "string" && typeof password === "string" &&
-    user === admin.user &&
-    crypto.timingSafeEqual(Buffer.from(hash(password, admin.salt), "hex"), Buffer.from(admin.hash, "hex"));
-  if (!ok) {
+  const acc = typeof user === "string" ? findAccount(user) : null;
+  if (!acc || !same(password, acc)) {
     const f = failures.get(ip) || { count: 0, until: 0 };
     f.count = f.until < Date.now() ? 1 : f.count + 1;
     f.until = Date.now() + 15 * 60 * 1000;
@@ -59,7 +67,7 @@ function login(ip, user, password) {
   failures.delete(ip);
   const token = crypto.randomBytes(32).toString("hex");
   const list = sessions();
-  list[sid(token)] = { user, expire: Date.now() + SESSION_HOURS * 3600 * 1000 };
+  list[sid(token)] = { user, role: acc.role, expire: Date.now() + SESSION_HOURS * 3600 * 1000 };
   saveSessions(list);
   return { token };
 }
@@ -70,7 +78,10 @@ function check(token) {
   const s = list[sid(token)];
   if (!s) return null;
   if (s.expire < Date.now()) { delete list[sid(token)]; saveSessions(list); return null; }
-  return s;
+  // Compte supprimé entre-temps : la session n'est plus valable
+  const acc = findAccount(s.user);
+  if (!acc) { delete list[sid(token)]; saveSessions(list); return null; }
+  return { user: s.user, role: acc.role || "dg", expire: s.expire };
 }
 
 function logout(token) {
@@ -80,16 +91,60 @@ function logout(token) {
   saveSessions(list);
 }
 
-function changePassword(current, next) {
-  const admin = store.load("admin", null);
-  if (typeof current !== "string" || !crypto.timingSafeEqual(Buffer.from(hash(current, admin.salt), "hex"), Buffer.from(admin.hash, "hex"))) return { error: "Mot de passe actuel incorrect." };
+function endSessionsOf(user) {
+  const list = sessions();
+  for (const k of Object.keys(list)) if (list[k].user === user) delete list[k];
+  saveSessions(list);
+}
+
+function changePassword(user, current, next) {
+  const acc = findAccount(user);
+  if (!acc || !same(current || "", acc)) return { error: "Mot de passe actuel incorrect." };
   if (typeof next !== "string" || next.length < 10) return { error: "Le nouveau mot de passe doit faire au moins 10 caractères." };
   const salt = crypto.randomBytes(16).toString("hex");
-  store.save("admin", { ...admin, salt, hash: hash(next, salt) });
-  store.save("sessions", {});
-  const f = path.join(store.DATA, "premier-acces.txt");
-  if (fs.existsSync(f)) fs.unlinkSync(f);
+  if (acc.principal) {
+    const admin = store.load("admin", null);
+    store.save("admin", { ...admin, salt, hash: hash(next, salt) });
+    const f = path.join(store.DATA, "premier-acces.txt");
+    if (fs.existsSync(f)) fs.unlinkSync(f);
+  } else {
+    store.save("comptes", store.load("comptes", []).map((c) => (c.user === user ? { ...c, salt, hash: hash(next, salt) } : c)));
+  }
+  endSessionsOf(user);
   return { ok: true };
 }
 
-module.exports = { ensureAdmin, login, check, logout, changePassword, SESSION_HOURS };
+// Gestion des comptes par le DG
+function listAccounts() {
+  const admin = store.load("admin", null);
+  return [{ user: admin.user, role: "dg", principal: true }].concat(store.load("comptes", []).map((c) => ({ user: c.user, role: c.role, principal: false })));
+}
+function addAccount(user, password, role) {
+  user = typeof user === "string" ? user.trim().toLowerCase() : "";
+  if (!/^[a-z0-9._-]{3,30}$/.test(user)) return { error: "Identifiant : 3 à 30 lettres ou chiffres, sans espace ni accent." };
+  if (!ROLES[role]) return { error: "Rôle inconnu." };
+  if (typeof password !== "string" || password.length < 10) return { error: "Le mot de passe doit faire au moins 10 caractères." };
+  if (findAccount(user)) return { error: "Cet identifiant existe déjà." };
+  const salt = crypto.randomBytes(16).toString("hex");
+  store.save("comptes", store.load("comptes", []).concat({ user, role, salt, hash: hash(password, salt) }));
+  return { ok: true };
+}
+function removeAccount(user) {
+  const acc = findAccount(user);
+  if (!acc) return { error: "Compte introuvable." };
+  if (acc.principal) return { error: "Le compte principal du DG ne peut pas être supprimé." };
+  store.save("comptes", store.load("comptes", []).filter((c) => c.user !== user));
+  endSessionsOf(user);
+  return { ok: true };
+}
+function resetPassword(user, next) {
+  const acc = findAccount(user);
+  if (!acc || acc.principal) return { error: "Compte introuvable." };
+  if (typeof next !== "string" || next.length < 10) return { error: "Le mot de passe doit faire au moins 10 caractères." };
+  const salt = crypto.randomBytes(16).toString("hex");
+  store.save("comptes", store.load("comptes", []).map((c) => (c.user === user ? { ...c, salt, hash: hash(next, salt) } : c)));
+  endSessionsOf(user);
+  return { ok: true };
+}
+
+module.exports = { ensureAdmin, login, check, logout, changePassword, listAccounts, addAccount, removeAccount, resetPassword, ROLES, SESSION_HOURS };

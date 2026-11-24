@@ -11,6 +11,7 @@ const auth = require("./lib/auth");
 const stats = require("./lib/stats");
 const R = require("./lib/render");
 const site = require("./lib/site");
+const gestion = require("./lib/gestion");
 
 const PORT = +process.env.PORT || 8765;
 // Dossier du site : variable SITE_DIR, sinon ../Site_GEI (sur ton ordinateur), sinon le dossier parent (dépôt GitHub : site + serveur/)
@@ -321,15 +322,63 @@ async function api(req, res, pathname) {
   // Protection contre les requêtes venant d'un autre site
   if (method !== "GET" && req.headers["x-gei"] !== "1") return json(res, 403, { error: "Requête refusée" });
 
+  // Le comptable n'accède qu'à la gestion (pas au contenu du site ni aux comptes)
+  const pourTous = /^\/api\/(me|logout|password|images|upload|g(\/.*)?)$/.test(pathname);
+  if (session.role !== "dg" && !pourTous) return json(res, 403, { error: "Accès réservé au Directeur." });
+
+  // --- Comptes (DG) ---
+  if (pathname === "/api/comptes" && method === "GET") return json(res, 200, { comptes: auth.listAccounts(), roles: auth.ROLES });
+  if (pathname === "/api/comptes" && method === "POST") {
+    const b = await readBody(req, 5000);
+    const r = auth.addAccount(b.user, b.password, b.role);
+    return r.error ? json(res, 400, r) : json(res, 200, r);
+  }
+  let mc = /^\/api\/comptes\/([a-z0-9._-]{3,30})(\/password)?$/.exec(pathname);
+  if (mc) {
+    if (method === "DELETE" && !mc[2]) { const r = auth.removeAccount(mc[1]); return r.error ? json(res, 400, r) : json(res, 200, r); }
+    if (method === "POST" && mc[2]) { const b = await readBody(req, 5000); const r = auth.resetPassword(mc[1], b.password); return r.error ? json(res, 400, r) : json(res, 200, r); }
+    return json(res, 405, { error: "Méthode non permise" });
+  }
+
+  // --- Gestion GEI : chantiers, maisons, dépenses, ouvriers, pointages ---
+  if (pathname === "/api/g/listes") return json(res, 200, gestion.LISTES);
+  if (pathname === "/api/g/sauvegarde" && method === "GET") {
+    if (session.role !== "dg") return json(res, 403, { error: "Accès réservé au Directeur." });
+    const tout = { date: new Date().toISOString() };
+    for (const n of Object.keys(gestion.COLLECTIONS)) tout[n] = store.load("g-" + n, []);
+    return send(res, 200, JSON.stringify(tout, null, 2), "application/json; charset=utf-8",
+      { "Cache-Control": "no-store", "Content-Disposition": `attachment; filename="sauvegarde-gestion-gei-${tout.date.slice(0, 10)}.json"` });
+  }
+  const mg = /^\/api\/g\/(chantiers|maisons|depenses|ouvriers|pointages)(?:\/([a-f0-9]+))?$/.exec(pathname);
+  if (mg) {
+    const name = "g-" + mg[1], clean = gestion.COLLECTIONS[mg[1]];
+    const list = store.load(name, []);
+    if (!mg[2]) {
+      if (method === "GET") return json(res, 200, list);
+      if (method === "POST") {
+        const x = { id: id(), ...clean(await readBody(req, 300000)), creePar: session.user, creeLe: new Date().toISOString() };
+        list.push(x); store.save(name, list); return json(res, 200, x);
+      }
+      return json(res, 405, { error: "Méthode non permise" });
+    }
+    const i = list.findIndex((x) => x.id === mg[2]);
+    if (i < 0) return json(res, 404, { error: "Introuvable" });
+    if (method === "PUT") list[i] = { id: list[i].id, ...clean(await readBody(req, 300000)), creePar: list[i].creePar, creeLe: list[i].creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() };
+    else if (method === "DELETE") list.splice(i, 1);
+    else return json(res, 405, { error: "Méthode non permise" });
+    store.save(name, list);
+    return json(res, 200, list[i] || { ok: true });
+  }
+
   if (pathname === "/api/logout" && method === "POST") {
     auth.logout(token);
     return json(res, 200, { ok: true }, { "Set-Cookie": "gei_sid=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0" });
   }
-  if (pathname === "/api/me") return json(res, 200, { user: session.user });
+  if (pathname === "/api/me") return json(res, 200, { user: session.user, role: session.role });
 
   if (pathname === "/api/password" && method === "POST") {
     const b = await readBody(req, 5000);
-    const r = auth.changePassword(b.current, b.next);
+    const r = auth.changePassword(session.user, b.current, b.next);
     return r.error ? json(res, 400, r) : json(res, 200, { ok: true }, { "Set-Cookie": "gei_sid=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0" });
   }
 

@@ -17,7 +17,7 @@ Tableau de bord : **https://geisarl.com/admin**
 | Variables | `FORCE_HTTPS=1`, `NODE_ENV=production` |
 | HTTPS | Certificat Let's Encrypt (automatique) ; `public_html/.htaccess` redirige tout vers `https://` |
 | Page par défaut LWS | renommée en `public_html/index-lws-defaut.html.bak` |
-| Données | `site-gei/serveur/data/` (programmes, actualités, demandes, mot de passe) et `site-gei/serveur/uploads/` (photos envoyées) |
+| Données | `site-gei/serveur/data/` (programmes, actualités, demandes, comptes, **gestion : chantiers, maisons, paiements, dépenses, ouvriers**) et `site-gei/serveur/uploads/` (photos envoyées) |
 
 ---
 
@@ -40,4 +40,5 @@ Faites de même pour `site-gei/serveur/uploads` (s'il existe).
 | Page d'erreur ou page blanche | cPanel → **Setup Node.js App** → **Restart**. |
 | Page « Bravo ! Votre domaine… » de LWS | Quelqu'un a remis un fichier `index.html` dans `public_html` : supprimez-le. |
 | Le tableau de bord refuse le mot de passe | Après 5 erreurs, il faut attendre 15 minutes. |
-| Mot de passe du tableau de bord oublié | Gestionnaire de fichiers : supprimez `site-gei/serveur/data/admin.json`, puis **Restart**. Un nouveau mot de passe est écrit dans `site-gei/serveur/data/premier-acces.txt`. |
+| Mot de passe du DG oublié | Gestionnaire de fichiers : supprimez `site-gei/serveur/data/admin.json`, puis **Restart**. Un nouveau mot de passe est écrit dans `site-gei/serveur/data/premier-acces.txt`. Les autres comptes (comptable) et toutes les données de gestion sont conservés. |
+| Mot de passe du comptable oublié | Le DG se connecte → **Mon compte** → « Nouveau mot de passe » à côté du compte. |
