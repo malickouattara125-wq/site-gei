@@ -46,7 +46,7 @@ function cookies(req) {
   (req.headers.cookie || "").split(";").forEach((c) => { const i = c.indexOf("="); if (i > 0) out[c.slice(0, i).trim()] = decodeURIComponent(c.slice(i + 1).trim()); });
   return out;
 }
-const HEADERS = { "X-Content-Type-Options": "nosniff", "Referrer-Policy": "same-origin", "X-Frame-Options": "DENY", "X-Robots-Tag": "noindex, nofollow" };
+const HEADERS = { ...(process.env.FORCE_HTTPS === "1" ? { "Strict-Transport-Security": "max-age=31536000" } : {}), "X-Content-Type-Options": "nosniff", "Referrer-Policy": "same-origin", "X-Frame-Options": "DENY", "X-Robots-Tag": "noindex, nofollow" };
 function send(res, status, body, type = "text/html; charset=utf-8", extra = {}) { res.writeHead(status, { "Content-Type": type, ...HEADERS, ...extra }); res.end(body); }
 const json = (res, status, data, extra) => send(res, status, JSON.stringify(data), "application/json; charset=utf-8", { "Cache-Control": "no-store", ...extra });
 function readBody(req, limit) {
@@ -72,7 +72,8 @@ function safeJoin(root, name) {
 // Utilisation sur l'ordinateur (lanceur DEMARRER, variable GEI_LOCAL=1) : connexion automatique du DG,
 // uniquement pour les requêtes venant de cet ordinateur lui-même (jamais via un relais ni depuis Internet).
 function sessionLocale(req) {
-  if (process.env.GEI_LOCAL !== "1") return null;
+  // Jamais en ligne : hébergement cPanel (Passenger) ou mode production → mot de passe toujours obligatoire
+  if (process.env.GEI_LOCAL !== "1" || process.env.NODE_ENV === "production" || process.env.PASSENGER_APP_ENV) return null;
   if (!LOCAL.test(req.socket.remoteAddress || "") || req.headers["x-forwarded-for"] || req.headers["x-real-ip"]) return null;
   const admin = store.load("admin", null);
   return admin ? { user: admin.user, role: "dg", locale: true } : null;
@@ -219,6 +220,10 @@ async function api(req, res, pathname) {
 
 /* ---------------- Routeur ---------------- */
 const server = http.createServer(async (req, res) => {
+  // En ligne (FORCE_HTTPS=1) : toute visite en http:// est renvoyée vers https://
+  if (process.env.FORCE_HTTPS === "1" && req.headers["x-forwarded-proto"] === "http" && req.headers.host) {
+    res.writeHead(301, { Location: "https://" + req.headers.host + req.url }); return res.end();
+  }
   let pathname;
   try { pathname = decodeURIComponent(new URL(req.url, "http://x").pathname); } catch { return send(res, 400, "Requête invalide"); }
   try {
