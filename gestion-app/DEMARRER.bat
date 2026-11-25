@@ -15,6 +15,10 @@ if errorlevel 1 (
   exit /b
 )
 
+echo.
+echo   Recherche de mises a jour...
+if exist "MISE-A-JOUR.ps1" powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0MISE-A-JOUR.ps1"
+
 set GEI_LOCAL=1
 if not exist "data\admin.json" set ADMIN_PASSWORD=gei-local-2026
 

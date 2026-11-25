@@ -30,3 +30,9 @@ Mot de passe du DG oublié ou refusé : lancez **REINITIALISER-MOT-DE-PASSE**, p
 | `fichiers/` | documents joints (factures, contrats, plans) |
 
 Ces dossiers ne doivent **jamais** être publiés (ils sont exclus de Git). Sauvegarde rapide : **Mon compte** → **Télécharger la sauvegarde** (DG).
+
+## Mise à jour automatique
+
+À chaque lancement, **DEMARRER** télécharge depuis GitHub les fichiers de l'application qui ont changé (liste : `fichiers.txt`). Les données (`data/`, `uploads/`, `fichiers/`) ne sont jamais touchées. Sans Internet, la version actuelle est utilisée.
+
+Pour les développeurs : après toute modification de l'application, lancer `node gestion-app/outils/manifeste.js` avant de pousser, sinon les ordinateurs ne verront pas la nouvelle version.
