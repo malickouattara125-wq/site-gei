@@ -329,7 +329,7 @@
               ${isNew ? "" : `<div class="recap__acts"><a class="btn btn--primary btn--sm" href="#g-depense/nouvelle/${c.id}">${I("plus")}Dépense sur ce chantier</a><a class="btn btn--secondary btn--sm" href="#g-depenses/${encodeURIComponent(c.id + "|||")}">Voir les ${deps.length} dépense(s)</a></div>`}` : ""}
             ${isNew ? "" : `<p class="recap__meta">Créé par ${esc(c.creePar || "?")}${c.modifiePar ? `, modifié par ${esc(c.modifiePar)}` : ""}.${argent() ? ` Déjà payé aux fournisseurs : ${fcfa(verseFour)}.` : ""}</p>`}
           </section>
-          <div class="tip">${I("alertcircle")}<span>Mettez à jour le % de chaque étape après vos visites : le planning, le tableau de gestion et les alertes de retard se mettent à jour tout seuls.</span></div>
+          <div class="tip">${I("alertcircle")}<span>Mettez à jour le % de chaque étape après vos visites : le planning${argent() ? ", le tableau de gestion" : ""} et les alertes de retard se mettent à jour tout seuls.</span></div>
         </aside>
         <div class="savebar">${isNew || !argent() ? "" : `<button type="button" class="btn btn--danger" id="del">${I("trash")}Supprimer</button>`}<button type="submit" class="btn btn--primary">${I("check")}${isNew ? "Créer le chantier" : "Enregistrer"}</button></div>
       </form>`;

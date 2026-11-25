@@ -61,6 +61,11 @@
     const h = location.hash.slice(1) || "gestion";
     const cut = h.indexOf("/");
     const name = cut < 0 ? h : h.slice(0, cut), arg = cut < 0 ? "" : h.slice(cut + 1);
+    // Chef de chantier : uniquement ses pages (le serveur refuse le reste de toute façon) → retour propre à ses chantiers
+    if (me.role === "chef" && !["g-chantiers", "g-chantier", "g-planning", "g-stock", "g-equipes", "compte"].includes(name)) {
+      if (h !== "gestion") toast("Cette page est réservée à la direction et à la comptabilité.", true);
+      history.replaceState(null, "", "#g-chantiers"); return route();
+    }
     const v = views[name] || views.gestion;
     $$("#nav a").forEach((a) => a.classList.toggle("is-on", name === a.dataset.view || name.startsWith(a.dataset.view.replace(/s$/, "") + "/") || (a.dataset.view !== "gestion" && name.startsWith(a.dataset.view.replace(/s$/, "")))));
     dirty = false;
