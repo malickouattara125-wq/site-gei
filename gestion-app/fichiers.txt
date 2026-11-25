@@ -1,5 +1,5 @@
 # GEI Gestion - fichiers mis a jour automatiquement par DEMARRER
-# empreinte 899fade15b1a7154
+# empreinte 5d5dbe5bebf2f413
 MISE-A-JOUR.ps1
 REINITIALISER-MOT-DE-PASSE.bat
 lib/auth.js
@@ -9,6 +9,7 @@ package.json
 public/app.css
 public/apple-touch-icon.png
 public/construction-programme.js
+public/construction-villa.js
 public/construction.js
 public/contrats.js
 public/core.js
