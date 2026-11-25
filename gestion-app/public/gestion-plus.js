@@ -20,7 +20,7 @@
   const COMPTE = { caisse: "Caisse (espèces)", banque: "Banque", mobile_money: "Mobile Money" };
   const MODE_COMPTE = { especes: "caisse", virement: "banque", cheque: "banque", mobile_money: "mobile_money", autre: "caisse" };
   const CAT = { solde_initial: "Solde de départ", apport: "Apport / financement", vente_autre: "Autre recette", frais_generaux: "Frais généraux (bureau)", salaires: "Salaires", loyer: "Loyer", carburant: "Carburant / déplacements", impots: "Impôts et taxes", banque: "Frais bancaires", autre: "Autre" };
-  const LIBCAT = { materiaux: "Matériaux", main_oeuvre: "Main-d'œuvre", transport: "Transport", location: "Location d'engins", administratif: "Administratif", autre: "Autre" };
+  const LIBCAT = { materiaux: "Matériaux", main_oeuvre: "Main-d'œuvre", sous_traitance: "Sous-traitance", transport: "Transport", location: "Engins et outillage", frais_chantier: "Frais de chantier", administratif: "Études et administratif", autre: "Divers" };
   function exporter(nom, cols, rows) {
     const cell = (v) => { const s = String(v == null ? "" : v); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
     const csv = "﻿" + [cols.map((c) => cell(c[0])).join(";")].concat(rows.map((r) => cols.map((c) => cell(c[1](r))).join(";"))).join("\r\n");
@@ -343,7 +343,7 @@
   }
   const VALEURS = {
     statut: { disponible: "disponible", libre: "disponible", reservee: "reservee", reserve: "reservee", vendue: "vendue", vendu: "vendue", livree: "livree", livre: "livree" },
-    categorie: { materiaux: "materiaux", materiel: "materiaux", maindoeuvre: "main_oeuvre", mainduvre: "main_oeuvre", transport: "transport", location: "location", administratif: "administratif", admin: "administratif" },
+    categorie: { materiaux: "materiaux", materiel: "materiaux", maindoeuvre: "main_oeuvre", mainduvre: "main_oeuvre", transport: "transport", location: "location", engins: "location", enginsetoutillage: "location", administratif: "administratif", admin: "administratif", etudes: "administratif", etudesetadministratif: "administratif", soustraitance: "sous_traitance", fraisdechantier: "frais_chantier", frais: "frais_chantier", divers: "autre", autre: "autre" },
     mode: { especes: "especes", cash: "especes", virement: "virement", cheque: "cheque", mobilemoney: "mobile_money", orangemoney: "mobile_money", mtnmoney: "mobile_money", moovmoney: "mobile_money", wave: "mobile_money" },
   };
   // Lecture d'un fichier CSV : séparateur point-virgule, virgule ou tabulation, détecté sur la ligne des titres

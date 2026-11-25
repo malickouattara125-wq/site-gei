@@ -8,6 +8,9 @@ const date = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || "")) ? String(v) : "
 const pick = (v, list, def) => (list.includes(v) ? v : def);
 const arr = (v, n) => (Array.isArray(v) ? v : []).slice(0, n);
 const id = (v) => (/^[a-f0-9]{4,24}$/.test(String(v || "")) ? String(v) : "");
+// Quantité chiffrée (sacs, tonnes, m³…) : nombre positif à 2 décimales, 0 si vide
+const qteNum = (v) => { const x = parseFloat(String(v == null ? "" : v).replace(/\s/g, "").replace(",", ".")); return isFinite(x) && x > 0 ? Math.round(x * 100) / 100 : 0; };
+const pct = (v) => Math.max(0, Math.min(100, Math.round(+v || 0) || 0));
 const err = (msg) => Object.assign(new Error(msg), { status: 400 });
 // Pièces jointes : fichiers privés enregistrés par /api/g/fichiers (jamais publics)
 const docs = (v) => arr(v, 50).map((d) => ({ nom: str(d && d.nom, 120), fichier: str(d && d.fichier, 120), date: date(d && d.date) }))
@@ -16,7 +19,10 @@ const docs = (v) => arr(v, 50).map((d) => ({ nom: str(d && d.nom, 120), fichier:
 const LISTES = {
   statutChantier: ["preparation", "en_cours", "pause", "termine"],
   statutMaison: ["disponible", "reservee", "vendue", "livree"],
-  categorieDepense: ["materiaux", "main_oeuvre", "transport", "location", "administratif", "autre"],
+  // 8 catégories : les 6 d'origine (mêmes clés, libellés renommés à l'écran) + sous-traitance et frais de chantier
+  categorieDepense: ["materiaux", "main_oeuvre", "sous_traitance", "transport", "location", "frais_chantier", "administratif", "autre"],
+  niveauVilla: ["gros_oeuvre", "cle_en_main"],
+  gammeVilla: ["standard", "confort", "premium"],
   modePaiement: ["especes", "virement", "cheque", "mobile_money", "autre"],
   compte: ["caisse", "banque", "mobile_money"],
   categorieMouvement: ["solde_initial", "apport", "vente_autre", "frais_generaux", "salaires", "loyer", "carburant", "impots", "banque", "autre"],
@@ -32,6 +38,8 @@ const COLLECTIONS = {
       documents: docs(b.documents),
       photos: arr(b.photos, 200).map((p) => ({ src: str(p && p.src, 300), date: date(p && p.date), legende: str(p && p.legende, 120) })).filter((p) => /^(uploads|assets\/img)\//.test(p.src)),
       notes: str(b.notes, 3000),
+      // Volet Construction : répartition des frais communs entre les villas du programme
+      repartition: pick(b.repartition, ["egale", "surface"], "egale"),
     };
     if (!c.nom) throw err("Le nom du chantier est obligatoire.");
     return c;
@@ -53,6 +61,9 @@ const COLLECTIONS = {
       date: date(b.date) || new Date().toISOString().slice(0, 10), chantierId: id(b.chantierId),
       categorie: pick(b.categorie, LISTES.categorieDepense, "autre"), libelle: str(b.libelle, 160), fournisseur: str(b.fournisseur, 120),
       quantite: str(b.quantite, 60), montant: montant(b.montant), mode: pick(b.mode, LISTES.modePaiement, "especes"),
+      // Volet Construction : villa concernée, matériau acheté (quantité chiffrée + unité), destination (villa ou stock du chantier)
+      villaId: id(b.villaId), articleId: id(b.articleId), qte: qteNum(b.qte), unite: str(b.unite, 20),
+      destination: pick(b.destination, ["", "villa", "stock", "commun"], ""),
       notes: str(b.notes, 1000), documents: docs(b.documents),
     };
     // Paiements (avances puis solde). Anciennes dépenses sans liste : « payée » = payée en totalité à la date de la dépense.
@@ -94,10 +105,41 @@ COLLECTIONS.articles = (b) => {
 COLLECTIONS.stock = (b) => {
   const q = parseFloat(String(b.quantite || "").replace(",", "."));
   const m = { date: date(b.date) || new Date().toISOString().slice(0, 10), articleId: id(b.articleId), chantierId: id(b.chantierId),
-    sens: pick(b.sens, ["entree", "sortie"], "sortie"), quantite: isFinite(q) && q > 0 ? Math.round(q * 100) / 100 : 0, notes: str(b.notes, 300) };
+    sens: pick(b.sens, ["entree", "sortie"], "sortie"), quantite: isFinite(q) && q > 0 ? Math.round(q * 100) / 100 : 0, notes: str(b.notes, 300),
+    // Volet Construction : villa qui utilise le matériel (sortie), achat d'origine et prix unitaire (entrée depuis une dépense)
+    villaId: id(b.villaId), depenseId: id(b.depenseId), prixUnitaire: montant(b.prixUnitaire) };
   if (!m.articleId) throw err("Choisissez l'article.");
   if (!m.quantite) throw err("La quantité doit être supérieure à 0.");
   return m;
+};
+
+/* ---------- Volet Construction : villas d'un programme ---------- */
+// Modèle de phases appliqué automatiquement à chaque nouvelle villa (gros œuvre puis second œuvre et finitions)
+const PHASES = [
+  ["implantation", "Installation et implantation", "gros"], ["fondations", "Fondations", "gros"], ["elevation", "Élévation des murs", "gros"],
+  ["dalle", "Dalle", "gros"], ["toiture", "Toiture", "gros"],
+  ["menuiseries", "Menuiseries", "second"], ["plomberie", "Plomberie et électricité", "second"], ["enduits", "Enduits et faux plafonds", "second"],
+  ["carrelage", "Carrelage et peinture", "second"], ["remise", "Sanitaires, nettoyage et remise des clés", "second"],
+];
+const photo = (p) => ({ src: str(p && p.src, 300), date: date(p && p.date), legende: str(p && p.legende, 120) });
+COLLECTIONS.villas = (b) => {
+  const recues = Array.isArray(b.phases) ? b.phases : [];
+  const v = {
+    chantierId: id(b.chantierId), lot: str(b.lot, 40), type: str(b.type, 80), surface: qteNum(b.surface),
+    niveau: pick(b.niveau, LISTES.niveauVilla, "cle_en_main"), gamme: pick(b.gamme, LISTES.gammeVilla, "standard"),
+    budget: montant(b.budget), maisonId: id(b.maisonId),
+    // Les 10 phases du modèle sont toujours présentes, dans le même ordre ; on garde l'avancement, les dates et les photos reçus
+    phases: PHASES.map(([cle, nom, bloc]) => {
+      const p = recues.find((x) => x && x.cle === cle) || {};
+      return { cle, nom, bloc, avancement: pct(p.avancement), dateDebut: date(p.dateDebut), dateFin: date(p.dateFin),
+        photos: arr(p.photos, 100).map(photo).filter((x) => /^(uploads|assets\/img)\//.test(x.src)) };
+    }),
+    finitions: arr(b.finitions, 80).map((f) => ({ poste: str(f && f.poste, 80), choix: str(f && f.choix, 200), option: !!(f && f.option), surcout: montant(f && f.surcout) })).filter((f) => f.poste),
+    notes: str(b.notes, 3000), documents: docs(b.documents),
+  };
+  if (!v.chantierId) throw err("Choisissez le programme de la villa.");
+  if (!v.lot) throw err("Le numéro de lot de la villa est obligatoire (ex. A01).");
+  return v;
 };
 
 // Contrats : location de maison, travail (personnel), ouvrier / tâcheron, autre
@@ -143,4 +185,4 @@ function depuisImport(nom, row) {
   return row;
 }
 
-module.exports = { COLLECTIONS, LISTES, depuisImport };
+module.exports = { COLLECTIONS, LISTES, PHASES, depuisImport };

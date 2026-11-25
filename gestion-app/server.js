@@ -192,14 +192,16 @@ async function api(req, res, pathname) {
   }
 
   // Données : chantiers, maisons, dépenses, ouvriers, pointages, trésorerie, stock
-  const mg = /^\/api\/g\/(chantiers|maisons|depenses|ouvriers|pointages|mouvements|articles|stock|contrats|modeles)(?:\/([a-f0-9]+))?$/.exec(pathname);
+  const mg = /^\/api\/g\/(chantiers|maisons|depenses|ouvriers|pointages|mouvements|articles|stock|contrats|modeles|villas)(?:\/([a-f0-9]+))?$/.exec(pathname);
   if (mg) {
     const name = "g-" + mg[1], clean = gestion.COLLECTIONS[mg[1]];
     const list = store.load(name, []);
     if (chef) {
-      const lecture = { chantiers: (c) => ({ ...c, budget: undefined }), ouvriers: (o) => ({ ...o, tarifJour: undefined }), articles: (a) => ({ ...a, prixUnitaire: undefined }) };
+      const lecture = { chantiers: (c) => ({ ...c, budget: undefined }), ouvriers: (o) => ({ ...o, tarifJour: undefined }), articles: (a) => ({ ...a, prixUnitaire: undefined }),
+        stock: (m) => ({ ...m, prixUnitaire: undefined }),
+        villas: (v) => ({ ...v, budget: undefined, finitions: (v.finitions || []).map((f) => ({ ...f, surcout: undefined })) }) };
       if (method === "GET" && !mg[2]) return json(res, 200, lecture[mg[1]] ? list.map(lecture[mg[1]]) : list);
-      const ecriture = { chantiers: ["PUT"], pointages: ["POST", "PUT", "DELETE"], stock: ["POST"] };
+      const ecriture = { chantiers: ["PUT"], villas: ["PUT"], pointages: ["POST", "PUT", "DELETE"], stock: ["POST"] };
       if (!(ecriture[mg[1]] || []).includes(method)) return json(res, 403, { error: "Accès réservé à la direction et à la comptabilité." });
       if (mg[1] === "chantiers" && mg[2]) {
         const i = list.findIndex((x) => x.id === mg[2]);
@@ -210,6 +212,22 @@ async function api(req, res, pathname) {
         store.save(name, list);
         return json(res, 200, { ...list[i], budget: undefined });
       }
+      // Chef de chantier : met à jour seulement l'avancement, les dates et les photos des phases d'une villa
+      if (mg[1] === "villas" && mg[2]) {
+        const i = list.findIndex((x) => x.id === mg[2]);
+        if (i < 0) return json(res, 404, { error: "Introuvable" });
+        const b = await readBody(req, 600000);
+        const avant = list[i];
+        list[i] = { ...avant, ...clean({ ...avant, phases: b.phases }), id: avant.id, creePar: avant.creePar, creeLe: avant.creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() };
+        store.save(name, list);
+        return json(res, 200, lecture.villas(list[i]));
+      }
+      // Chef de chantier : sortie de stock sans prix (il ne voit pas les montants)
+      if (mg[1] === "stock" && method === "POST") {
+        const b = await readBody(req, 300000);
+        const x = { id: id(), ...clean({ ...b, prixUnitaire: 0, depenseId: "" }), creePar: session.user, creeLe: new Date().toISOString() };
+        list.push(x); store.save(name, list); return json(res, 200, lecture.stock(x));
+      }
     }
     if (!mg[2]) {
       if (method === "GET") return json(res, 200, list);
@@ -218,7 +236,8 @@ async function api(req, res, pathname) {
     }
     const i = list.findIndex((x) => x.id === mg[2]);
     if (i < 0) return json(res, 404, { error: "Introuvable" });
-    if (method === "PUT") list[i] = { id: list[i].id, ...clean(await readBody(req, 300000)), creePar: list[i].creePar, creeLe: list[i].creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() };
+    // Modification : les champs absents de la requête gardent leur valeur (les anciens formulaires n'effacent pas les nouveaux champs)
+    if (method === "PUT") list[i] = { id: list[i].id, ...clean({ ...list[i], ...(await readBody(req, 600000)) }), creePar: list[i].creePar, creeLe: list[i].creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() };
     else if (method === "DELETE") list.splice(i, 1);
     else return json(res, 405, { error: "Méthode non permise" });
     store.save(name, list);

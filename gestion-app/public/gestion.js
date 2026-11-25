@@ -15,7 +15,7 @@
   const num = (v) => { const x = parseFloat(String(v || "").replace(/\s/g, "").replace(",", ".")); return isFinite(x) ? x : 0; };
   const LIB = {
     statut: { preparation: "En préparation", en_cours: "En cours", pause: "En pause", termine: "Terminé", disponible: "Disponible", reservee: "Réservée", vendue: "Vendue", livree: "Livrée" },
-    categorie: { materiaux: "Matériaux", main_oeuvre: "Main-d'œuvre", transport: "Transport", location: "Location d'engins", administratif: "Administratif", autre: "Autre" },
+    categorie: { materiaux: "Matériaux", main_oeuvre: "Main-d'œuvre", sous_traitance: "Sous-traitance", transport: "Transport", location: "Engins et outillage", frais_chantier: "Frais de chantier", administratif: "Études et administratif", autre: "Divers" },
     mode: { especes: "Espèces", virement: "Virement", cheque: "Chèque", mobile_money: "Mobile Money", autre: "Autre" },
   };
   const opts = (map, v, vide) => (vide ? `<option value="">${vide}</option>` : "") + Object.entries(map).map(([k, l]) => `<option value="${k}"${k === v ? " selected" : ""}>${esc(l)}</option>`).join("");
