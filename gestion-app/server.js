@@ -28,7 +28,7 @@ const ENTREPRISE = {
 const TYPES = {
   ".html": "text/html; charset=utf-8", ".css": "text/css; charset=utf-8", ".js": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp",
-  ".svg": "image/svg+xml", ".ico": "image/x-icon", ".pdf": "application/pdf",
+  ".svg": "image/svg+xml", ".ico": "image/x-icon", ".pdf": "application/pdf", ".webmanifest": "application/manifest+json; charset=utf-8",
 };
 
 auth.ensureAdmin();

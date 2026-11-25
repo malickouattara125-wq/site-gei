@@ -84,7 +84,8 @@
   /* ---------- Stock de matériaux ---------- */
   views["g-stock"] = async (arg) => {
     const d = await load("articles", "stock", "chantiers");
-    const [fc = ""] = (arg || "").split("|");
+    const ouvrirMv = arg === "mouvement"; // action rapide du téléphone : ouvre directement le formulaire
+    const [fc = ""] = (ouvrirMv ? "" : arg || "").split("|");
     const qte = (a, filtre = () => true) => sum(d.stock.filter((s) => s.articleId === a.id && filtre(s)), (s) => (s.sens === "entree" ? s.quantite : -s.quantite));
     const alerte = d.articles.filter((a) => a.seuil && qte(a) <= a.seuil);
     const mvts = d.stock.filter((s) => !fc || s.chantierId === fc).sort((a, b) => String(b.date).localeCompare(String(a.date))).slice(0, 200);
@@ -109,6 +110,7 @@
           ["Quantité", (s) => `${s.quantite} ${esc(art(s.articleId).unite)}`, 1], ["Chantier", (s) => esc(nomChantier(d.chantiers, s.chantierId))], ["Note", (s) => esc(s.notes || "")], ["Saisi par", (s) => esc(s.creePar || "")]], mvts)}</section>`;
     $("#mv").onclick = () => { if (!d.articles.length) return toast(argent() ? "Créez d'abord un article (bouton « + Nouvel article »)." : "Demandez à la direction de créer les articles.", true); $("#form-mv").hidden = false; $("#form-mv").scrollIntoView({ behavior: "smooth" }); };
     $("#fc").onchange = () => { location.hash = `#g-stock/${$("#fc").value}`; };
+    if (ouvrirMv) $("#mv").click();
     $("#fm").addEventListener("submit", async (e) => { e.preventDefault(); const v = Object.fromEntries(new FormData(e.target));
       try { await api("/api/g/stock", { method: "POST", body: v }); toast("Mouvement enregistré"); views["g-stock"](fc); } catch (err) { fail(err); } });
   };

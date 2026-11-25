@@ -367,6 +367,68 @@
     p.addEventListener("click", (e) => { if (e.target.closest("a")) closePop(); });
   }
 
+  /* ---------- Téléphone : panneaux qui glissent du bas (actions rapides, « Plus ») ---------- */
+  const tap = () => { try { navigator.vibrate && navigator.vibrate(8); } catch (_) {} };
+  const ACTIONS = {
+    direction: [["Nouvelle dépense", "#g-depense/nouvelle", "receipt"], ["Paiement client", "#g-maisons", "house"], ["Pointage du jour", "#g-equipes/pointage", "check"],
+      ["Entrée / sortie de stock", "#g-stock/mouvement", "package"], ["Opération de trésorerie", "#g-mouvement/nouveau", "wallet"], ["Nouveau chantier", "#g-chantier/nouveau", "hardhat"]],
+    chef: [["Pointage du jour", "#g-equipes/pointage", "check"], ["Avancement d'un chantier", "#g-chantiers", "hardhat"], ["Sortie de stock", "#g-stock/mouvement", "package"], ["Voir le planning", "#g-planning", "planning"]],
+  };
+  let sheetEl = null;
+  function fermerFeuille() {
+    if (!sheetEl) return;
+    const el = sheetEl; sheetEl = null;
+    el.classList.remove("is-on"); document.body.classList.remove("sheet-open");
+    $("#bnAdd") && $("#bnAdd").setAttribute("aria-expanded", "false");
+    setTimeout(() => el.remove(), 260);
+  }
+  function feuille(type) {
+    if (sheetEl) { const meme = sheetEl.dataset.type === type; fermerFeuille(); if (meme) return; }
+    const me = G.me(), courant = (location.hash.slice(1) || "gestion").split("/")[0];
+    const tuile = ([t, h, i], on) => `<a class="tile${on ? " is-on" : ""}" href="${esc(h)}">${I(i, "ic--20")}<span>${esc(t)}</span></a>`;
+    let corps;
+    if (type === "actions") {
+      corps = `<h2 class="sheet__t">Actions rapides</h2><div class="tiles">${(me.role === "chef" ? ACTIONS.chef : ACTIONS.direction).map((a) => tuile(a)).join("")}</div>`;
+    } else {
+      const mods = MODULES.filter((m) => okRole(m[3]) && !m[1].includes("nouve") && !m[1].includes("/") && m[1] !== "#compte");
+      corps = `<div class="sheet__who"><span class="avatar">${esc($("#avatar") ? $("#avatar").textContent : "G")}</span><span><b>${esc(me.user || "")}</b><small>${esc(ROLES[me.role] || "")}</small></span></div>
+        <h2 class="sheet__t">Tous les modules</h2><div class="tiles tiles--4">${mods.map((m) => tuile(m, m[1].slice(1) === courant || (courant === "" && m[1] === "#gestion"))).join("")}</div>
+        <div class="sheet__row"><button type="button" class="btn btn--secondary" data-act="theme">${I(isDark() ? "sun" : "moon")}${isDark() ? "Mode clair" : "Mode sombre"}</button>
+          <a class="btn btn--secondary" href="#compte">${I("account")}Mon compte</a>
+          <button type="button" class="btn btn--secondary sheet__out" data-act="out">${I("logout")}Se déconnecter</button></div>`;
+    }
+    const el = document.createElement("div");
+    el.className = "sheet-wrap"; el.dataset.type = type;
+    el.innerHTML = `<div class="sheet__scrim" data-close></div><section class="sheet" role="dialog" aria-modal="true" aria-label="${type === "actions" ? "Actions rapides" : "Menu"}"><div class="sheet__grip" aria-hidden="true"></div>${corps}</section>`;
+    document.body.appendChild(el); sheetEl = el;
+    document.body.classList.add("sheet-open");
+    if (type === "actions") $("#bnAdd") && $("#bnAdd").setAttribute("aria-expanded", "true");
+    requestAnimationFrame(() => el.classList.add("is-on")); setTimeout(() => el.classList.add("is-on"), 30);
+    el.addEventListener("click", (e) => {
+      if (e.target.closest("[data-close]") || e.target.closest("a[href]")) { tap(); setTimeout(fermerFeuille, 0); return; }
+      const b = e.target.closest("[data-act]"); if (!b) return;
+      if (b.dataset.act === "theme") { toggleTheme(); fermerFeuille(); }
+      if (b.dataset.act === "out") { fermerFeuille(); $("#logout") && $("#logout").click(); }
+    });
+    // Glisser vers le bas pour fermer
+    const sh = $(".sheet", el); let y0 = null, dy = 0, t0 = 0;
+    sh.addEventListener("touchstart", (e) => { if (sh.scrollTop > 0) return; y0 = e.touches[0].clientY; dy = 0; t0 = Date.now(); sh.style.transition = "none"; }, { passive: true });
+    sh.addEventListener("touchmove", (e) => { if (y0 == null) return; dy = Math.max(0, e.touches[0].clientY - y0); sh.style.transform = `translateY(${dy}px)`; }, { passive: true });
+    sh.addEventListener("touchend", () => { if (y0 == null) return; sh.style.transition = ""; sh.style.transform = ""; if (dy > 90 || (dy > 30 && Date.now() - t0 < 220)) fermerFeuille(); y0 = null; });
+    const f = $("a, button", sh); if (f) f.focus({ preventScroll: true });
+  }
+  addEventListener("keydown", (e) => { if (e.key === "Escape" && sheetEl) fermerFeuille(); });
+  addEventListener("hashchange", fermerFeuille);
+  // Barre du bas : se cache quand on descend, revient quand on remonte (comme une appli)
+  let yPrec = 0;
+  addEventListener("scroll", () => {
+    const y = scrollY; if (sheetEl) return;
+    if (y > yPrec + 10 && y > 120) document.body.classList.add("bnav-hide");
+    else if (y < yPrec - 10 || y < 60) document.body.classList.remove("bnav-hide");
+    yPrec = y;
+  }, { passive: true });
+  addEventListener("hashchange", () => document.body.classList.remove("bnav-hide"));
+
   /* ---------- Coquille : identité, menus, barre du haut ---------- */
   const ROLES = { dg: "Direction générale", comptable: "Comptabilité", chef: "Chef de chantier" };
   function shell() {
@@ -377,12 +439,15 @@
     if ($("#whoName")) $("#whoName").textContent = nom;
     if ($("#whoRole")) $("#whoRole").textContent = ROLES[me.role] || "";
     $$(".side__grp").forEach((g) => { g.hidden = !$$("a", g).some((a) => !a.hidden); });
-    // Menu du bas (téléphone) : 4 raccourcis selon le rôle + « Plus »
-    const sets = { chef: ["g-chantiers", "g-planning", "g-stock", "g-equipes"], comptable: ["gestion", "g-depenses", "g-tresorerie", "g-chantiers"], dg: ["gestion", "g-chantiers", "g-depenses", "g-tresorerie"] };
+    // Menu du bas (téléphone), façon application : 2 raccourcis, bouton « + » central, 1 raccourci, « Plus »
+    const sets = { chef: ["g-chantiers", "g-planning", "g-equipes"], comptable: ["gestion", "g-depenses", "g-tresorerie"], dg: ["gestion", "g-chantiers", "g-depenses"] };
     const LIB = { gestion: ["Accueil", "dashboard"], "g-chantiers": ["Chantiers", "hardhat"], "g-planning": ["Planning", "planning"], "g-stock": ["Stock", "package"], "g-equipes": ["Équipes", "users"], "g-depenses": ["Dépenses", "receipt"], "g-tresorerie": ["Trésorerie", "wallet"] };
-    const bn = $("#bnav");
-    if (bn) bn.innerHTML = (sets[me.role] || sets.dg).map((v) => `<a href="#${v}" data-view="${v}">${I(LIB[v][1])}<span>${LIB[v][0]}</span></a>`).join("") + `<button type="button" id="bnMore">${I("menu")}<span>Plus</span></button>`;
-    if ($("#bnMore")) $("#bnMore").onclick = () => document.body.classList.toggle("nav-open");
+    const lien = (v) => `<a href="#${v}" data-view="${v}">${I(LIB[v][1])}<span>${LIB[v][0]}</span></a>`;
+    const s3 = sets[me.role] || sets.dg, bn = $("#bnav");
+    if (bn) bn.innerHTML = lien(s3[0]) + lien(s3[1]) + `<button type="button" class="bnav__fab" id="bnAdd" aria-label="Actions rapides" aria-haspopup="dialog">${I("plus")}</button>` + lien(s3[2]) + `<button type="button" id="bnMore" aria-haspopup="dialog">${I("menu")}<span>Plus</span></button>`;
+    if ($("#bnAdd")) $("#bnAdd").onclick = () => { tap(); feuille("actions"); };
+    if ($("#bnMore")) $("#bnMore").onclick = () => { tap(); feuille("plus"); };
+    hl();
     drawThemeBtn();
     chargerAlertes();
   }
