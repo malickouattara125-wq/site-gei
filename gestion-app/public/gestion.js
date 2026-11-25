@@ -73,6 +73,10 @@
     return sum(pointages.filter(filtre), (p) => sum(p.presents, (id) => tarif[id] || 0));
   };
   const depenseChantier = (c, d) => sum(d.depenses.filter((x) => x.chantierId === c.id), (x) => x.montant) + paieDe(d.pointages, d.ouvriers, (p) => p.chantierId === c.id);
+  // Dépenses : avances versées et reste à payer (anciennes dépenses : « payée » = tout versé)
+  const verseDep = (x) => (Array.isArray(x.paiements) ? sum(x.paiements, (p) => p.montant) : (x.paye !== false ? x.montant || 0 : 0));
+  const resteDep = (x) => Math.max(0, (x.montant || 0) - verseDep(x));
+  G.verseDep = verseDep; G.resteDep = resteDep;
   const paye = (m) => sum(m.paiements || [], (p) => p.montant);
   const du = (m) => (["reservee", "vendue", "livree"].includes(m.statut) ? Math.max(0, (m.prix || 0) - paye(m)) : 0);
   const retard = (m) => { // montant échu non payé
@@ -142,6 +146,7 @@
         <div class="kpi"><small>Dépensé ce mois</small><b>${fcfa(depMois)}</b><span>achats + paie</span></div>
         <div class="kpi"><small>Encaissé ce mois</small><b>${fcfa(encMois)}</b><span>paiements des clients</span></div>
         <div class="kpi kpi--alert"><small>Reste à encaisser</small><b>${fcfa(reste)}</b><span>${cnt("vendue") + cnt("livree")} vendues · ${cnt("reservee")} réservées · ${cnt("disponible")} disponibles</span></div>
+        <div class="kpi kpi--alert"><small>Reste à payer</small><b>${fcfa(sum(d.depenses, resteDep))}</b><span>fournisseurs et artisans</span></div>
       </div>
       ${retards.length || depasse.length ? `<section class="panel"><h2>À surveiller</h2>
         ${retards.map((x) => `<p class="alert"><b>Paiement en retard</b> · ${esc(x.programme)} lot ${esc(x.lot)} (${esc(x.clientNom || "client")}) : ${fcfa(retard(x))} échus non payés. <a href="#g-maison/${x.id}">Voir</a></p>`).join("")}
@@ -201,6 +206,7 @@
         ${isNew || !argent() ? "" : `<section class="panel"><h2>Argent du chantier</h2>
           <div class="kpis"><div class="kpi"><small>Budget</small><b>${fcfa(c.budget)}</b></div><div class="kpi"><small>Achats et frais</small><b>${fcfa(sum(deps, (x) => x.montant))}</b></div>
           <div class="kpi"><small>Paie des ouvriers</small><b>${fcfa(paie)}</b></div><div class="kpi kpi--alert"><small>Reste du budget</small><b>${fcfa((c.budget || 0) - depenseChantier(c, d))}</b></div></div>
+          <p class="alert${sum(deps, resteDep) ? " alert--bad" : ""}">Reste à payer aux fournisseurs et artisans : <b>${fcfa(sum(deps, resteDep))}</b> (déjà payé : ${fcfa(sum(deps, verseDep))})</p>
           ${parCat.length ? `<p class="muted">${parCat.map(([l, v]) => `${l} : <b>${fcfa(v)}</b>`).join(" · ")}</p>` : ""}
           <p><a class="btn btn--sm btn--ghost" href="#g-depenses/${c.id}">Voir les ${deps.length} dépenses</a> <a class="btn btn--sm btn--primary" href="#g-depense/nouvelle/${c.id}">+ Dépense sur ce chantier</a></p></section>`}
         <div class="savebar">${isNew ? "" : '<button type="button" class="btn btn--danger" id="del">Supprimer</button>'}<button type="submit" class="btn btn--primary">${isNew ? "Créer le chantier" : "Enregistrer"}</button></div>
@@ -329,7 +335,8 @@
     const list = d.depenses.filter((x) => (!fc || x.chantierId === fc) && (!fcat || x.categorie === fcat) && (!fm || mois(x.date) === fm)).sort((a, b) => String(b.date).localeCompare(String(a.date)));
     const moisDispo = [...new Set(d.depenses.map((x) => mois(x.date)))].sort().reverse();
     const cols = [["Date", (x) => dfr(x.date)], ["Chantier", (x) => esc(nomChantier(d.chantiers, x.chantierId))], ["Catégorie", (x) => esc(LIB.categorie[x.categorie])], ["Libellé", (x) => `<b>${esc(x.libelle)}</b>${x.quantite ? ` <span class="muted">(${esc(x.quantite)})</span>` : ""}`],
-      ["Fournisseur", (x) => esc(x.fournisseur || "—")], ["Mode", (x) => esc(LIB.mode[x.mode])], ["Montant", (x) => fcfa(x.montant) + (x.paye ? "" : ' <span class="st st--pause">à payer</span>'), 1]];
+      ["Fournisseur", (x) => esc(x.fournisseur || "—")], ["Montant total", (x) => (x.montant ? fcfa(x.montant) : '<span class="st st--pause">prix à compléter</span>'), 1], ["Avance payée", (x) => fcfa(verseDep(x)), 1],
+      ["Reste à payer", (x) => (resteDep(x) ? `<b>${fcfa(resteDep(x))}</b>` : x.montant ? '<span class="st st--ok">payé</span>' : "—"), 1]];
     main.innerHTML = head("Dépenses", "Achats de matériaux, main-d'œuvre, transport, location… par chantier.",
       '<button class="btn btn--ghost" id="xp">Exporter (Excel)</button><a class="btn btn--primary" href="#g-depense/nouvelle">+ Nouvelle dépense</a>') + `
       <section class="panel"><div class="filters">
@@ -337,32 +344,38 @@
         <label>Catégorie<select id="fcat">${opts(LIB.categorie, fcat, "Toutes")}</select></label>
         <label>Mois<select id="fm"><option value="">Tous</option>${moisDispo.map((m) => `<option value="${m}"${m === fm ? " selected" : ""}>${new Date(m + "-15").toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</option>`).join("")}</select></label>
       </div>
-      ${tableau(cols, list, (x) => `#g-depense/${x.id}`, ["Total", `${list.length} dépenses`, "", "", "", "", fcfa(sum(list, (x) => x.montant))])}
-      <p class="muted">Non payées : <b>${fcfa(sum(list.filter((x) => !x.paye), (x) => x.montant))}</b></p></section>`;
+      ${tableau(cols, list, (x) => `#g-depense/${x.id}`, ["Total", `${list.length} dépenses`, "", "", "", fcfa(sum(list, (x) => x.montant)), fcfa(sum(list, verseDep)), fcfa(sum(list, resteDep))])}
+      <div class="kpis"><div class="kpi"><small>Montant total</small><b>${fcfa(sum(list, (x) => x.montant))}</b></div><div class="kpi"><small>Déjà payé</small><b>${fcfa(sum(list, verseDep))}</b></div>
+      <div class="kpi kpi--alert"><small>Reste à payer</small><b>${fcfa(sum(list, resteDep))}</b></div></div>
+      ${list.some((x) => !x.montant) ? `<p class="muted">${list.filter((x) => !x.montant).length} dépense(s) sans prix : à compléter.</p>` : ""}</section>`;
     const go = () => { location.hash = `#g-depenses/${encodeURIComponent([$("#fc").value, $("#fcat").value, $("#fm").value].join("|"))}`; };
     ["#fc", "#fcat", "#fm"].forEach((s) => { $(s).onchange = go; });
-    $("#xp").onclick = () => exporter("depenses", [["Date", (x) => x.date], ["Chantier", (x) => nomChantier(d.chantiers, x.chantierId)], ["Catégorie", (x) => LIB.categorie[x.categorie]], ["Libellé", (x) => x.libelle], ["Quantité", (x) => x.quantite], ["Fournisseur", (x) => x.fournisseur], ["Mode", (x) => LIB.mode[x.mode]], ["Montant", (x) => x.montant], ["Payé", (x) => (x.paye ? "oui" : "non")], ["Saisi par", (x) => x.creePar]], list);
+    $("#xp").onclick = () => exporter("depenses", [["Date", (x) => x.date], ["Chantier", (x) => nomChantier(d.chantiers, x.chantierId)], ["Catégorie", (x) => LIB.categorie[x.categorie]], ["Libellé", (x) => x.libelle], ["Quantité", (x) => x.quantite], ["Fournisseur", (x) => x.fournisseur], ["Montant total", (x) => x.montant], ["Avance payée", verseDep], ["Reste à payer", resteDep], ["Saisi par", (x) => x.creePar]], list);
   };
 
   views["g-depense"] = async (arg) => {
     const [did, cid] = String(arg || "").split("/");
     const isNew = did === "nouvelle";
     const d = await load("depenses", "chantiers");
-    const x = isNew ? { date: today(), chantierId: cid || "", categorie: "materiaux", mode: "especes", paye: true } : d.depenses.find((y) => y.id === did);
+    const x = isNew ? { date: today(), chantierId: cid || "", categorie: "materiaux", mode: "especes", paiements: [] } : d.depenses.find((y) => y.id === did);
     if (!x) { main.innerHTML = '<p class="empty">Dépense introuvable.</p>'; return; }
     const fours = [...new Set(d.depenses.map((y) => y.fournisseur).filter(Boolean))].sort();
     const documents = (x.documents || []).map((y) => ({ ...y }));
+    const pay = (Array.isArray(x.paiements) ? x.paiements : verseDep(x) ? [{ date: x.date, montant: x.montant, mode: x.mode }] : []).map((y) => ({ ...y }));
     main.innerHTML = head(isNew ? "Nouvelle dépense" : esc(x.libelle), isNew ? "Saisissez l'achat ou le frais, avec le chantier concerné." : `${dfr(x.date)} · ${fcfa(x.montant)}`, '<a class="btn btn--text" href="#g-depenses">← Retour</a>') + `
       <form class="form panel" id="f" novalidate style="max-width:860px"><div class="grid">
         <label><span>Date *</span><input type="date" name="date" value="${esc(x.date || "")}"></label>
         <label><span>Chantier</span><select name="chantierId">${chantierOpts(d.chantiers, x.chantierId)}</select></label>
         <label><span>Catégorie</span><select name="categorie">${opts(LIB.categorie, x.categorie)}</select></label>
-        <label><span>Montant (FCFA) *</span><input name="montant" inputmode="numeric" value="${x.montant || ""}" placeholder="Ex. 275000"></label>
-        <label class="full"><span>Libellé *</span><input name="libelle" value="${esc(x.libelle || "")}" placeholder="Ex. 50 sacs de ciment CPJ 45"></label>
-        <label><span>Quantité (facultatif)</span><input name="quantite" value="${esc(x.quantite || "")}" placeholder="Ex. 50 sacs"></label>
+        <label><span>Montant total (FCFA)</span><input name="montant" inputmode="numeric" value="${x.montant || ""}" placeholder="Vide si le prix n'est pas encore connu"></label>
+        <label class="full"><span>Libellé *</span><input name="libelle" value="${esc(x.libelle || "")}" placeholder="Ex. Xavier, maçon – main-d'œuvre"></label>
+        <label><span>Quantité / détail</span><input name="quantite" value="${esc(x.quantite || "")}" placeholder="Ex. 3 tonnes, 300 briques"></label>
         <label><span>Fournisseur</span><input name="fournisseur" list="fours" value="${esc(x.fournisseur || "")}" placeholder="Ex. Novabat"><datalist id="fours">${fours.map((y) => `<option value="${esc(y)}">`).join("")}</datalist></label>
-        <label><span>Mode de paiement</span><select name="mode">${opts(LIB.mode, x.mode)}</select></label>
-        <label class="check"><input type="checkbox" name="paye"${x.paye !== false ? " checked" : ""}> Déjà payée</label>
+        <div class="full"><span class="lbl">Paiements (avance, puis solde)</span>
+          <div class="r r--head" style="--cols:160px 160px 160px auto"><span>Date</span><span>Montant payé</span><span>Mode</span><span></span></div>
+          <div class="rows" id="pay"></div>
+          <p><button type="button" class="btn btn--sm btn--ghost" id="addPay">+ Ajouter une avance</button> <button type="button" class="btn btn--sm btn--ghost" id="solde">Payer le reste</button></p>
+          <div class="kpis"><div class="kpi"><small>Déjà payé</small><b id="kVerse"></b></div><div class="kpi kpi--alert"><small>Reste à payer</small><b id="kReste"></b></div></div></div>
         <label class="full"><span>Notes</span><textarea name="notes" rows="2">${esc(x.notes || "")}</textarea></label>
         <div class="full"><span class="lbl">Facture / reçu du fournisseur</span><div id="docs"></div></div>
       </div>
@@ -371,9 +384,14 @@
     const f = $("#f");
     f.addEventListener("input", () => G.setDirty(true));
     docsEditor($("#docs"), documents);
-    const body = () => { const v = Object.fromEntries(new FormData(f)); return { ...v, montant: num(v.montant), paye: f.paye.checked, documents }; };
+    const ep = rowsEditor($("#pay"), pay, [{ k: "date", ph: "Date", type: "date" }, { k: "montant", ph: "Montant", type: "number" }, { k: "mode", ph: "Mode", type: "select", map: LIB.mode }], "160px 160px 160px auto");
+    const calc = () => { const total = num(f.montant.value), v = sum(pay, (p) => p.montant); $("#kVerse").textContent = fcfa(v); $("#kReste").textContent = total ? fcfa(Math.max(0, total - v)) : "prix à compléter"; };
+    $("#pay").addEventListener("change", calc); f.montant.addEventListener("input", calc); calc();
+    $("#addPay").onclick = () => { ep.add({ date: today(), montant: "", mode: "especes" }); calc(); };
+    $("#solde").onclick = () => { const r = num(f.montant.value) - sum(pay, (p) => p.montant); if (r > 0) { ep.add({ date: today(), montant: r, mode: "especes" }); calc(); } else toast(num(f.montant.value) ? "Tout est déjà payé." : "Indiquez d'abord le montant total."); };
+    const body = () => { const v = Object.fromEntries(new FormData(f)); return { ...v, montant: num(v.montant), paiements: pay.filter((p) => num(p.montant)), documents }; };
     f.addEventListener("submit", (e) => { e.preventDefault(); save("/api/g/depenses", isNew ? null : x.id, body(), x.chantierId || body().chantierId ? `#g-depenses/${encodeURIComponent(body().chantierId + "||")}` : "#g-depenses"); });
-    if ($("#encore")) $("#encore").onclick = async () => { try { await api("/api/g/depenses", { method: "POST", body: body() }); G.setDirty(false); toast("Enregistrée. Saisissez la suivante."); f.libelle.value = ""; f.montant.value = ""; f.quantite.value = ""; f.notes.value = ""; documents.length = 0; docsEditor($("#docs"), documents); f.libelle.focus(); } catch (err) { fail(err); } };
+    if ($("#encore")) $("#encore").onclick = async () => { try { await api("/api/g/depenses", { method: "POST", body: body() }); G.setDirty(false); toast("Enregistrée. Saisissez la suivante."); f.libelle.value = ""; f.montant.value = ""; f.quantite.value = ""; f.notes.value = ""; documents.length = 0; docsEditor($("#docs"), documents); pay.length = 0; ep.draw(); calc(); f.libelle.focus(); } catch (err) { fail(err); } };
     if ($("#del")) $("#del").onclick = () => supprimer("/api/g/depenses", x.id, "cette dépense", "#g-depenses");
   };
 

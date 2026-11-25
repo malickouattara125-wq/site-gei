@@ -52,11 +52,16 @@ const COLLECTIONS = {
     const d = {
       date: date(b.date) || new Date().toISOString().slice(0, 10), chantierId: id(b.chantierId),
       categorie: pick(b.categorie, LISTES.categorieDepense, "autre"), libelle: str(b.libelle, 160), fournisseur: str(b.fournisseur, 120),
-      quantite: str(b.quantite, 30), montant: montant(b.montant), mode: pick(b.mode, LISTES.modePaiement, "especes"),
-      paye: b.paye !== false, notes: str(b.notes, 1000), documents: docs(b.documents),
+      quantite: str(b.quantite, 60), montant: montant(b.montant), mode: pick(b.mode, LISTES.modePaiement, "especes"),
+      notes: str(b.notes, 1000), documents: docs(b.documents),
     };
+    // Paiements (avances puis solde). Anciennes dépenses sans liste : « payée » = payée en totalité à la date de la dépense.
+    const liste = Array.isArray(b.paiements) ? b.paiements : (b.paye !== false && d.montant ? [{ date: d.date, montant: d.montant, mode: d.mode }] : []);
+    d.paiements = arr(liste, 100).map((p) => ({ date: date(p && p.date) || d.date, montant: montant(p && p.montant), mode: pick(p && p.mode, LISTES.modePaiement, d.mode) })).filter((p) => p.montant);
+    const verse = d.paiements.reduce((s, p) => s + p.montant, 0);
+    if (d.montant && verse > d.montant) throw err("Les paiements dépassent le montant total de la dépense.");
+    d.paye = d.montant > 0 && verse >= d.montant;
     if (!d.libelle) throw err("Le libellé de la dépense est obligatoire.");
-    if (!d.montant) throw err("Le montant doit être supérieur à 0.");
     return d;
   },
   ouvriers: (b) => {
@@ -101,7 +106,12 @@ function depuisImport(nom, row) {
     const paye = montant(row.montantPaye);
     return { ...row, paiements: paye ? [{ date: date(row.datePaiement) || new Date().toISOString().slice(0, 10), montant: paye, mode: "autre", reference: "Reprise Excel" }] : [] };
   }
-  if (nom === "depenses") return { ...row, paye: !/^(non|no|0|false)$/i.test(String(row.paye || "oui").trim()) };
+  if (nom === "depenses") {
+    const total = montant(row.montant), avance = montant(row.avance);
+    const toutPaye = /^(oui|yes|1|true|x)$/i.test(String(row.paye || "").trim());
+    const verse = avance ? Math.min(avance, total || avance) : (toutPaye ? total : 0);
+    return { ...row, paiements: verse ? [{ date: date(row.date) || new Date().toISOString().slice(0, 10), montant: verse, mode: row.mode }] : [] };
+  }
   if (nom === "ouvriers") return { ...row, actif: !/^(non|no|0|false)$/i.test(String(row.actif || "oui").trim()) };
   return row;
 }

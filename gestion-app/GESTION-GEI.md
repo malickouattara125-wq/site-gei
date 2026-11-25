@@ -42,7 +42,8 @@ Créer un compte : **Mon compte** → « Comptes d'accès » → identifiant, mo
 
 **Bon à savoir :**
 - Le coût d'un chantier = ses dépenses **+** la paie des ouvriers pointés sur ce chantier.
-- La trésorerie se remplit toute seule avec les paiements des clients et les dépenses payées. Au départ, enregistrez une fois le **solde de départ** de chaque compte (caisse, banque, Mobile Money).
+- **Dépenses avec avance** : indiquez le montant total, puis chaque avance versée (« + Ajouter une avance »). Le **reste à payer** se calcule tout seul, par dépense, par chantier et sur le tableau de gestion. « Payer le reste » enregistre le solde. Un achat dont le prix n'est pas encore connu peut être saisi sans montant.
+- La trésorerie se remplit toute seule avec les paiements des clients et les avances et paiements des dépenses. Au départ, enregistrez une fois le **solde de départ** de chaque compte (caisse, banque, Mobile Money).
 
 ## Reprendre les fichiers Excel existants
 1. Dans Excel : **Fichier** → **Enregistrer sous** → type **« CSV (séparateur : point-virgule) »**.
