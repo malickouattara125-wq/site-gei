@@ -66,7 +66,13 @@
     dirty = false;
     main.innerHTML = window.GEI.ui ? window.GEI.ui.skeleton() : '<p class="empty">Chargement…</p>';
     if (window.GEI.ui) window.GEI.ui.closePop();
-    Promise.resolve(v(arg ? arg.split("/").map(decodeURIComponent).join("/") : undefined)).catch(fail).finally(() => { if (window.GEI.ui) window.GEI.ui.hl(); });
+    main.classList.remove("is-in"); clearTimeout(route.t);
+    Promise.resolve(v(arg ? arg.split("/").map(decodeURIComponent).join("/") : undefined)).catch(fail).finally(() => {
+      if (window.GEI.ui) window.GEI.ui.hl();
+      // Apparition courte de la page, puis retrait de la classe : le contenu finit toujours à 100 % d'opacité
+      void main.offsetWidth; main.classList.add("is-in");
+      route.t = setTimeout(() => main.classList.remove("is-in"), 220);
+    });
     scrollTo(0, 0);
     document.body.classList.remove("nav-open");
   }

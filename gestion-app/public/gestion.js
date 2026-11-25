@@ -271,56 +271,105 @@
   };
 
   const ETAPES = ["Terrassement", "Fondations", "Élévation des murs", "Dalle / poteaux", "Toiture", "Électricité et plomberie", "Enduits", "Carrelage", "Menuiseries", "Peinture", "Finitions et nettoyage"];
-  views["g-chantier"] = async (cid) => {
+  views["g-chantier"] = async (arg) => {
+    const [cid, , etapeVisee] = String(arg || "").split("/");
     const isNew = cid === "nouveau";
     if (isNew && !argent()) { location.replace("#g-chantiers"); return; }
     const d = argent() ? await load("chantiers", "depenses", "ouvriers", "pointages") : { ...(await load("chantiers", "ouvriers", "pointages")), depenses: [] };
     const c = isNew ? { statut: "en_cours", etapes: ETAPES.map((nom) => ({ nom, avancement: 0 })), photos: [] } : d.chantiers.find((x) => x.id === cid);
-    if (!c) { main.innerHTML = '<p class="empty">Chantier introuvable.</p>'; return; }
+    if (!c) { main.innerHTML = U.vide("Chantier introuvable.", "hardhat"); return; }
     const etapes = (c.etapes || []).map((e) => ({ ...e })), photos = (c.photos || []).map((p) => ({ ...p })), documents = (c.documents || []).map((x) => ({ ...x }));
-    const ro = argent() ? "" : " readonly";
     const deps = d.depenses.filter((x) => x.chantierId === c.id);
     const paie = paieDe(d.pointages, d.ouvriers, (p) => p.chantierId === c.id);
+    const achats = sum(deps, (x) => x.montant), resteFour = sum(deps, resteDep), verseFour = sum(deps, verseDep);
     const parCat = Object.entries(LIB.categorie).map(([k, l]) => [l, sum(deps.filter((x) => x.categorie === k), (x) => x.montant)]).filter((x) => x[1]);
-    main.innerHTML = head(isNew ? "Nouveau chantier" : esc(c.nom), isNew ? "Créez le chantier, puis suivez son avancement et ses dépenses." : `${st(c.statut)} · avancement ${avancement(c)} %`, '<a class="btn btn--text" href="#g-chantiers">← Retour</a>') + `
-      <form class="form" id="f" novalidate>
-        <section class="panel"><h2>Informations</h2><div class="grid">
-          <label class="full"><span>Nom du chantier *</span><input name="nom" value="${esc(c.nom || "")}" placeholder="Ex. Cité Les Rives de l'Opulence, tranche 2"></label>
-          <label><span>Lieu</span><input name="lieu" value="${esc(c.lieu || "")}" placeholder="Ex. Adiaké"></label>
-          <label><span>Client / propriétaire</span><input name="client" value="${esc(c.client || "")}" placeholder="Ex. GEI (programme) ou nom du client"></label>
-          <label><span>Type d'ouvrage</span><input name="type" value="${esc(c.type || "")}" placeholder="Ex. 20 villas basses 4 pièces"></label>
-          <label><span>Statut</span><select name="statut">${opts({ preparation: "En préparation", en_cours: "En cours", pause: "En pause", termine: "Terminé" }, c.statut)}</select></label>
-          ${argent() ? `<label><span>Budget prévu (FCFA)</span><input name="budget" inputmode="numeric" value="${c.budget || ""}" placeholder="Ex. 150000000"></label>` : ""}
-          <label><span>Date de début</span><input name="dateDebut" type="date" value="${esc(c.dateDebut || "")}"></label>
-          <label><span>Fin prévue</span><input name="dateFin" type="date" value="${esc(c.dateFin || "")}"></label>
-          <label class="full"><span>Notes</span><textarea name="notes" rows="3">${esc(c.notes || "")}</textarea></label>
-        </div></section>
-        <section class="panel"><h2>Étapes et avancement</h2><p class="muted">Pour chaque étape : le pourcentage réalisé, et les dates prévues (pour le planning). L'avancement du chantier est la moyenne.</p>
-          <div class="r r--head" style="--cols:2fr 110px 150px 150px auto"><span>Étape</span><span>% réalisé</span><span>Début prévu</span><span>Fin prévue</span><span></span></div>
-          <div class="rows" id="et"></div><p><button type="button" class="btn btn--sm btn--ghost" id="addE">+ Ajouter une étape</button></p></section>
-        <section class="panel"><h2>Photos du chantier</h2><div class="gal" id="ph"></div><p><button type="button" class="btn btn--sm btn--ghost" id="addP">+ Ajouter une photo</button></p></section>
-        ${argent() ? `<section class="panel"><h2>Documents</h2><p class="muted">Plans, contrat, permis, devis… (visibles seulement dans GEI Gestion).</p><div id="docs"></div></section>` : ""}
-        ${isNew || !argent() ? "" : `<section class="panel"><h2>Argent du chantier</h2>
-          <div class="kpis"><div class="kpi"><small>Budget</small><b>${fcfa(c.budget)}</b></div><div class="kpi"><small>Achats et frais</small><b>${fcfa(sum(deps, (x) => x.montant))}</b></div>
-          <div class="kpi"><small>Paie des ouvriers</small><b>${fcfa(paie)}</b></div><div class="kpi kpi--alert"><small>Reste du budget</small><b>${fcfa((c.budget || 0) - depenseChantier(c, d))}</b></div></div>
-          <p class="alert${sum(deps, resteDep) ? " alert--bad" : ""}">Reste à payer aux fournisseurs et artisans : <b>${fcfa(sum(deps, resteDep))}</b> (déjà payé : ${fcfa(sum(deps, verseDep))})</p>
-          ${parCat.length ? `<p class="muted">${parCat.map(([l, v]) => `${l} : <b>${fcfa(v)}</b>`).join(" · ")}</p>` : ""}
-          <p><a class="btn btn--sm btn--ghost" href="#g-depenses/${c.id}">Voir les ${deps.length} dépenses</a> <a class="btn btn--sm btn--primary" href="#g-depense/nouvelle/${c.id}">+ Dépense sur ce chantier</a></p></section>`}
-        <div class="savebar">${isNew ? "" : '<button type="button" class="btn btn--danger" id="del">Supprimer</button>'}<button type="submit" class="btn btn--primary">${isNew ? "Créer le chantier" : "Enregistrer"}</button></div>
+    const sec = (n, titre, sous) => `<div class="sec__head"><span class="sec__n">${n}</span><div><h2>${titre}</h2><p>${sous}</p></div></div>`;
+    let n = 0;
+    main.innerHTML = head(isNew ? "Nouveau chantier" : esc(c.nom), isNew ? "Créez le chantier, puis suivez son avancement et ses dépenses." : `${st(c.statut)}${c.lieu ? " · " + esc(c.lieu) : ""}`,
+      `<a class="btn btn--tertiary" href="#g-chantiers">${I("chevleft")}Retour</a>`, [["Chantiers", "#g-chantiers"], [isNew ? "Nouveau chantier" : esc(c.nom), ""]]) + `
+      <form class="form form--split" id="f" novalidate>
+        <div class="form__main">
+          <section class="panel">${sec(++n, "Informations générales", "Nom, lieu, client, dates et budget.")}
+            <div class="grid">
+              <label class="full"><span>Nom du chantier <i class="req">*</i></span><input name="nom" value="${esc(c.nom || "")}" placeholder="Ex. Cité Les Rives de l'Opulence, tranche 2" autocomplete="off"></label>
+              <label><span>Lieu</span><input name="lieu" value="${esc(c.lieu || "")}" placeholder="Ex. Adiaké"></label>
+              <label><span>Client / propriétaire</span><input name="client" value="${esc(c.client || "")}" placeholder="Ex. GEI (programme) ou nom du client"></label>
+              <label><span>Type d'ouvrage</span><input name="type" value="${esc(c.type || "")}" placeholder="Ex. 20 villas basses 4 pièces"></label>
+              <label><span>Statut</span><select name="statut">${opts({ preparation: "En préparation", en_cours: "En cours", pause: "En pause", termine: "Terminé" }, c.statut)}</select></label>
+              <label><span>Date de début</span><input name="dateDebut" type="date" value="${esc(c.dateDebut || "")}"></label>
+              <label><span>Fin prévue</span><input name="dateFin" type="date" value="${esc(c.dateFin || "")}"></label>
+              ${argent() ? `<label class="full"><span>Budget prévu</span><input name="budget" class="money" inputmode="numeric" value="${c.budget || ""}" placeholder="Ex. 150 000 000"></label>` : ""}
+            </div></section>
+          <section class="panel" id="sec-etapes">${sec(++n, "Étapes et avancement", "Le % réalisé et les dates prévues de chaque étape. L'avancement du chantier est la moyenne.")}
+            <div class="r r--head" style="--cols:2fr 110px 150px 150px 36px"><span>Étape</span><span>% réalisé</span><span>Début prévu</span><span>Fin prévue</span><span></span></div>
+            <div class="rows" id="et"></div>
+            <div class="pay-actions"><button type="button" class="btn btn--secondary btn--sm" id="addE">${I("plus")}Ajouter une étape</button></div></section>
+          <section class="panel">${sec(++n, "Photos du chantier", "Suivez l'évolution en images, avec la date et une légende.")}
+            <div class="gal" id="ph"></div>
+            <div class="pay-actions"><button type="button" class="btn btn--secondary btn--sm" id="addP">${I("plus")}Ajouter une photo</button></div></section>
+          ${argent() ? `<section class="panel">${sec(++n, "Documents et notes", "Plans, contrat, permis, devis… (visibles seulement dans GEI Gestion).")}
+            <label class="field"><span>Notes</span><textarea name="notes" rows="3" placeholder="Ex. livraison du fer prévue la semaine prochaine">${esc(c.notes || "")}</textarea></label>
+            <div style="margin-top:16px"><span class="lbl" style="margin-bottom:8px">Documents</span><div id="docs"></div></div></section>`
+            : `<section class="panel">${sec(++n, "Notes", "Remarques sur le chantier.")}<label class="field"><span>Notes</span><textarea name="notes" rows="3">${esc(c.notes || "")}</textarea></label></section>`}
+        </div>
+        <aside class="form__side">
+          <section class="panel recap" aria-live="polite">
+            <div class="recap__top"><span class="t-micro">Récapitulatif</span><span id="kSt"></span></div>
+            <div class="recap__av"><div id="kRing"></div><div><b id="kAv"></b><span id="kEt"></span></div></div>
+            <div class="recap__lines">
+              <div id="kRetL"><span>Étapes en retard</span><b id="kRet"></b></div>
+              <div><span>Période</span><b id="kPer"></b></div>
+              ${argent() ? `<div><span>Budget</span><b id="kBud"></b></div>
+              <div><span>Dépensé (achats + paie)</span><b id="kDep"></b></div>
+              <div id="kResteL"><span>Reste du budget</span><b id="kReste"></b></div>
+              <div class="${resteFour ? "is-bad" : "is-ok"}"><span>Reste à payer fournisseurs</span><b>${U.money(resteFour)}</b></div>` : ""}
+            </div>
+            ${argent() ? `<span class="t-help">Budget consommé : <b id="kPct">0 %</b></span><div class="progress"><i id="kBar" style="width:0%"></i></div>
+              ${parCat.length || paie ? `<p class="recap__meta">${parCat.map(([l, v]) => `${l} : <b>${fcfa(v)}</b>`).concat(paie ? [`Paie ouvriers : <b>${fcfa(paie)}</b>`] : []).join(" · ")}</p>` : ""}
+              ${isNew ? "" : `<div class="recap__acts"><a class="btn btn--primary btn--sm" href="#g-depense/nouvelle/${c.id}">${I("plus")}Dépense sur ce chantier</a><a class="btn btn--secondary btn--sm" href="#g-depenses/${encodeURIComponent(c.id + "|||")}">Voir les ${deps.length} dépense(s)</a></div>`}` : ""}
+            ${isNew ? "" : `<p class="recap__meta">Créé par ${esc(c.creePar || "?")}${c.modifiePar ? `, modifié par ${esc(c.modifiePar)}` : ""}.${argent() ? ` Déjà payé aux fournisseurs : ${fcfa(verseFour)}.` : ""}</p>`}
+          </section>
+          <div class="tip">${I("alertcircle")}<span>Mettez à jour le % de chaque étape après vos visites : le planning, le tableau de gestion et les alertes de retard se mettent à jour tout seuls.</span></div>
+        </aside>
+        <div class="savebar">${isNew || !argent() ? "" : `<button type="button" class="btn btn--danger" id="del">${I("trash")}Supprimer</button>`}<button type="submit" class="btn btn--primary">${I("check")}${isNew ? "Créer le chantier" : "Enregistrer"}</button></div>
       </form>`;
     const f = $("#f");
     f.addEventListener("input", () => G.setDirty(true));
     if (!argent()) $$("#f [name=nom], #f [name=lieu], #f [name=client], #f [name=type], #f [name=dateDebut], #f [name=dateFin]").forEach((i) => { i.readOnly = true; });
-    const ed = rowsEditor($("#et"), etapes, [{ k: "nom", ph: "Étape" }, { k: "avancement", ph: "% réalisé", type: "number" }, { k: "dateDebut", ph: "Début prévu", type: "date" }, { k: "dateFin", ph: "Fin prévue", type: "date" }], "2fr 110px 150px 150px auto");
-    $("#addE").onclick = () => ed.add({ nom: "", avancement: 0, dateDebut: "", dateFin: "" });
+    const ed = rowsEditor($("#et"), etapes, [{ k: "nom", ph: "Étape" }, { k: "avancement", ph: "% réalisé", type: "number" }, { k: "dateDebut", ph: "Début prévu", type: "date" }, { k: "dateFin", ph: "Fin prévue", type: "date" }], "2fr 110px 150px 150px 36px");
     if ($("#docs")) docsEditor($("#docs"), documents);
-    const drawP = () => { $("#ph").innerHTML = photos.map((p, i) => `<figure data-i="${i}"><img src="${esc(img(p.src))}" alt=""><figcaption><input type="date" data-k="date" value="${esc(p.date || "")}" aria-label="Date"><input data-k="legende" value="${esc(p.legende || "")}" placeholder="Légende" aria-label="Légende"><div><span></span><button type="button" class="btn btn--danger" data-rm>Retirer</button></div></figcaption></figure>`).join("") || '<p class="muted">Aucune photo.</p>'; };
+    const drawP = () => { $("#ph").innerHTML = photos.map((p, i) => `<figure data-i="${i}"><img src="${esc(img(p.src))}" alt=""><figcaption><input type="date" data-k="date" value="${esc(p.date || "")}" aria-label="Date"><input data-k="legende" value="${esc(p.legende || "")}" placeholder="Légende" aria-label="Légende"><div><span></span><button type="button" class="btn btn--danger" data-rm>Retirer</button></div></figcaption></figure>`).join("") || '<p class="muted">Aucune photo pour le moment.</p>'; };
     $("#ph").addEventListener("input", (e) => { photos[e.target.closest("figure").dataset.i][e.target.dataset.k] = e.target.value; G.setDirty(true); });
     $("#ph").addEventListener("click", (e) => { if (e.target.matches("[data-rm]")) { photos.splice(+e.target.closest("figure").dataset.i, 1); drawP(); G.setDirty(true); } });
     $("#addP").onclick = () => pick((srcs) => { srcs.forEach((src) => photos.push({ src, date: today(), legende: "" })); drawP(); G.setDirty(true); }, true);
     drawP();
-    f.addEventListener("submit", (e) => { e.preventDefault(); const v = Object.fromEntries(new FormData(f)); save("/api/g/chantiers", isNew ? null : c.id, { ...v, budget: num(v.budget), etapes, photos, documents }, isNew ? "#g-chantiers" : `#g-chantier/${c.id}`); });
-    if (!argent() && $("#del")) $("#del").remove();
+    const calc = () => {
+      const t = today(), valides = etapes.filter((e) => e.nom);
+      const av = valides.length ? Math.round(sum(valides, (e) => Math.max(0, Math.min(100, +e.avancement || 0))) / valides.length) : 0;
+      const ret = valides.filter((e) => e.dateFin && e.dateFin < t && (+e.avancement || 0) < 100).length;
+      $("#kRing").innerHTML = U.ring(av); $("#kAv").textContent = `${av} % réalisé`;
+      $("#kEt").textContent = `${valides.filter((e) => (+e.avancement || 0) >= 100).length} étape(s) terminée(s) sur ${valides.length}`;
+      $("#kRet").textContent = ret; $("#kRetL").className = ret ? "is-bad" : "";
+      $("#kSt").innerHTML = st(f.statut.value);
+      const dd = f.dateDebut.value, df = f.dateFin.value;
+      $("#kPer").textContent = dd || df ? `${dd ? U.dateFr(dd) : "?"} → ${df ? U.dateFr(df) : "?"}` : "—";
+      if (argent()) {
+        const bud = num(f.budget.value), dep = achats + paie, pc = bud ? Math.round(dep / bud * 100) : 0;
+        $("#kBud").innerHTML = bud ? U.money(bud) : "—"; $("#kDep").innerHTML = U.money(dep);
+        $("#kReste").innerHTML = bud ? U.money(bud - dep) : "—"; $("#kResteL").className = bud && dep > bud ? "is-bad" : "";
+        $("#kPct").textContent = pc + " %"; $("#kBar").style.width = Math.min(100, pc) + "%"; $("#kBar").parentElement.classList.toggle("progress--bad", pc > 100);
+      }
+    };
+    $("#et").addEventListener("change", calc); f.addEventListener("input", calc); f.addEventListener("change", calc); calc();
+    $("#addE").onclick = () => { ed.add({ nom: "", avancement: 0, dateDebut: "", dateFin: "" }); calc(); const l = $$("#et .r"); const i = l.length && $("input", l[l.length - 1]); if (i) i.focus(); };
+    if (etapeVisee != null && etapeVisee !== "") setTimeout(() => {
+      const r = $$("#et .r")[+etapeVisee]; if (!r) return;
+      r.scrollIntoView({ block: "center", behavior: "smooth" }); r.classList.add("is-flash");
+      const i = $(etapes[+etapeVisee] && etapes[+etapeVisee].dateDebut ? 'input[data-k="avancement"]' : 'input[data-k="dateDebut"]', r); if (i) i.focus({ preventScroll: true });
+      setTimeout(() => r.classList.remove("is-flash"), 2400);
+    }, 300);
+    const ok = () => U.valider(f, [["nom", (v) => (v.trim() ? "" : "Le nom du chantier est obligatoire.")]]);
+    f.addEventListener("submit", (e) => { e.preventDefault(); if (!ok()) return; const v = Object.fromEntries(new FormData(f)); save("/api/g/chantiers", isNew ? null : c.id, { ...v, budget: num(v.budget), etapes: etapes.filter((x) => x.nom), photos, documents }, isNew ? "#g-chantiers" : `#g-chantier/${c.id}`); });
     if ($("#del")) $("#del").onclick = () => supprimer("/api/g/chantiers", c.id, "ce chantier (les dépenses restent enregistrées)", "#g-chantiers");
   };
 

@@ -129,30 +129,148 @@
     if ($("#del")) $("#del").onclick = async () => { if (!confirm("Supprimer cet article ? Ses mouvements de stock resteront enregistrés.")) return; try { await api(`/api/g/articles/${a.id}`, { method: "DELETE" }); G.setDirty(false); location.hash = "#g-stock"; } catch (err) { fail(err); } };
   };
 
-  /* ---------- Planning des chantiers ---------- */
+  /* ---------- Planning (diagramme de Gantt) ---------- */
+  // Jour (nombre entier) à partir d'une date AAAA-MM-JJ, sans décalage d'heure
+  const J = (s) => Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10)) / 864e5;
+  const iso = (y, m) => new Date(Date.UTC(y, m, 1)).toISOString().slice(0, 10); // 1er du mois (m de 0 à 11, débordement accepté)
+  const ZOOMS = { mois: { px: 3, label: "Mois" }, trimestre: { px: 1.1, label: "Trimestre" }, annee: { px: 0.42, label: "Année" } };
+  const MOIS_C = ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."];
+  const memo = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
+
   views["g-planning"] = async () => {
     const d = await load("chantiers");
-    const ch = d.chantiers.filter((c) => c.statut !== "termine");
-    const dates = ch.flatMap((c) => [c.dateDebut, c.dateFin, ...(c.etapes || []).flatMap((e) => [e.dateDebut, e.dateFin])]).filter(Boolean).sort();
+    const tous = d.chantiers.filter((c) => c.statut !== "termine");
     const t = today();
-    if (!dates.length) { main.innerHTML = head("Planning", "Les étapes de chaque chantier dans le temps.") + '<section class="panel"><p class="empty">Ajoutez des dates aux étapes de vos chantiers (fiche chantier → « Étapes et avancement ») pour voir le planning.</p></section>'; return; }
-    const deb = new Date(dates[0].slice(0, 7) + "-01T12:00:00"), finD = new Date(dates[dates.length - 1] + "T12:00:00");
-    const moisL = []; for (let x = new Date(deb); x <= finD; x.setMonth(x.getMonth() + 1)) moisL.push(x.toISOString().slice(0, 7));
-    const total = (new Date(moisL[moisL.length - 1] + "-28T12:00:00").setDate(32) - deb) / 864e5 || 1;
-    const pos = (s) => Math.max(0, Math.min(100, ((new Date(s + "T12:00:00") - deb) / 864e5) / total * 100));
     const enRetard = (e) => e.dateFin && e.dateFin < t && (e.avancement || 0) < 100;
-    const ligne = (nom, s, f, av, retard, sous) => `<div class="gantt__row${sous ? " gantt__row--sub" : ""}"><div class="gantt__nom">${nom}</div><div class="gantt__track">${s && f ? `<div class="gantt__bar${retard ? " gantt__bar--late" : ""}" style="left:${pos(s)}%;width:${Math.max(1.5, pos(f) - pos(s))}%" title="${dfr(s)} → ${dfr(f)} · ${av} %"><i style="width:${av}%"></i></div>` : '<span class="muted">sans dates</span>'}</div></div>`;
-    const retards = ch.flatMap((c) => (c.etapes || []).filter(enRetard).map((e) => ({ c, e })));
-    main.innerHTML = head("Planning", "Les étapes de chaque chantier dans le temps. En rouge : étapes en retard (date de fin passée, pas terminées).") + `
-      ${retards.length ? `<section class="panel">${retards.map(({ c, e }) => `<p class="alert alert--bad"><b>Retard</b> · ${esc(c.nom)} — ${esc(e.nom)} : prévue pour le ${dfr(e.dateFin)}, réalisée à ${e.avancement || 0} %. <a href="#g-chantier/${c.id}">Voir</a></p>`).join("")}</section>` : ""}
-      <section class="panel"><div class="gantt">
-        <div class="gantt__row gantt__row--head"><div class="gantt__nom"></div><div class="gantt__track">${moisL.filter((m, i) => i % Math.max(1, Math.ceil(moisL.length / 8)) === 0).map((m) => `<span style="left:${pos(m + "-01")}%">${new Date(m + "-15T12:00:00").toLocaleDateString("fr-FR", { month: "short", year: "2-digit" })}</span>`).join("")}<b class="gantt__today" style="left:${pos(t)}%" title="Aujourd'hui"></b></div></div>
-        ${ch.map((c) => { const av = (c.etapes || []).length ? Math.round(sum(c.etapes, (e) => e.avancement) / c.etapes.length) : 0;
-          const de = (c.etapes || []).map((e) => e.dateDebut).filter(Boolean).sort(), fe = (c.etapes || []).map((e) => e.dateFin).filter(Boolean).sort();
-          const cd = c.dateDebut || de[0], cf = c.dateFin || fe[fe.length - 1];
-          return ligne(`<a href="#g-chantier/${c.id}"><b>${esc(c.nom)}</b></a>`, cd, cf, av, cf && cf < t && av < 100) +
-            (c.etapes || []).map((e) => ligne(esc(e.nom), e.dateDebut, e.dateFin, e.avancement || 0, enRetard(e), true)).join(""); }).join("")}
-      </div></section>`;
+    const retardJ = (fin) => J(t) - J(fin);
+    let zoom = ZOOMS[memo("gei-plan-zoom")] ? memo("gei-plan-zoom") : "mois";
+    let filtre = "";
+    const plies = new Set(memo("gei-plan-plie") || []);
+
+    main.innerHTML = head("Planning", "Les étapes de chaque chantier dans le temps. Survolez une barre pour le détail, cliquez pour modifier l'étape.") + `
+      <section class="panel gt-alerts" id="gtr" hidden></section>
+      <section class="panel">
+        <div class="gt-bar">
+          <div class="gt-bar__l">
+            <label class="gt-filtre"><span class="sr-only">Chantier</span><select id="gtf"><option value="">Tous les chantiers</option>${tous.map((c) => `<option value="${c.id}">${esc(c.nom)}</option>`).join("")}</select></label>
+            <div class="seg" role="group" aria-label="Échelle de temps">${Object.entries(ZOOMS).map(([k, z]) => `<button type="button" data-zoom="${k}"${k === zoom ? ' class="is-on" aria-pressed="true"' : ' aria-pressed="false"'}>${z.label}</button>`).join("")}</div>
+            <button type="button" class="btn btn--secondary btn--sm" id="gtt">${G.ui.I("calendar")}Aujourd'hui</button>
+          </div>
+          <div class="gt-legend" aria-label="Légende"><span><i class="lg lg--done"></i>Réalisé</span><span><i class="lg lg--left"></i>Restant</span><span><i class="lg lg--late"></i>En retard</span><span><i class="lg lg--today"></i>Aujourd'hui</span></div>
+        </div>
+        <div id="gtp"></div>
+      </section>`;
+
+    const tip = document.createElement("div"); tip.className = "gt-tip"; tip.setAttribute("role", "tooltip"); main.appendChild(tip);
+
+    function dessiner() {
+      const ch = tous.filter((c) => !filtre || c.id === filtre);
+      const dates = ch.flatMap((c) => [c.dateDebut, c.dateFin, ...(c.etapes || []).flatMap((e) => [e.dateDebut, e.dateFin])]).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x || "")).sort();
+      // Retards : tous, pas seulement le premier
+      const retards = ch.flatMap((c) => (c.etapes || []).map((e, i) => ({ c, e, i })).filter(({ e }) => enRetard(e)));
+      $("#gtr").hidden = !retards.length;
+      $("#gtr").innerHTML = retards.length ? `<div class="gt-alerts__head">${G.ui.I("alertcircle")}<b>${retards.length} étape(s) en retard</b></div><ul>${retards.map(({ c, e, i }) =>
+        `<li><span><b>${esc(c.nom)}</b> — ${esc(e.nom)} : prévue pour le ${dfr(e.dateFin)}, réalisée à ${e.avancement || 0} % · <b>${retardJ(e.dateFin)} jour(s) de retard</b></span><button type="button" class="btn btn--tertiary btn--sm" data-goto="b-${c.id}-${i}" data-of="${c.id}">Voir</button></li>`).join("")}</ul>` : "";
+      if (!ch.length || !dates.length) {
+        $("#gtp").innerHTML = G.ui.vide(ch.length ? "Ajoutez des dates aux étapes de vos chantiers (fiche chantier → « Étapes et avancement ») pour voir le planning." : "Aucun chantier en cours.", "calendar");
+        return;
+      }
+      const z = ZOOMS[zoom], px = z.px;
+      // Bornes alignées sur l'échelle choisie, avec une marge, et toujours la date du jour incluse
+      const lo = [dates[0], t].sort()[0], hi = [dates[dates.length - 1], t].sort()[1];
+      let y0 = +lo.slice(0, 4), m0 = +lo.slice(5, 7) - 1, y1 = +hi.slice(0, 4), m1 = +hi.slice(5, 7) - 1;
+      if (zoom === "mois") { m0 -= 1; m1 += 2; }
+      else if (zoom === "trimestre") { m0 = Math.floor(m0 / 3) * 3 - 3; m1 = Math.floor(m1 / 3) * 3 + 6; }
+      else { m0 = 0; m1 = 12; }
+      const debut = iso(y0, m0), fin = iso(y1, m1), J0 = J(debut), W = Math.round((J(fin) - J0) * px);
+      const X = (s) => Math.round((J(s) - J0) * px);
+      // Repères : années (niveau haut) et mois / trimestres / années (niveau bas)
+      const ticks = [], annees = [];
+      for (let k = 0; ; k++) {
+        const s = iso(y0, m0 + k); if (s >= fin) break;
+        const y = +s.slice(0, 4), m = +s.slice(5, 7) - 1;
+        if (m === 0 || k === 0) annees.push({ x: X(s), y });
+        if (zoom === "mois") ticks.push({ x: X(s), l: MOIS_C[m] });
+        else if (zoom === "trimestre" && m % 3 === 0) ticks.push({ x: X(s), l: `T${m / 3 + 1}` });
+        else if (zoom === "annee" && m === 0) ticks.push({ x: X(s), l: String(y) });
+      }
+      const xT = X(t);
+      const lien = (c, i) => `#g-chantier/${c.id}${i == null ? "" : `/etape/${i}`}`;
+      const sansDates = (href) => `<a class="gt__nodate" href="${href}">${G.ui.I("calendar")}Dates à définir</a>`;
+      const barre = (id, href, s, f, av, late, titre) => {
+        if (!s || !f) return sansDates(href);
+        if (f < s) [s, f] = [f, s];
+        const x = X(s), w = Math.max(8, Math.round((J(f) - J(s) + 1) * px)), dedans = w >= 52;
+        const info = `<b>${esc(titre)}</b><span>Début : ${dfr(s)}</span><span>Fin : ${dfr(f)}</span><span>Avancement : ${av} %</span>${late ? `<span class="is-bad">Retard : ${retardJ(f)} jour(s)</span>` : ""}`;
+        return `<a class="gt__b${late ? " is-late" : ""}" id="${id}" href="${href}" style="left:${x}px;width:${w}px" data-tip="${esc(info)}" aria-label="${esc(titre)} : ${dfr(s)} au ${dfr(f)}, ${av} %"><i style="width:${av}%"></i>${dedans ? `<span class="gt__pct">${av} %</span>` : ""}</a>${dedans ? "" : `<span class="gt__pct gt__pct--out" style="left:${x + w + 6}px">${av} %</span>`}`;
+      };
+      const lignes = ch.map((c) => {
+        const et = c.etapes || [];
+        const av = et.length ? Math.round(sum(et, (e) => e.avancement) / et.length) : 0;
+        const de = et.map((e) => e.dateDebut).filter(Boolean).sort(), fe = et.map((e) => e.dateFin).filter(Boolean).sort();
+        const cd = c.dateDebut || de[0], cf = c.dateFin || fe[fe.length - 1], plie = plies.has(c.id);
+        return `<div class="gt__row gt__row--ch" data-c="${c.id}"><div class="gt__nom">${et.length ? `<button type="button" class="gt__chev" data-tog="${c.id}" aria-expanded="${!plie}" aria-label="${plie ? "Déplier" : "Replier"} les étapes">${G.ui.I("chevright")}</button>` : '<span class="gt__chev"></span>'}<a href="${lien(c)}">${esc(c.nom)}</a><span class="gt__av">${av} %</span></div>
+          <div class="gt__track">${barre(`b-${c.id}`, lien(c), cd, cf, av, cf && cf < t && av < 100, c.nom)}</div></div>` +
+          et.map((e, i) => `<div class="gt__row gt__row--et" data-of="${c.id}"${plie ? " hidden" : ""}><div class="gt__nom"><a href="${lien(c, i)}">${esc(e.nom)}</a></div>
+            <div class="gt__track">${barre(`b-${c.id}-${i}`, lien(c, i), e.dateDebut, e.dateFin, e.avancement || 0, enRetard(e), `${e.nom} · ${c.nom}`)}</div></div>`).join("");
+      }).join("");
+      $("#gtp").innerHTML = `<div class="gt" id="gt"><div class="gt__in" style="width:calc(var(--gt-nom) + ${W}px)">
+          <div class="gt__head"><div class="gt__nom gt__corner">Chantier / étape</div>
+            <div class="gt__scale" style="width:${W}px">
+              ${zoom === "annee" ? "" : `<div class="gt__years">${annees.map((a) => `<span style="left:${a.x}px">${a.y}</span>`).join("")}</div>`}
+              <div class="gt__ticks">${ticks.map((k) => `<span style="left:${k.x}px">${k.l}</span>`).join("")}</div>
+              <span class="gt__todaylbl" style="left:${xT}px">Aujourd'hui</span></div></div>
+          <div class="gt__body">
+            <div class="gt__grid" style="width:${W}px" aria-hidden="true">${ticks.map((k) => `<i style="left:${k.x}px"></i>`).join("")}<b class="gt__today" style="left:${xT}px"></b></div>
+            ${lignes}
+          </div></div></div>`;
+      centrer(false);
+    }
+    const gt = () => $("#gt");
+    function centrer(doux) {
+      const el = gt(), lbl = el && $(".gt__todaylbl", el); if (!lbl) return;
+      const nom = $(".gt__corner", el).offsetWidth;
+      el.scrollTo({ left: Math.max(0, lbl.offsetLeft - (el.clientWidth - nom) / 2), behavior: doux ? "smooth" : "auto" });
+    }
+
+    // Commandes : filtre, échelle, aujourd'hui
+    $("#gtf").addEventListener("change", (e) => { filtre = e.target.value; dessiner(); });
+    $$("[data-zoom]").forEach((b) => (b.onclick = () => {
+      zoom = b.dataset.zoom; memo("gei-plan-zoom", zoom);
+      $$("[data-zoom]").forEach((x) => { x.classList.toggle("is-on", x === b); x.setAttribute("aria-pressed", x === b); });
+      dessiner();
+    }));
+    $("#gtt").onclick = () => centrer(true);
+
+    // Replier / déplier un chantier ; « Voir » sur une alerte de retard
+    const deplier = (id, ouvrir) => {
+      const btn = $(`[data-tog="${id}"]`); if (!btn) return;
+      ouvrir = ouvrir == null ? btn.getAttribute("aria-expanded") !== "true" : ouvrir;
+      btn.setAttribute("aria-expanded", ouvrir); btn.setAttribute("aria-label", `${ouvrir ? "Replier" : "Déplier"} les étapes`);
+      $$(`.gt__row--et[data-of="${id}"]`).forEach((r) => { r.hidden = !ouvrir; });
+      ouvrir ? plies.delete(id) : plies.add(id); memo("gei-plan-plie", [...plies]);
+    };
+    const surClic = (e) => {
+      const tog = e.target.closest("[data-tog]"); if (tog) { deplier(tog.dataset.tog); return; }
+      const go = e.target.closest("[data-goto]"); if (!go) return;
+      deplier(go.dataset.of, true);
+      const b = document.getElementById(go.dataset.goto); if (!b) return;
+      b.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" });
+      b.classList.remove("is-flash"); void b.offsetWidth; b.classList.add("is-flash");
+      setTimeout(() => b.classList.remove("is-flash"), 2600);
+    };
+    $("#gtp").addEventListener("click", surClic); $("#gtr").addEventListener("click", surClic);
+
+    // Info-bulle au survol (et au clavier)
+    const montrer = (el, x, y) => { tip.innerHTML = el.dataset.tip; tip.classList.add("is-on"); const r = tip.getBoundingClientRect();
+      tip.style.left = Math.min(innerWidth - r.width - 8, Math.max(8, x - r.width / 2)) + "px"; tip.style.top = (y - r.height - 12 < 8 ? y + 18 : y - r.height - 12) + "px"; };
+    const cacher = () => tip.classList.remove("is-on");
+    $("#gtp").addEventListener("mousemove", (e) => { const b = e.target.closest(".gt__b"); b ? montrer(b, e.clientX, e.clientY) : cacher(); });
+    $("#gtp").addEventListener("focusin", (e) => { const b = e.target.closest(".gt__b"); if (!b) return; const r = b.getBoundingClientRect(); montrer(b, r.left + Math.min(r.width, 120) / 2, r.top); });
+    $("#gtp").addEventListener("focusout", cacher);
+    $("#gtp").addEventListener("scroll", cacher, true); $("#gtp").addEventListener("mouseleave", cacher);
+
+    dessiner();
   };
 
   /* ---------- Rapport mensuel imprimable ---------- */
@@ -226,9 +344,11 @@
     categorie: { materiaux: "materiaux", materiel: "materiaux", maindoeuvre: "main_oeuvre", mainduvre: "main_oeuvre", transport: "transport", location: "location", administratif: "administratif", admin: "administratif" },
     mode: { especes: "especes", cash: "especes", virement: "virement", cheque: "cheque", mobilemoney: "mobile_money", orangemoney: "mobile_money", mtnmoney: "mobile_money", moovmoney: "mobile_money", wave: "mobile_money" },
   };
+  // Lecture d'un fichier CSV : séparateur point-virgule, virgule ou tabulation, détecté sur la ligne des titres
   function lireCSV(texte) {
     texte = texte.replace(/^﻿/, "");
-    const sep = (texte.split("\n")[0].match(/;/g) || []).length >= (texte.split("\n")[0].match(/,/g) || []).length ? ";" : ",";
+    const l1 = texte.split(/\r?\n/)[0].replace(/"[^"]*"/g, "");
+    const sep = [";", "\t", ","].map((s) => [s, l1.split(s).length - 1]).sort((a, b) => b[1] - a[1])[0][0];
     const rows = []; let row = [], cell = "", q = false;
     for (let i = 0; i < texte.length; i++) {
       const c = texte[i];
@@ -238,53 +358,166 @@
     if (cell || row.length) { row.push(cell); rows.push(row); }
     return rows.filter((r) => r.some((x) => x.trim()));
   }
-  const dateISO = (v) => { v = String(v || "").trim(); let m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})$/.exec(v); if (m) { const y = m[3].length === 2 ? "20" + m[3] : m[3]; return `${y}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`; } m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v); return m ? m[0] : ""; };
+  // Texte du fichier : UTF-8, sinon Windows-1252 (accents des fichiers enregistrés par Excel)
+  async function texteFichier(file) {
+    const buf = await file.arrayBuffer();
+    try { return { texte: new TextDecoder("utf-8", { fatal: true }).decode(buf), enc: "UTF-8" }; }
+    catch { return { texte: new TextDecoder("windows-1252").decode(buf), enc: "Windows-1252" }; }
+  }
+  const dateISO = (v) => { v = String(v || "").trim(); let m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})$/.exec(v); if (m) { const y = m[3].length === 2 ? "20" + m[3] : m[3]; if (+m[2] < 1 || +m[2] > 12 || +m[1] < 1 || +m[1] > 31) return ""; return `${y}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`; } m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v); return m ? m[0] : ""; };
+  const MONTANTS = ["prix", "montant", "avance", "tarifJour", "budget", "montantPaye"], DATES = ["date", "dateDebut", "dateFin"];
+  const OBLIG = { maisons: [["programme", "Programme manquant"], ["lot", "Lot manquant"]], depenses: [["libelle", "Désignation manquante"]], ouvriers: [["nom", "Nom manquant"]], chantiers: [["nom", "Nom manquant"]] };
+  const INFO_IMPORT = {
+    maisons: { ic: "house", desc: "Lots, prix, clients et sommes déjà versées.", page: "#g-maisons", lien: "Voir les maisons" },
+    depenses: { ic: "receipt", desc: "Achats et frais, avec l'avance payée.", page: "#g-depenses", lien: "Voir les dépenses" },
+    ouvriers: { ic: "users", desc: "Noms, métiers, téléphones et tarifs par jour.", page: "#g-equipes", lien: "Voir les équipes" },
+    chantiers: { ic: "hardhat", desc: "Nom, lieu, client, budget et dates.", page: "#g-chantiers", lien: "Voir les chantiers" },
+  };
+  const taille = (o) => (o < 1024 ? `${o} o` : o < 1048576 ? `${(o / 1024).toFixed(1).replace(".", ",")} Ko` : `${(o / 1048576).toFixed(1).replace(".", ",")} Mo`);
+
   views["g-import"] = async () => {
     const chantiers = await api("/api/g/chantiers");
-    main.innerHTML = head("Importer depuis Excel", "Reprenez vos fichiers Excel existants : maisons et clients, dépenses, ouvriers ou chantiers.") + `
-      <section class="panel"><h2>1. Préparer le fichier</h2>
-        <p><b>Le plus simple :</b> téléchargez le modèle, ouvrez-le dans Excel, remplacez les 2 lignes d'exemple par vos données, puis enregistrez (gardez le format CSV).</p>
-        <div class="filters" style="margin:12px 0">${Object.entries(IMPORTS).map(([k, v]) => `<button type="button" class="btn btn--secondary" data-modele="${k}">${G.ui.I("download")}Modèle ${esc(v.titre.toLowerCase())}</button>`).join("")}</div>
-        <p class="muted">Dépenses : la colonne « Chantier » doit porter le nom exact d'un chantier déjà créé dans l'application.</p>
-        <p>Vous avez déjà votre propre fichier ? Dans Excel : ouvrez votre fichier → <b>Fichier</b> → <b>Enregistrer sous</b> → type <b>« CSV (séparateur : point-virgule) »</b>. La première ligne doit contenir les titres des colonnes (ex. Client, Lot, Prix…).</p></section>
-      <section class="panel"><h2>2. Choisir le fichier</h2><div class="filters">
-        <label>Type de données<select id="it">${Object.entries(IMPORTS).map(([k, v]) => `<option value="${k}">${v.titre}</option>`).join("")}</select></label>
-        <label>Fichier CSV<input type="file" id="if" accept=".csv,text/csv"></label></div></section>
-      <section class="panel" id="ip" hidden></section>`;
-    let donnees = null;
-    const preparer = async () => {
-      const file = $("#if").files[0]; if (!file) return;
-      const rows = lireCSV(await file.text());
-      if (rows.length < 2) return toast("Le fichier est vide ou n'a pas de ligne de titres.", true);
-      const type = $("#it").value, conf = IMPORTS[type], tetes = rows[0].map((h) => h.trim());
-      const choix = conf.champs.map(([k, , alias]) => { const i = tetes.findIndex((h) => alias.includes(SANS(h))); return i; });
-      donnees = { type, rows: rows.slice(1), tetes };
-      $("#ip").hidden = false;
-      $("#ip").innerHTML = `<h2>3. Vérifier les colonnes</h2><p class="muted">J'ai reconnu les colonnes automatiquement. Corrigez si besoin, puis importez. ${donnees.rows.length} ligne(s) trouvée(s).</p>
-        <div class="grid">${conf.champs.map(([k, l], j) => `<label><span>${l}</span><select data-champ="${k}"><option value="-1">— ne pas importer —</option>${tetes.map((h, i) => `<option value="${i}"${i === choix[j] ? " selected" : ""}>${esc(h || "colonne " + (i + 1))}</option>`).join("")}</select></label>`).join("")}</div>
-        <h3 style="margin-top:18px">Aperçu (5 premières lignes)</h3><div class="tbl-wrap"><table class="tbl"><thead><tr>${tetes.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${donnees.rows.slice(0, 5).map((r) => `<tr>${tetes.map((_, i) => `<td>${esc(r[i] || "")}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
-        <div class="savebar"><button class="btn btn--primary" id="go">Importer ${donnees.rows.length} ligne(s)</button></div><div id="ir"></div>`;
-      $("#go").onclick = importer;
+    const I = G.ui.I;
+    let type = "", fichier = null, tetes = [], lignes = [], resultat = null;
+    const histo = () => { try { return JSON.parse(localStorage.getItem("gei-imports")) || []; } catch { return []; } };
+
+    main.innerHTML = head("Importer depuis Excel", "Reprenez vos fichiers Excel existants en 3 étapes : préparer, importer, vérifier.") + `
+      <ol class="wiz" id="wiz" aria-label="Étapes de l'import">
+        <li data-s="1"><span>1</span>Préparer</li><li data-s="2"><span>2</span>Importer</li><li data-s="3"><span>3</span>Vérifier</li></ol>
+      <section class="panel"><div class="sec__head"><span class="sec__n">1</span><div><h2>Préparer le fichier</h2><p>Choisissez ce que vous importez et téléchargez le modèle à remplir dans Excel.</p></div></div>
+        <div class="imp-cards" role="radiogroup" aria-label="Type de données">${Object.entries(IMPORTS).map(([k, v]) => `
+          <div class="imp-card" role="radio" tabindex="0" data-type="${k}" aria-checked="false">
+            <span class="imp-card__ic">${I(INFO_IMPORT[k].ic, "ic--20")}</span>
+            <b>${esc(v.titre)}</b><p>${INFO_IMPORT[k].desc}</p>
+            <button type="button" class="btn btn--secondary btn--sm" data-modele="${k}">${I("download")}Télécharger le modèle</button></div>`).join("")}</div>
+        <p class="note">${I("alertcircle")}<span><b>Dépenses :</b> la colonne « Chantier » doit porter le nom exact d'un chantier déjà créé dans l'application, sinon la ligne est signalée en erreur.</span></p>
+        <details class="howto"><summary>${I("chevright")}Comment faire ?</summary>
+          <ol><li>Téléchargez le modèle qui correspond à vos données, puis ouvrez-le dans Excel.</li>
+            <li>Remplacez les 2 lignes d'exemple par vos données. Gardez la première ligne (les titres).</li>
+            <li>Vous partez de votre propre fichier ? Dans Excel : <b>Fichier</b> → <b>Enregistrer sous</b> → type <b>« CSV (séparateur : point-virgule) »</b>.</li>
+            <li>Revenez ici et déposez le fichier à l'étape 2.</li></ol></details>
+      </section>
+      <section class="panel"><div class="sec__head"><span class="sec__n">2</span><div><h2>Importer le fichier</h2><p>Déposez votre fichier CSV : le type de données est reconnu tout seul.</p></div></div>
+        <label class="dz" id="dz"><input type="file" id="if" accept=".csv,.txt,text/csv" class="sr-only">
+          <span class="dz__ic">${I("upload", "ic--20")}</span><b>Glissez votre fichier CSV ici</b><span>ou <u>cliquez pour parcourir</u></span></label>
+        <div id="fi" hidden></div>
+      </section>
+      <section class="panel" id="ip" hidden></section>
+      <section class="panel" id="ih"></section>`;
+
+    const etape = (n) => $$("#wiz li").forEach((li) => { const s = +li.dataset.s; li.className = s < n ? "is-done" : s === n ? "is-on" : ""; li.toggleAttribute("aria-current", s === n); });
+    const choisirType = (k) => { type = k; $$(".imp-card").forEach((c) => { const on = c.dataset.type === k; c.classList.toggle("is-on", on); c.setAttribute("aria-checked", on); }); };
+
+    // Détection du type d'après les titres de colonnes
+    const detecter = (h) => {
+      const t = h.map(SANS);
+      return Object.entries(IMPORTS).map(([k, v]) => [k, v.champs.filter(([, , al]) => t.some((x) => al.includes(x))).length]).sort((a, b) => b[1] - a[1])[0][0];
     };
-    async function importer() {
-      const map = Object.fromEntries($$("[data-champ]").map((s) => [s.dataset.champ, +s.value]));
-      const norm = (k, v) => (VALEURS[k] ? VALEURS[k][SANS(v)] || "" : v);
-      const rows = donnees.rows.map((r) => {
-        const o = {}; for (const [k, i] of Object.entries(map)) if (i >= 0) o[k] = String(r[i] || "").trim();
-        ["prix", "montant", "tarifJour", "budget", "montantPaye"].forEach((k) => { if (o[k] != null) o[k] = String(o[k]).replace(/[^\d,.-]/g, "").replace(",", "."); });
-        ["date", "dateDebut", "dateFin"].forEach((k) => { if (o[k] != null) o[k] = dateISO(o[k]); });
-        ["statut", "categorie", "mode"].forEach((k) => { if (o[k] != null) o[k] = norm(k, o[k]); });
-        if (o.chantier != null) { const c = chantiers.find((x) => SANS(x.nom) === SANS(o.chantier)) || chantiers.find((x) => SANS(o.chantier) && SANS(x.nom).includes(SANS(o.chantier))); o.chantierId = c ? c.id : ""; delete o.chantier; }
-        return o;
-      });
+    const correspondance = () => IMPORTS[type].champs.map(([k, , al]) => [k, tetes.findIndex((h) => al.includes(SANS(h)))]);
+    const lireMap = () => { const sel = $$("#ip [data-champ]"); return sel.length ? sel.map((s) => [s.dataset.champ, +s.value]) : correspondance(); };
+
+    // Conversion + contrôle d'une ligne (mêmes règles que le serveur, avec des messages clairs)
+    function convertir(r, map) {
+      const o = {}, err = [];
+      for (const [k, i] of map) if (i >= 0) o[k] = String(r[i] == null ? "" : r[i]).trim();
+      for (const k of MONTANTS) if (o[k]) {
+        const v = o[k].replace(/\s| | |fcfa|f\b/gi, "");
+        if (!/^\d+([.,]\d+)?$/.test(v)) err.push(`Montant invalide (« ${o[k]} »)`); else o[k] = v.replace(",", ".");
+      }
+      for (const k of DATES) if (o[k]) { const v = dateISO(o[k]); if (!v) err.push(`Date au mauvais format (« ${o[k]} », attendu jj/mm/aaaa)`); else o[k] = v; }
+      for (const k of ["statut", "categorie", "mode"]) if (o[k] != null) o[k] = VALEURS[k] ? VALEURS[k][SANS(o[k])] || "" : o[k];
+      if (o.chantier != null) {
+        if (o.chantier) { const c = chantiers.find((x) => SANS(x.nom) === SANS(o.chantier)) || chantiers.find((x) => SANS(o.chantier) && SANS(x.nom).includes(SANS(o.chantier))); if (c) o.chantierId = c.id; else err.push(`Chantier inconnu (« ${o.chantier} »)`); }
+        delete o.chantier;
+      }
+      if (type === "depenses" && o.avance && o.montant && +o.avance > +o.montant) err.push("Avance plus grande que le montant total");
+      for (const [k, msg] of OBLIG[type]) if (!o[k]) err.push(msg);
+      return { o, err };
+    }
+
+    async function chargerFichier(file) {
+      if (!file) return;
+      if (file.size > 4 * 1024 * 1024) return toast("Fichier trop lourd (4 Mo au maximum).", true);
+      const { texte, enc } = await texteFichier(file);
+      const rows = lireCSV(texte);
+      if (rows.length < 2) return toast("Le fichier est vide ou n'a pas de ligne de titres.", true);
+      fichier = { nom: file.name, taille: file.size, enc }; tetes = rows[0].map((h) => h.trim()); lignes = rows.slice(1); resultat = null;
+      choisirType(detecter(tetes));
+      $("#dz").hidden = true; $("#fi").hidden = false;
+      dessinerFichier(); verifier(true);
+      etape(3); $("#ip").scrollIntoView({ block: "start", behavior: "smooth" });
+    }
+    function dessinerFichier() {
+      $("#fi").innerHTML = `<div class="file-chip">${I("file", "ic--20")}<div><b>${esc(fichier.nom)}</b><span>${taille(fichier.taille)} · ${lignes.length} ligne(s) · encodage ${fichier.enc}</span></div>
+          <button type="button" class="btn btn--tertiary btn--sm btn--icon" id="rm" aria-label="Retirer le fichier" title="Retirer le fichier">${I("x")}</button></div>
+        <label class="imp-type"><span>Type de données <em>(reconnu automatiquement, modifiable)</em></span><select id="it">${Object.entries(IMPORTS).map(([k, v]) => `<option value="${k}"${k === type ? " selected" : ""}>${esc(v.titre)}</option>`).join("")}</select></label>`;
+      $("#rm").onclick = retirer;
+      $("#it").addEventListener("change", (e) => { choisirType(e.target.value); verifier(true); });
+    }
+    function retirer() {
+      fichier = null; tetes = []; lignes = []; resultat = null; $("#if").value = "";
+      $("#dz").hidden = false; $("#fi").hidden = true; $("#fi").innerHTML = ""; $("#ip").hidden = true; etape(type ? 2 : 1);
+    }
+
+    function verifier(nouvelleCorrespondance) {
+      if (!fichier) return;
+      const map = nouvelleCorrespondance ? correspondance() : lireMap();
+      const conv = lignes.map((r, i) => ({ n: i + 2, r, ...convertir(r, map) }));
+      const ok = conv.filter((x) => !x.err.length), ko = conv.filter((x) => x.err.length);
+      const champs = IMPORTS[type].champs.filter(([k]) => (map.find((m) => m[0] === k) || [])[1] >= 0);
+      const valeur = (x, k) => { const i = (map.find((m) => m[0] === k) || [])[1]; return i >= 0 ? x.r[i] || "" : ""; };
+      const nonReconnus = IMPORTS[type].champs.filter(([k]) => (map.find((m) => m[0] === k) || [])[1] < 0).map(([, l]) => l.replace(" *", ""));
+      $("#ip").hidden = false;
+      $("#ip").innerHTML = `<div class="sec__head"><span class="sec__n">3</span><div><h2>Vérifier et importer</h2><p>Aperçu des 10 premières lignes. Les lignes en erreur ne seront pas importées.</p></div></div>
+        <div class="imp-sum"><span class="imp-sum__ok">${I("check")}<b>${ok.length}</b> ligne(s) valide(s)</span>${ko.length ? `<span class="imp-sum__ko">${I("alertcircle")}<b>${ko.length}</b> erreur(s)</span>` : ""}<span class="t-help">${esc(IMPORTS[type].titre)} · ${lignes.length} ligne(s) dans le fichier</span></div>
+        <div class="tbl-wrap"><table class="tbl imp-tbl" data-nopage><thead><tr><th>Ligne</th><th>État</th>${champs.map(([, l]) => `<th>${esc(l.replace(" *", ""))}</th>`).join("")}</tr></thead>
+          <tbody>${conv.slice(0, 10).map((x) => `<tr class="${x.err.length ? "is-err" : ""}"><td>${x.n}</td><td>${x.err.length ? `<span class="imp-err">${I("alertcircle")}${esc(x.err.join(" · "))}</span>` : `<span class="imp-ok" title="Ligne valide">${I("check")}</span>`}</td>${champs.map(([k]) => `<td>${esc(valeur(x, k))}</td>`).join("")}</tr>`).join("")}</tbody></table></div>
+        ${conv.length > 10 ? `<p class="t-help">… et ${conv.length - 10} autre(s) ligne(s).${ko.filter((x) => conv.indexOf(x) >= 10).length ? ` Dont ${ko.filter((x) => conv.indexOf(x) >= 10).length} en erreur (téléchargez-les pour les voir).` : ""}</p>` : ""}
+        <details class="howto"><summary>${I("chevright")}Correspondance des colonnes${nonReconnus.length ? ` <span class="t-help">(${nonReconnus.length} non reconnue(s) : ${esc(nonReconnus.join(", "))})</span>` : " <span class=\"t-help\">(toutes reconnues)</span>"}</summary>
+          <div class="grid">${IMPORTS[type].champs.map(([k, l]) => { const i = (map.find((m) => m[0] === k) || [])[1]; return `<label><span>${esc(l)}</span><select data-champ="${k}"><option value="-1">— ne pas importer —</option>${tetes.map((h, j) => `<option value="${j}"${j === i ? " selected" : ""}>${esc(h || "colonne " + (j + 1))}</option>`).join("")}</select></label>`; }).join("")}</div></details>
+        <div class="imp-acts">${ko.length ? `<button type="button" class="btn btn--secondary" id="dlko">${I("download")}Télécharger les ${ko.length} ligne(s) en erreur</button>` : "<span></span>"}
+          <button type="button" class="btn btn--primary" id="go"${ok.length ? "" : " disabled"}>${I("check")}Importer ${ok.length === lignes.length ? "les" : "les"} ${ok.length} ligne(s) valide(s)</button></div>
+        <div id="ir"></div>`;
+      $$("#ip [data-champ]").forEach((s) => s.addEventListener("change", () => { const ouvert = $("#ip details").open; verifier(false); $("#ip details").open = ouvert; }));
+      if ($("#dlko")) $("#dlko").onclick = () => {
+        const cell = (v) => { v = String(v == null ? "" : v); return /[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v; };
+        const csv = "﻿" + [tetes.concat("Motif de l'erreur").map(cell).join(";")].concat(ko.map((x) => tetes.map((_, i) => cell(x.r[i])).concat(cell(x.err.join(" · "))).join(";"))).join("\r\n");
+        const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = `erreurs-${type}-${today()}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      };
+      $("#go").onclick = () => importer(ok);
+    }
+
+    async function importer(ok) {
       $("#go").disabled = true;
       try {
-        const r = await api(`/api/g/import/${donnees.type}`, { method: "POST", body: { rows } });
-        $("#ir").innerHTML = `<p class="alert" style="background:#e6f4ea;border-color:#1e6b34"><b>${r.ajoutes} ligne(s) importée(s).</b></p>` + (r.nbErreurs ? `<p class="alert alert--bad">${r.nbErreurs} ligne(s) ignorée(s) :</p><ul>${r.erreurs.map((e) => `<li>Ligne ${e.ligne} : ${esc(e.message)}</li>`).join("")}</ul>` : "");
+        const r = await api(`/api/g/import/${type}`, { method: "POST", body: { rows: ok.map((x) => x.o) } });
+        const info = INFO_IMPORT[type];
+        $("#ir").innerHTML = `<div class="imp-done">${I("check", "ic--20")}<div><b>${r.ajoutes} ligne(s) importée(s) dans « ${esc(IMPORTS[type].titre)} ».</b>${r.nbErreurs ? `<span>${r.nbErreurs} ligne(s) refusée(s) par le serveur : ${esc(r.erreurs.map((e) => e.message).slice(0, 3).join(" · "))}</span>` : ""}</div><a class="btn btn--primary btn--sm" href="${info.page}">${info.lien}</a></div>`;
         toast(`${r.ajoutes} ligne(s) importée(s)`);
+        const h = histo(); h.unshift({ date: new Date().toISOString(), type, nb: r.ajoutes, fichier: fichier.nom });
+        try { localStorage.setItem("gei-imports", JSON.stringify(h.slice(0, 10))); } catch { /* stockage plein : sans gravité */ }
+        dessinerHisto();
       } catch (err) { fail(err); $("#go").disabled = false; }
     }
-    $("#if").onchange = preparer; $("#it").onchange = preparer;
-    $$("[data-modele]").forEach((b) => (b.onclick = () => telechargerModele(b.dataset.modele)));
+
+    function dessinerHisto() {
+      const h = histo();
+      $("#ih").innerHTML = `<h2>Imports récents</h2>${h.length ? `<ul class="imp-histo">${h.map((x) => `<li><span class="imp-histo__ic">${I((INFO_IMPORT[x.type] || {}).ic || "file")}</span><div><b>${x.nb} ligne(s) · ${esc((IMPORTS[x.type] || {}).titre || x.type)}</b><span>${esc(x.fichier || "")}</span></div><time>${new Date(x.date).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" })}</time></li>`).join("")}</ul>` : '<p class="muted">Aucun import pour le moment sur cet ordinateur.</p>'}`;
+    }
+
+    // Étape 1 : cartes et modèles
+    $$(".imp-card").forEach((c) => {
+      c.addEventListener("click", (e) => { if (e.target.closest("[data-modele]")) return; choisirType(c.dataset.type); if (fichier) { $("#it").value = type; $("#it").dispatchEvent(new Event("change")); } else etape(2); });
+      c.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); c.click(); } });
+    });
+    $$("[data-modele]").forEach((b) => (b.onclick = () => { choisirType(b.dataset.modele); telechargerModele(b.dataset.modele); if (!fichier) etape(2); }));
+    // Étape 2 : glisser-déposer
+    const dz = $("#dz");
+    $("#if").addEventListener("change", (e) => chargerFichier(e.target.files[0]));
+    ["dragenter", "dragover"].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add("is-over"); }));
+    ["dragleave", "drop"].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove("is-over"); }));
+    dz.addEventListener("drop", (e) => chargerFichier(e.dataTransfer.files[0]));
+
+    etape(1); dessinerHisto();
   };
 })();
