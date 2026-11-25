@@ -12,11 +12,9 @@
   const sum = (a, f = (x) => x) => a.reduce((t, x) => t + (+f(x) || 0), 0);
   const num = (v) => { const x = parseFloat(String(v || "").replace(/\s/g, "").replace(",", ".")); return isFinite(x) ? x : 0; };
   const load = async (...n) => Object.fromEntries(await Promise.all(n.map(async (x) => [x, await api("/api/g/" + x)])));
-  const head = (t, s, a = "") => `<div class="top"><div><h1>${t}</h1><p>${s}</p></div><div class="top__actions">${a}</div></div>`;
+  const head = (...a) => G.ui.head(...a);
   const opts = (map, v, vide) => (vide ? `<option value="">${vide}</option>` : "") + Object.entries(map).map(([k, l]) => `<option value="${k}"${k === v ? " selected" : ""}>${esc(l)}</option>`).join("");
-  const tableau = (cols, rows, href, foot) => `<div class="tbl-wrap"><table class="tbl"><thead><tr>${cols.map((c) => `<th${c[2] ? ' class="num"' : ""}>${c[0]}</th>`).join("")}</tr></thead>
-    <tbody>${rows.map((r) => `<tr${href ? ` data-href="${esc(href(r))}"` : ""}>${cols.map((c) => `<td${c[2] ? ' class="num"' : ""}>${c[1](r)}</td>`).join("")}</tr>`).join("") || `<tr><td colspan="${cols.length}" class="empty">Rien pour le moment.</td></tr>`}</tbody>
-    ${foot ? `<tfoot><tr>${foot.map((f, i) => `<td${cols[i] && cols[i][2] ? ' class="num"' : ""}>${f}</td>`).join("")}</tr></tfoot>` : ""}</table></div>`;
+  const tableau = (...a) => G.ui.tableau(...a);
   const argent = () => G.me().role !== "chef";
   const nomChantier = (l, id) => (l.find((c) => c.id === id) || {}).nom || "—";
   const COMPTE = { caisse: "Caisse (espèces)", banque: "Banque", mobile_money: "Mobile Money" };
@@ -37,6 +35,7 @@
     d.mouvements.forEach((x) => ops.push({ date: x.date, sens: x.sens, compte: x.compte, origine: CAT[x.categorie] || "Autre", libelle: x.libelle, montant: x.montant, href: `#g-mouvement/${x.id}` }));
     return ops.sort((a, b) => String(b.date).localeCompare(String(a.date)));
   }
+  G.operations = operations;
   views["g-tresorerie"] = async (filtre) => {
     const d = await load("maisons", "depenses", "mouvements");
     const [fm = "", fc = ""] = (filtre || "").split("|");

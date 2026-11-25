@@ -2,16 +2,19 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#14200F">
   <title>GEI Gestion</title>
   <link rel="icon" href="/logo-gei.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/app.css?v=20261125">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ds.css?v=20261125b">
+  <link rel="stylesheet" href="/app.css?v=20261125b">
+  <script>try { var t = localStorage.getItem("gei-theme"); if (t) document.documentElement.dataset.theme = t; if (localStorage.getItem("gei-side") === "mini") document.documentElement.classList.add("pre-mini"); } catch (e) {}</script>
 </head>
-<body>
+<body class="ds">
 
   <!-- Connexion -->
   <section class="login" id="login" hidden>
@@ -19,8 +22,8 @@
       <img src="/logo-gei.png" alt="" width="64" height="64">
       <h1>GEI Gestion</h1>
       <p>Chantiers · Maisons et clients · Dépenses · Équipes</p>
-      <label><span>Identifiant</span><input name="user" autocomplete="username" required></label>
-      <label><span>Mot de passe</span><input name="password" type="password" autocomplete="current-password" required></label>
+      <label class="field"><span>Identifiant</span><input name="user" autocomplete="username" required></label>
+      <label class="field"><span>Mot de passe</span><input name="password" type="password" autocomplete="current-password" required></label>
       <p class="err" id="loginErr" hidden></p>
       <button class="btn btn--primary" type="submit">Se connecter</button>
     </form>
@@ -28,44 +31,80 @@
 
   <!-- Application -->
   <div class="app" id="app" hidden>
-    <aside class="side">
-      <a class="side__brand" href="#gestion"><img src="/logo-gei.png" alt="" width="40" height="40"><span><b>GEI Gestion</b><small>Global Empire Immobilier</small></span></a>
-      <button class="btn btn--sm btn--ghost burger-g" id="burger" type="button" aria-label="Menu">☰ Menu</button>
+    <aside class="side" id="side" aria-label="Menu principal">
+      <div class="side__top">
+        <a class="side__brand" href="#gestion"><img src="/logo-gei.png" alt="" width="40" height="40"><span><b>GEI Gestion</b><small>Global Empire Immobilier</small></span></a>
+        <button class="side__close" id="navClose" type="button" aria-label="Fermer le menu"><svg class="ic ic--18"><use href="#i-x"/></svg></button>
+      </div>
+      <button class="btn btn--sm burger-g" id="burger" type="button" aria-label="Menu" hidden>Menu</button>
       <nav class="side__nav" id="nav">
-        <a href="#gestion" data-view="gestion" data-roles="dg comptable"><i class="i i--chart"></i>Tableau de gestion</a>
-        <a href="#g-chantiers" data-view="g-chantiers"><i class="i i--home"></i>Chantiers</a>
-        <a href="#g-planning" data-view="g-planning"><i class="i i--news"></i>Planning</a>
-        <a href="#g-maisons" data-view="g-maisons" data-roles="dg comptable"><i class="i i--trophy"></i>Maisons et clients</a>
-        <a href="#g-depenses" data-view="g-depenses" data-roles="dg comptable"><i class="i i--news"></i>Dépenses</a>
-        <a href="#g-tresorerie" data-view="g-tresorerie" data-roles="dg comptable"><i class="i i--chart"></i>Trésorerie</a>
-        <a href="#g-stock" data-view="g-stock"><i class="i i--tools"></i>Stock de matériaux</a>
-        <a href="#g-equipes" data-view="g-equipes"><i class="i i--user"></i>Équipes et paie</a>
-        <a href="#g-rapport" data-view="g-rapport" data-roles="dg comptable"><i class="i i--news"></i>Rapport mensuel</a>
-        <a href="#g-import" data-view="g-import" data-roles="dg comptable"><i class="i i--photo"></i>Importer (Excel)</a>
-        <a href="#compte" data-view="compte"><i class="i i--gear"></i>Mon compte</a>
+        <div class="side__grp"><p class="side__sep">Pilotage</p>
+          <a href="#gestion" data-view="gestion" data-roles="dg comptable" title="Tableau de gestion"><svg class="ic ic--18"><use href="#i-dashboard"/></svg><span>Tableau de gestion</span></a>
+          <a href="#g-planning" data-view="g-planning" title="Planning"><svg class="ic ic--18"><use href="#i-planning"/></svg><span>Planning</span></a>
+          <a href="#g-rapport" data-view="g-rapport" data-roles="dg comptable" title="Rapport mensuel"><svg class="ic ic--18"><use href="#i-report"/></svg><span>Rapport mensuel</span></a>
+        </div>
+        <div class="side__grp"><p class="side__sep">Opérations</p>
+          <a href="#g-chantiers" data-view="g-chantiers" title="Chantiers"><svg class="ic ic--18"><use href="#i-hardhat"/></svg><span>Chantiers</span></a>
+          <a href="#g-maisons" data-view="g-maisons" data-roles="dg comptable" title="Maisons et clients"><svg class="ic ic--18"><use href="#i-house"/></svg><span>Maisons et clients</span></a>
+          <a href="#g-stock" data-view="g-stock" title="Stock de matériaux"><svg class="ic ic--18"><use href="#i-package"/></svg><span>Stock de matériaux</span></a>
+          <a href="#g-equipes" data-view="g-equipes" title="Équipes et paie"><svg class="ic ic--18"><use href="#i-users"/></svg><span>Équipes et paie</span></a>
+        </div>
+        <div class="side__grp"><p class="side__sep">Finances</p>
+          <a href="#g-depenses" data-view="g-depenses" data-roles="dg comptable" title="Dépenses"><svg class="ic ic--18"><use href="#i-receipt"/></svg><span>Dépenses</span></a>
+          <a href="#g-tresorerie" data-view="g-tresorerie" data-roles="dg comptable" title="Trésorerie"><svg class="ic ic--18"><use href="#i-wallet"/></svg><span>Trésorerie</span></a>
+        </div>
+        <div class="side__grp"><p class="side__sep">Paramètres</p>
+          <a href="#g-import" data-view="g-import" data-roles="dg comptable" title="Importer (Excel)"><svg class="ic ic--18"><use href="#i-sheet"/></svg><span>Importer (Excel)</span></a>
+          <a href="#compte" data-view="compte" title="Mon compte"><svg class="ic ic--18"><use href="#i-account"/></svg><span>Mon compte</span></a>
+        </div>
       </nav>
       <div class="side__foot">
-        <p class="who">Connecté : <b id="who"></b></p>
-        <button class="btn btn--text btn--sm" id="logout">Se déconnecter</button>
+        <span class="avatar" id="avatar" aria-hidden="true">G</span>
+        <span class="side__who"><b id="whoName"></b><small id="whoRole"></small><span id="who" hidden></span></span>
+        <button class="side__out" id="logout" type="button" aria-label="Se déconnecter" title="Se déconnecter"><svg class="ic ic--18"><use href="#i-logout"/></svg></button>
       </div>
     </aside>
-    <main class="main" id="main"></main>
+    <div class="scrim" id="scrim"></div>
+
+    <div class="shell">
+      <header class="topbar" id="topbar">
+        <button class="icon-btn hide-m" id="sideToggle" type="button" aria-label="Réduire ou agrandir le menu" title="Réduire le menu"><svg class="ic ic--18"><use href="#i-sidebar"/></svg></button>
+        <a class="topbar__brand show-m" href="#gestion"><img src="/logo-gei.png" alt="" width="30" height="30"><b>GEI Gestion</b></a>
+        <button class="search" id="searchBtn" type="button" aria-label="Rechercher (Ctrl+K)"><svg class="ic"><use href="#i-search"/></svg><span>Rechercher un chantier, une dépense, un client…</span><kbd>Ctrl K</kbd></button>
+        <div class="topbar__end">
+          <button class="icon-btn show-m" id="searchBtnM" type="button" aria-label="Rechercher" onclick="document.getElementById('searchBtn').click()"><svg class="ic ic--18"><use href="#i-search"/></svg></button>
+          <button class="icon-btn" id="themeBtn" type="button" aria-label="Changer de thème"></button>
+          <button class="icon-btn" id="notifBtn" type="button" aria-label="Notifications"><svg class="ic ic--18"><use href="#i-bell"/></svg><em id="notifN" hidden>0</em></button>
+        </div>
+      </header>
+      <main class="main" id="main"></main>
+    </div>
+
+    <nav class="bnav" id="bnav" aria-label="Menu rapide"></nav>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <!-- Recherche globale -->
+  <dialog class="cmdk" id="cmdk" aria-label="Recherche">
+    <div class="cmdk__in"><svg class="ic ic--18"><use href="#i-search"/></svg><input id="cmdkQ" type="text" placeholder="Rechercher un écran, un chantier, une dépense, un client…" autocomplete="off" aria-label="Rechercher"><kbd>Échap</kbd></div>
+    <div class="cmdk__list" id="cmdkList"></div>
+  </dialog>
+
   <!-- Photos de chantier -->
   <dialog class="modal" id="picker">
-    <div class="modal__head"><h3>Photos de chantier</h3><button class="btn btn--text" data-close>Fermer</button></div>
+    <div class="modal__head"><h3>Photos de chantier</h3><button class="btn btn--tertiary btn--sm" data-close>Fermer</button></div>
     <div class="modal__tools">
-      <label class="btn btn--primary btn--sm">Envoyer des photos<input type="file" accept="image/*" multiple hidden id="pickerUpload"></label>
+      <label class="btn btn--primary btn--sm"><svg class="ic"><use href="#i-upload"/></svg>Envoyer des photos<input type="file" accept="image/*" multiple hidden id="pickerUpload"></label>
       <input type="search" placeholder="Rechercher…" id="pickerSearch">
     </div>
     <div class="modal__grid" id="pickerGrid"></div>
   </dialog>
 
-  <script src="/core.js?v=20261125" defer></script>
-  <script src="/gestion-plus.js?v=20261125" defer></script>
-  <script src="/gestion.js?v=20261125" defer></script>
+  <script src="/icons.js?v=20261125b"></script>
+  <script src="/core.js?v=20261125b" defer></script>
+  <script src="/ui.js?v=20261125b" defer></script>
+  <script src="/gestion-plus.js?v=20261125b" defer></script>
+  <script src="/gestion.js?v=20261125b" defer></script>
 </body>
 </html>

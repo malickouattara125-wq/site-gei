@@ -55,3 +55,11 @@ Pour les maisons, la colonne « Déjà payé » crée un paiement « Reprise Exc
 ## Sauvegarde (une fois par mois)
 - **Mon compte** → « Sauvegarde de la gestion » → **Télécharger la sauvegarde**. Gardez le fichier en lieu sûr (Google Drive, clé USB).
 - Les photos de chantier (`uploads/`) et les documents joints (`fichiers/`) sont à sauvegarder aussi (copie des dossiers depuis l'hébergement).
+
+## Interface (refonte 2026)
+
+- **Recherche** : Ctrl + K (ou la loupe) pour aller à un écran, un chantier, une dépense, un client.
+- **Cloche** : stock bas, retards, budgets dépassés, paiements clients en retard.
+- **Mode sombre** : bouton lune / soleil en haut à droite. **Menu réduit** : bouton à gauche de la recherche.
+- **Téléphone** : menu en bas de l'écran, bouton « Plus » pour le reste.
+- Guide de style (polices, couleurs, composants) : /guide-style.html

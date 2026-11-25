@@ -25,7 +25,7 @@
   let toastTimer;
   function toast(msg, isErr) {
     const t = $("#toast");
-    t.textContent = msg; t.className = "toast is-on" + (isErr ? " toast--err" : "");
+    t.innerHTML = (window.GEI_ICON ? window.GEI_ICON(isErr ? "alertcircle" : "check", "ic--18") : "") + `<span>${esc(msg)}</span>`; t.className = "toast is-on" + (isErr ? " toast--err" : "");
     clearTimeout(toastTimer); toastTimer = setTimeout(() => { t.className = "toast"; }, 3200);
   }
   const fail = (e) => toast(e.message || "Erreur", true);
@@ -38,8 +38,9 @@
     document.body.classList.toggle("role-dg", me.role === "dg");
     $$("#nav [data-roles]").forEach((a) => { a.hidden = !a.dataset.roles.split(" ").includes(me.role); });
     if (me.role === "chef" && (!location.hash || location.hash === "#gestion")) history.replaceState(null, "", "#g-chantiers");
-    $("#who").textContent = (me.user || "") + (me.role === "chef" ? " (chef de chantier)" : me.role === "comptable" ? " (comptable)" : "");
-    $("#login").hidden = true; $("#app").hidden = false; route();
+    $("#login").hidden = true; $("#app").hidden = false;
+    if (window.GEI.ui) { window.GEI.ui.topbar(); window.GEI.ui.shell(); }
+    route();
   }
   $("#loginForm").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -63,8 +64,9 @@
     const v = views[name] || views.gestion;
     $$("#nav a").forEach((a) => a.classList.toggle("is-on", name === a.dataset.view || name.startsWith(a.dataset.view.replace(/s$/, "") + "/") || (a.dataset.view !== "gestion" && name.startsWith(a.dataset.view.replace(/s$/, "")))));
     dirty = false;
-    main.innerHTML = '<p class="empty">Chargement…</p>';
-    Promise.resolve(v(arg ? arg.split("/").map(decodeURIComponent).join("/") : undefined)).catch(fail);
+    main.innerHTML = window.GEI.ui ? window.GEI.ui.skeleton() : '<p class="empty">Chargement…</p>';
+    if (window.GEI.ui) window.GEI.ui.closePop();
+    Promise.resolve(v(arg ? arg.split("/").map(decodeURIComponent).join("/") : undefined)).catch(fail).finally(() => { if (window.GEI.ui) window.GEI.ui.hl(); });
     scrollTo(0, 0);
     document.body.classList.remove("nav-open");
   }
@@ -78,12 +80,11 @@
 
   /* ---------- Mon compte : mot de passe ---------- */
   views.compte = async () => {
-    main.innerHTML = `
-      <div class="top"><div><h1>Mon compte</h1><p>Connecté en tant que <b>${esc(me.user)}</b></p></div></div>
-      <form class="panel form" id="pw" style="max-width:520px">
+    main.innerHTML = window.GEI.ui.head("Mon compte", `Connecté en tant que <b>${esc(me.user)}</b>`, "", [["Paramètres", "#compte"], ["Mon compte", ""]]) + `
+      <form class="panel form" id="pw" style="max-width:560px">
         <h2>Changer le mot de passe</h2>
         <label><span>Mot de passe actuel</span><input type="password" name="current" autocomplete="current-password" required></label>
-        <label><span>Nouveau mot de passe</span><input type="password" name="next" autocomplete="new-password" minlength="10" required><p class="hint">Au moins 10 caractères.</p></label>
+        <label><span>Nouveau mot de passe</span><input type="password" name="next" autocomplete="new-password" minlength="10" required><span class="hint">Au moins 10 caractères.</span></label>
         <label><span>Confirmer le nouveau mot de passe</span><input type="password" name="again" autocomplete="new-password" required></label>
         <div><button class="btn btn--primary" type="submit">Changer le mot de passe</button></div>
       </form>`;
