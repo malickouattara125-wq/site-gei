@@ -718,3 +718,36 @@ dialog.enc::backdrop { background: rgba(10, 16, 7, .5); }
 .enc__chk { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-2); }
 .enc__acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
 @media (max-width: 900px) { .loy { grid-template-columns: 1fr auto; } .loy__acts { grid-column: 1 / -1; justify-content: stretch; } .loy__acts .btn { flex: 1; justify-content: center; } .ct-pay .r [data-k="libelle"] { grid-column: 1 / -1; } .ct-pay__acts { grid-column: 1 / -1; } }
+
+/* ---------- Volet Construction : accueil Chantiers ---------- */
+.kpis--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.kpi .progress { margin-top: 4px; }
+.prog-search { margin: 0 0 16px; max-width: 420px; }
+.prog-search .ig { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.prog-search .ig:focus-within { border-color: var(--brand-700); box-shadow: var(--ring); }
+.prog-search input { flex: 1; border: 0; outline: 0; background: none; font: inherit; color: var(--text); min-width: 0; }
+.prog-search .ic { color: var(--muted); }
+.prog-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+.prog { text-decoration: none; }
+.prog[hidden] { display: none; }
+.prog:hover { text-decoration: none; }
+.prog--fini { opacity: .78; }
+.prog .cc__img { aspect-ratio: 16 / 8; }
+.prog .ring { width: 58px; height: 58px; } .prog .ring span { width: 46px; height: 46px; font-size: 13px; }
+.prog__alerte { position: absolute; top: 10px; right: 10px; width: 14px; height: 14px; border-radius: 50%; background: var(--bad); box-shadow: 0 0 0 3px var(--surface); }
+.prog__villas { padding: 0 4px; display: grid; gap: 7px; }
+.prog__villas > div:first-child { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 13px; }
+.prog__villas b { color: var(--text); font: 700 15px var(--font-display); }
+.prog__villas .muted { font-size: 12.5px; text-align: right; }
+.vbar { display: flex; gap: 2px; height: 8px; border-radius: 99px; overflow: hidden; background: var(--surface-3); }
+.vseg { display: block; height: 100%; }
+.vseg--terminee { background: var(--brand-700); } .vseg--encours { background: color-mix(in srgb, var(--olive-500) 55%, var(--surface-3)); }
+.vseg--retard { background: var(--bad); } .vseg--demarrer { background: var(--border-strong); }
+.prog__msg { display: flex; align-items: flex-start; gap: 6px; margin: 0 4px; padding: 8px 10px; border-radius: 10px; background: var(--bad-bg); color: var(--bad); font-size: 12.5px; line-height: 1.4; }
+.prog__msg .ic { flex: none; width: 15px; height: 15px; margin-top: 1px; }
+.menu-p { position: relative; }
+.menu-p > summary { list-style: none; cursor: pointer; } .menu-p > summary::-webkit-details-marker { display: none; }
+.menu-p__pop { position: absolute; right: 0; top: calc(100% + 6px); z-index: 30; min-width: 210px; padding: 6px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); box-shadow: var(--shadow-2); display: grid; }
+.menu-p__pop button, .menu-p__pop a { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 0; border-radius: 8px; background: none; font: 500 14px var(--font-ui); color: var(--text-2); cursor: pointer; text-align: left; text-decoration: none; }
+.menu-p__pop button:hover, .menu-p__pop a:hover { background: var(--surface-2); color: var(--text); }
+@media (max-width: 900px) { .kpis--3 { grid-template-columns: 1fr 1fr; } .kpis--3 .kpi:last-child { grid-column: 1 / -1; } .prog-grid { grid-template-columns: 1fr; } .prog-search { max-width: none; } }

@@ -79,6 +79,8 @@
   const verseDep = (x) => (Array.isArray(x.paiements) ? sum(x.paiements, (p) => p.montant) : (x.paye !== false ? x.montant || 0 : 0));
   const resteDep = (x) => Math.max(0, (x.montant || 0) - verseDep(x));
   G.verseDep = verseDep; G.resteDep = resteDep;
+  // Partagé avec le volet Construction (construction.js)
+  G.calc = { paieDe, depenseChantier, avancement, exporter: (...a) => exporter(...a) };
   const paye = (m) => sum(m.paiements || [], (p) => p.montant);
   const du = (m) => (["reservee", "vendue", "livree"].includes(m.statut) ? Math.max(0, (m.prix || 0) - paye(m)) : 0);
   const retard = (m) => { // montant échu non payé
@@ -287,13 +289,13 @@
     const parCat = Object.entries(LIB.categorie).map(([k, l]) => [l, sum(deps.filter((x) => x.categorie === k), (x) => x.montant)]).filter((x) => x[1]);
     const sec = (n, titre, sous) => `<div class="sec__head"><span class="sec__n">${n}</span><div><h2>${titre}</h2><p>${sous}</p></div></div>`;
     let n = 0;
-    main.innerHTML = head(isNew ? "Nouveau chantier" : esc(c.nom), isNew ? "Créez le chantier, puis suivez son avancement et ses dépenses." : `${st(c.statut)}${c.lieu ? " · " + esc(c.lieu) : ""}`,
-      `<a class="btn btn--tertiary" href="#g-chantiers">${I("chevleft")}Retour</a>`, [["Chantiers", "#g-chantiers"], [isNew ? "Nouveau chantier" : esc(c.nom), ""]]) + `
+    main.innerHTML = head(isNew ? "Nouveau programme" : esc(c.nom), isNew ? "Créez le programme (nom, lieu, dates, budget), puis ajoutez ses villas." : `${st(c.statut)}${c.lieu ? " · " + esc(c.lieu) : ""}`,
+      `<a class="btn btn--tertiary" href="#g-chantiers">${I("chevleft")}Retour</a>`, [["Chantiers", "#g-chantiers"], [isNew ? "Nouveau programme" : esc(c.nom), ""]]) + `
       <form class="form form--split" id="f" novalidate>
         <div class="form__main">
           <section class="panel">${sec(++n, "Informations générales", "Nom, lieu, client, dates et budget.")}
             <div class="grid">
-              <label class="full"><span>Nom du chantier <i class="req">*</i></span><input name="nom" value="${esc(c.nom || "")}" placeholder="Ex. Cité Les Rives de l'Opulence, tranche 2" autocomplete="off"></label>
+              <label class="full"><span>Nom du programme <i class="req">*</i></span><input name="nom" value="${esc(c.nom || "")}" placeholder="Ex. Cité Les Rives de l'Opulence, tranche 2" autocomplete="off"></label>
               <label><span>Lieu</span><input name="lieu" value="${esc(c.lieu || "")}" placeholder="Ex. Adiaké"></label>
               <label><span>Client / propriétaire</span><input name="client" value="${esc(c.client || "")}" placeholder="Ex. GEI (programme) ou nom du client"></label>
               <label><span>Type d'ouvrage</span><input name="type" value="${esc(c.type || "")}" placeholder="Ex. 20 villas basses 4 pièces"></label>
