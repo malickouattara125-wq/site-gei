@@ -409,7 +409,7 @@ a.kc:hover { box-shadow: var(--shadow-2); transform: translateY(-1px); }
 .gantt__nom a { color: var(--text); }
 .gantt__track { position: relative; height: 24px; background: var(--surface-2); border-radius: 8px; }
 .gantt__row--head .gantt__track { background: none; }
-.gantt__row--head span { position: absolute; top: 4px; font-size: var(--fs-micro); font-weight: 600; letter-spacing: .04em; color: var(--muted); text-transform: uppercase; }
+.gantt__row--head span { position: absolute; top: 4px; white-space: nowrap;font-size: var(--fs-micro); font-weight: 600; letter-spacing: .04em; color: var(--muted); text-transform: uppercase; }
 .gantt__bar { position: absolute; top: 4px; height: 16px; background: color-mix(in srgb, var(--olive-500) 35%, var(--surface-3)); border-radius: 99px; overflow: hidden; }
 .gantt__bar i { display: block; height: 100%; background: var(--brand-700); }
 .gantt__bar--late { background: var(--bad-bg); }

@@ -146,7 +146,7 @@
     main.innerHTML = head("Planning", "Les étapes de chaque chantier dans le temps. En rouge : étapes en retard (date de fin passée, pas terminées).") + `
       ${retards.length ? `<section class="panel">${retards.map(({ c, e }) => `<p class="alert alert--bad"><b>Retard</b> · ${esc(c.nom)} — ${esc(e.nom)} : prévue pour le ${dfr(e.dateFin)}, réalisée à ${e.avancement || 0} %. <a href="#g-chantier/${c.id}">Voir</a></p>`).join("")}</section>` : ""}
       <section class="panel"><div class="gantt">
-        <div class="gantt__row gantt__row--head"><div class="gantt__nom"></div><div class="gantt__track">${moisL.map((m) => `<span style="left:${pos(m + "-01")}%">${new Date(m + "-15T12:00:00").toLocaleDateString("fr-FR", { month: "short", year: "2-digit" })}</span>`).join("")}<b class="gantt__today" style="left:${pos(t)}%" title="Aujourd'hui"></b></div></div>
+        <div class="gantt__row gantt__row--head"><div class="gantt__nom"></div><div class="gantt__track">${moisL.filter((m, i) => i % Math.max(1, Math.ceil(moisL.length / 8)) === 0).map((m) => `<span style="left:${pos(m + "-01")}%">${new Date(m + "-15T12:00:00").toLocaleDateString("fr-FR", { month: "short", year: "2-digit" })}</span>`).join("")}<b class="gantt__today" style="left:${pos(t)}%" title="Aujourd'hui"></b></div></div>
         ${ch.map((c) => { const av = (c.etapes || []).length ? Math.round(sum(c.etapes, (e) => e.avancement) / c.etapes.length) : 0;
           const de = (c.etapes || []).map((e) => e.dateDebut).filter(Boolean).sort(), fe = (c.etapes || []).map((e) => e.dateFin).filter(Boolean).sort();
           const cd = c.dateDebut || de[0], cf = c.dateFin || fe[fe.length - 1];
@@ -201,6 +201,26 @@
     ouvriers: { titre: "Ouvriers", champs: [["nom", "Nom *", ["nom", "nomprenoms", "ouvrier", "nomsetprenoms"]], ["metier", "Métier", ["metier", "fonction", "poste", "specialite"]], ["tel", "Téléphone", ["telephone", "tel", "contact"]], ["tarifJour", "Tarif / jour", ["tarif", "tarifjour", "journalier", "salairejour", "prixjour"]]] },
     chantiers: { titre: "Chantiers", champs: [["nom", "Nom *", ["nom", "chantier", "projet"]], ["lieu", "Lieu", ["lieu", "ville", "localisation"]], ["client", "Client", ["client", "proprietaire"]], ["budget", "Budget", ["budget", "montant", "cout"]], ["dateDebut", "Début (AAAA-MM-JJ)", ["debut", "datedebut"]], ["dateFin", "Fin prévue", ["fin", "datefin"]]] },
   };
+  // Modèles d'exemple à télécharger : titres reconnus automatiquement à l'import + 2 lignes d'exemple
+  const MODELES = {
+    maisons: [["Programme", "Lot", "Type", "Superficie", "Prix", "Statut", "Client", "Téléphone", "E-mail", "Pays", "Déjà payé"],
+      ["Villas ADOHA", "A-01", "Duplex 5 pièces", "300 m²", "65000000", "Vendue", "Awa Diallo", "0700000001", "awa@exemple.com", "France", "20000000"],
+      ["Villas ADOHA", "A-02", "Duplex 5 pièces", "300 m²", "65000000", "Disponible", "", "", "", "", "0"]],
+    depenses: [["Date", "Désignation", "Quantité / détail", "Montant total", "Avance payée", "Catégorie", "Fournisseur", "Mode de paiement", "Chantier"],
+      ["03/11/2026", "Ciment CPJ 45", "200 sacs", "1100000", "1100000", "Matériaux", "SOCOCIM", "Espèces", "Villas ADOHA"],
+      ["06/11/2026", "Fer à béton de 12", "300 barres", "2450000", "1500000", "Matériaux", "Quincaillerie Abobo", "Virement", "Villas ADOHA"]],
+    ouvriers: [["Nom", "Métier", "Téléphone", "Tarif jour"],
+      ["Traoré Moussa", "Maçon", "0700000002", "8000"], ["Kouassi Jean", "Charpentier", "0700000003", "9000"]],
+    chantiers: [["Nom", "Lieu", "Client", "Budget", "Date début", "Date fin"],
+      ["Villas ADOHA", "Bingerville", "Programme GEI", "180000000", "01/06/2026", "30/03/2027"],
+      ["Résidence ADJIN", "Bingerville", "Programme GEI", "95000000", "10/08/2026", "30/05/2027"]],
+  };
+  function telechargerModele(type) {
+    const cell = (v) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
+    const csv = "﻿" + MODELES[type].map((r) => r.map(cell).join(";")).join("\r\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    a.download = `modele-${type}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
   const VALEURS = {
     statut: { disponible: "disponible", libre: "disponible", reservee: "reservee", reserve: "reservee", vendue: "vendue", vendu: "vendue", livree: "livree", livre: "livree" },
     categorie: { materiaux: "materiaux", materiel: "materiaux", maindoeuvre: "main_oeuvre", mainduvre: "main_oeuvre", transport: "transport", location: "location", administratif: "administratif", admin: "administratif" },
@@ -223,7 +243,10 @@
     const chantiers = await api("/api/g/chantiers");
     main.innerHTML = head("Importer depuis Excel", "Reprenez vos fichiers Excel existants : maisons et clients, dépenses, ouvriers ou chantiers.") + `
       <section class="panel"><h2>1. Préparer le fichier</h2>
-        <p>Dans Excel : ouvrez votre fichier → <b>Fichier</b> → <b>Enregistrer sous</b> → type <b>« CSV (séparateur : point-virgule) »</b>. La première ligne doit contenir les titres des colonnes (ex. Client, Lot, Prix…).</p></section>
+        <p><b>Le plus simple :</b> téléchargez le modèle, ouvrez-le dans Excel, remplacez les 2 lignes d'exemple par vos données, puis enregistrez (gardez le format CSV).</p>
+        <div class="filters" style="margin:12px 0">${Object.entries(IMPORTS).map(([k, v]) => `<button type="button" class="btn btn--secondary" data-modele="${k}">${G.ui.I("download")}Modèle ${esc(v.titre.toLowerCase())}</button>`).join("")}</div>
+        <p class="muted">Dépenses : la colonne « Chantier » doit porter le nom exact d'un chantier déjà créé dans l'application.</p>
+        <p>Vous avez déjà votre propre fichier ? Dans Excel : ouvrez votre fichier → <b>Fichier</b> → <b>Enregistrer sous</b> → type <b>« CSV (séparateur : point-virgule) »</b>. La première ligne doit contenir les titres des colonnes (ex. Client, Lot, Prix…).</p></section>
       <section class="panel"><h2>2. Choisir le fichier</h2><div class="filters">
         <label>Type de données<select id="it">${Object.entries(IMPORTS).map(([k, v]) => `<option value="${k}">${v.titre}</option>`).join("")}</select></label>
         <label>Fichier CSV<input type="file" id="if" accept=".csv,text/csv"></label></div></section>
@@ -262,5 +285,6 @@
       } catch (err) { fail(err); $("#go").disabled = false; }
     }
     $("#if").onchange = preparer; $("#it").onchange = preparer;
+    $$("[data-modele]").forEach((b) => (b.onclick = () => telechargerModele(b.dataset.modele)));
   };
 })();

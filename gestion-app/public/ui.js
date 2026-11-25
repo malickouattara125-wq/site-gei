@@ -58,6 +58,8 @@
       const t0 = performance.now(), dur = 700;
       const step = (t) => { const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3); txt.nodeValue = sep(fin * e); if (p < 1) requestAnimationFrame(step); };
       requestAnimationFrame(step);
+      // Sécurité : si l'animation est interrompue (onglet caché, ordinateur lent), le chiffre final s'affiche quand même
+      setTimeout(() => { txt.nodeValue = sep(fin); }, dur + 300);
     });
   }
 
