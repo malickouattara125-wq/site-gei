@@ -23,6 +23,15 @@ const ENTREPRISE = {
   adresse: process.env.ENTREPRISE_ADRESSE || "Cocody, Cité des Arts (derrière la banque NSIA), Abidjan",
   telephones: (process.env.ENTREPRISE_TELEPHONES || "07 09 71 85 30, 07 04 75 53 06, 07 08 62 30 38").split(",").map((s) => s.trim()),
   email: process.env.ENTREPRISE_EMAIL || "contact@gei-sarl.ci",
+  // Pied de page des contrats (coordonnées légales de GEI)
+  pied: {
+    activite: "Génie civil & BTP",
+    siege: process.env.ENTREPRISE_SIEGE || "Cocody Cité des Arts",
+    banque: process.env.ENTREPRISE_BANQUE || "N° du Compte Bancaire NSIA : 061822102201",
+    rccm: process.env.ENTREPRISE_RCCM || "CI-ABJ-03-2023-B13-00068",
+    tel: process.env.ENTREPRISE_TEL_CONTRAT || "(+225) 07 76 39 32 37 / 07 09 71 85 30",
+    email: process.env.ENTREPRISE_EMAIL_CONTRAT || "laurentopulentangaman@gmail.com",
+  },
 };
 
 const TYPES = {
@@ -134,7 +143,7 @@ async function api(req, res, pathname) {
   }
 
   const chef = session.role === "chef";
-  if (chef && /^\/api\/g\/(maisons|depenses|mouvements|import|sauvegarde)/.test(pathname)) return json(res, 403, { error: "Accès réservé à la direction et à la comptabilité." });
+  if (chef && /^\/api\/g\/(maisons|depenses|mouvements|import|sauvegarde|contrats|modeles)/.test(pathname)) return json(res, 403, { error: "Accès réservé à la direction et à la comptabilité." });
 
   // Sauvegarde complète (DG)
   if (pathname === "/api/g/sauvegarde" && method === "GET") {
@@ -183,7 +192,7 @@ async function api(req, res, pathname) {
   }
 
   // Données : chantiers, maisons, dépenses, ouvriers, pointages, trésorerie, stock
-  const mg = /^\/api\/g\/(chantiers|maisons|depenses|ouvriers|pointages|mouvements|articles|stock)(?:\/([a-f0-9]+))?$/.exec(pathname);
+  const mg = /^\/api\/g\/(chantiers|maisons|depenses|ouvriers|pointages|mouvements|articles|stock|contrats|modeles)(?:\/([a-f0-9]+))?$/.exec(pathname);
   if (mg) {
     const name = "g-" + mg[1], clean = gestion.COLLECTIONS[mg[1]];
     const list = store.load(name, []);

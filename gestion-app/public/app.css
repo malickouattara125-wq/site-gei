@@ -686,3 +686,13 @@ body.sheet-open { overflow: hidden; }
   .topbar { transition: box-shadow var(--t); }
 }
 @media (display-mode: standalone) { .topbar { padding-top: env(safe-area-inset-top); height: calc(var(--topbar-h) + env(safe-area-inset-top)); } }
+
+/* ---------- Contrats ---------- */
+.ct-f { display: contents; }
+.ct-f[hidden] { display: none; }
+.t-bad { color: var(--bad); font-weight: 600; } .t-warn { color: var(--late); font-weight: 600; }
+.ct-texte { font: 13.5px/1.6 var(--font-ui); min-height: 320px; resize: vertical; }
+.ct-vars { font-size: 13px; line-height: 2; color: var(--text-2); margin: 0 0 12px; }
+.ct-vars code { font: 600 12px ui-monospace, Consolas, monospace; background: var(--surface-3); color: var(--brand-700); padding: 2px 6px; border-radius: 6px; }
+.ct-pay .r { margin-bottom: 8px; }
+@media (max-width: 900px) { .ct-pay .r, .ct-pay .r--head { grid-template-columns: 1fr 1fr !important; } .ct-pay .r--head { display: none; } .ct-pay .r [data-k="libelle"] { grid-column: 1 / -1; } }

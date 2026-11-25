@@ -308,7 +308,7 @@
 
   /* ---------- Recherche globale (Ctrl+K) ---------- */
   const MODULES = [["Tableau de gestion", "#gestion", "dashboard", "dg comptable"], ["Planning", "#g-planning", "planning"], ["Rapport mensuel", "#g-rapport", "report", "dg comptable"],
-    ["Chantiers", "#g-chantiers", "hardhat"], ["Maisons et clients", "#g-maisons", "house", "dg comptable"], ["Stock de matériaux", "#g-stock", "package"], ["Équipes et paie", "#g-equipes", "users"],
+    ["Chantiers", "#g-chantiers", "hardhat"], ["Maisons et clients", "#g-maisons", "house", "dg comptable"], ["Stock de matériaux", "#g-stock", "package"], ["Équipes et paie", "#g-equipes", "users"], ["Contrats", "#g-contrats", "file", "dg comptable"],
     ["Dépenses", "#g-depenses", "receipt", "dg comptable"], ["Trésorerie", "#g-tresorerie", "wallet", "dg comptable"], ["Importer (Excel)", "#g-import", "sheet", "dg comptable"], ["Mon compte", "#compte", "account"],
     ["Nouvelle dépense", "#g-depense/nouvelle", "plus", "dg comptable"], ["Nouveau chantier", "#g-chantier/nouveau", "plus", "dg comptable"], ["Pointage du jour", "#g-equipes/pointage", "check"], ["Guide de style", "/guide-style.html", "image", "dg"]];
   const okRole = (r) => !r || r.split(" ").includes(G.me().role);
@@ -371,7 +371,7 @@
   const tap = () => { try { navigator.vibrate && navigator.vibrate(8); } catch (_) {} };
   const ACTIONS = {
     direction: [["Nouvelle dépense", "#g-depense/nouvelle", "receipt"], ["Paiement client", "#g-maisons", "house"], ["Pointage du jour", "#g-equipes/pointage", "check"],
-      ["Entrée / sortie de stock", "#g-stock/mouvement", "package"], ["Opération de trésorerie", "#g-mouvement/nouveau", "wallet"], ["Nouveau chantier", "#g-chantier/nouveau", "hardhat"]],
+      ["Entrée / sortie de stock", "#g-stock/mouvement", "package"], ["Opération de trésorerie", "#g-mouvement/nouveau", "wallet"], ["Nouveau chantier", "#g-chantier/nouveau", "hardhat"], ["Nouveau contrat", "#g-contrat/nouveau", "file"], ["Loyer reçu", "#g-contrats/location", "house"]],
     chef: [["Pointage du jour", "#g-equipes/pointage", "check"], ["Avancement d'un chantier", "#g-chantiers", "hardhat"], ["Sortie de stock", "#g-stock/mouvement", "package"], ["Voir le planning", "#g-planning", "planning"]],
   };
   let sheetEl = null;

@@ -37,9 +37,9 @@
   }
   G.operations = operations;
   views["g-tresorerie"] = async (filtre) => {
-    const d = await load("maisons", "depenses", "mouvements");
+    const d = await load("maisons", "depenses", "mouvements", "contrats");
     const [fm = "", fc = ""] = (filtre || "").split("|");
-    const ops = operations(d);
+    const ops = (G.operations || operations)(d);
     const solde = (c) => sum(ops.filter((o) => o.compte === c), (o) => (o.sens === "entree" ? o.montant : -o.montant));
     const list = ops.filter((o) => (!fm || mois(o.date) === fm) && (!fc || o.compte === fc));
     const moisDispo = [...new Set(ops.map((o) => mois(o.date)).filter(Boolean))].sort().reverse();

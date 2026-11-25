@@ -41,6 +41,8 @@
     for (const [v, nom] of parts) { const q = Math.floor(n / v); if (q) { t += (nom === "mille" ? (q > 1 ? cent(q) + " mille" : "mille") : cent(q) + " " + nom + (q > 1 ? "s" : "")) + " "; n %= v; } }
     return (t + (n ? cent(n) : "")).trim().replace(/\s+/g, " ");
   }
+  G.enLettres = enLettres;
+  G.docsEditor = (box, list) => docsEditor(box, list);
   const waTel = (t) => { const d = String(t || "").replace(/\D/g, ""); return d.length === 10 ? "225" + d : d; };
   // Pièces jointes (factures, contrats, plans) : fichiers privés
   function docsEditor(box, list) {
@@ -162,7 +164,7 @@
 
   views.gestion = async () => {
     if (!argent()) { location.replace("#g-chantiers"); return; }
-    const d = await load("chantiers", "maisons", "depenses", "ouvriers", "pointages", "mouvements", "articles", "stock");
+    const d = await load("chantiers", "maisons", "depenses", "ouvriers", "pointages", "mouvements", "articles", "stock", "contrats");
     const m = mois(today()), m1 = moisAvant(m, 1), six = [5, 4, 3, 2, 1, 0].map((n) => moisAvant(m, n));
     const encours = d.chantiers.filter((c) => c.statut === "en_cours");
     const depDe = (mm) => sum(d.depenses.filter((x) => mois(x.date) === mm), (x) => x.montant) + paieDe(d.pointages, d.ouvriers, (p) => mois(p.date) === mm);
