@@ -73,7 +73,7 @@
         <span class="ph__pct">${p.avancement} %</span></li>`; };
     const colonne = (titre, liste) => `<div class="phcol"><h3>${titre}</h3><ul class="phases">${liste.map(ligne).join("")}</ul></div>`;
     main.innerHTML = U.head(`Villa ${esc(v.lot)}`, `${esc(c.nom)}${v.type ? " · " + esc(v.type) : ""}`,
-      `<a class="btn btn--tertiary" href="#g-chantier/${c.id}">${I("chevleft")}Programme</a>${argent() ? `<a class="btn btn--secondary" href="#g-depense/nouvelle/${c.id}">${I("receipt")}Nouvelle dépense</a>` : ""}`,
+      `<a class="btn btn--tertiary" href="#g-chantier/${c.id}">${I("chevleft")}Programme</a>${argent() ? `<a class="btn btn--secondary" href="#g-depense/nouvelle/${c.id}/${v.id}">${I("receipt")}Nouvelle dépense</a>` : ""}`,
       [["Chantiers", "#g-chantiers"], [esc(c.nom), `#g-chantier/${c.id}`], [`Villa ${esc(v.lot)}`, ""]]) + `
       <section class="panel vres">
         <div class="vres__av">${U.ring(a)}<div><b>${a} %</b><span>${esc(K.ETATS[e])} · phase : ${esc(K.phaseEnCours(v))}</span></div></div>

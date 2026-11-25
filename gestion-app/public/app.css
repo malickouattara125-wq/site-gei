@@ -852,3 +852,10 @@ body.panneau-open { overflow: hidden; }
 .vgal img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 10px; background: var(--surface-3); }
 @media (max-width: 900px) { .vres { grid-template-columns: 1fr; } .vres__edit { justify-self: start; } .phcols { grid-template-columns: 1fr; } .ph { grid-template-columns: 44px minmax(0, 1fr) 50px; padding: 10px 12px 10px 8px; } .ph__chk { width: 38px; height: 38px; } }
 .phx__vig > p { grid-column: 1 / -1; margin: 0; }
+
+/* ---------- Dépense rapide et champs matériau ---------- */
+.dm-pu { margin: -4px 0 0; font-size: 13px; color: var(--text-2); min-height: 0; } .dm-pu:empty { display: none; } .dm-pu b { color: var(--brand-700); }
+.dq__mat { gap: 12px; }
+.dq__pay { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px 14px; margin: 0; display: grid; gap: 10px; }
+.dq__pay legend { padding: 0 6px; font-size: var(--fs-label); font-weight: 500; color: var(--text-2); }
+.dq__pay .seg { justify-self: start; } .dq__pay .seg button { height: 34px; padding: 0 14px; font-size: 13.5px; }

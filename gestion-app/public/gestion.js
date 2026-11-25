@@ -523,10 +523,10 @@
   };
 
   views["g-depense"] = async (arg) => {
-    const [did, cid] = String(arg || "").split("/");
+    const [did, cid, vid] = String(arg || "").split("/");
     const isNew = did === "nouvelle";
-    const d = await load("depenses", "chantiers");
-    const x = isNew ? { date: today(), chantierId: cid || "", categorie: "materiaux", mode: "especes", paiements: [] } : d.depenses.find((y) => y.id === did);
+    const d = await load("depenses", "chantiers", "villas", "articles");
+    const x = isNew ? { date: today(), chantierId: cid || "", villaId: vid || "", categorie: "materiaux", mode: "especes", paiements: [] } : d.depenses.find((y) => y.id === did);
     if (!x) { main.innerHTML = U.vide("Dépense introuvable.", "receipt"); return; }
     const fours = [...new Set(d.depenses.map((y) => y.fournisseur).filter(Boolean))].sort();
     const documents = (x.documents || []).map((y) => ({ ...y }));
@@ -543,7 +543,8 @@
               <label><span>Chantier</span><select name="chantierId">${chantierOpts(d.chantiers, x.chantierId)}</select></label>
               <label><span>Catégorie</span><select name="categorie">${opts(LIB.categorie, x.categorie)}</select></label>
               <label><span>Fournisseur / artisan</span><input name="fournisseur" list="fours" value="${esc(x.fournisseur || "")}" placeholder="Rechercher ou saisir un nom"><datalist id="fours">${fours.map((y) => `<option value="${esc(y)}">`).join("")}</datalist></label>
-              <label class="full"><span>Quantité / détail</span><input name="quantite" value="${esc(x.quantite || "")}" placeholder="Ex. 3 tonnes, 300 briques, 4 maisons"></label>
+              ${G.depenseMat ? G.depenseMat.champs(x, d) : ""}
+              <label class="full"><span>Quantité / détail ${G.depenseMat ? '<small class="muted">(texte libre, facultatif)</small>' : ""}</span><input name="quantite" value="${esc(x.quantite || "")}" placeholder="Ex. 3 tonnes, 300 briques, 4 maisons"></label>
             </div></section>
           <section class="panel"><div class="sec__head"><span class="sec__n">2</span><div><h2>Montant et paiements</h2><p>Le montant total, puis chaque avance versée.</p></div></div>
             <div class="grid"><label><span>Montant total</span><input name="montant" class="money" inputmode="numeric" value="${x.montant || ""}" placeholder="Vide si le prix n'est pas connu"></label>
@@ -592,8 +593,11 @@
       ["date", (v) => (v ? "" : "Indiquez la date de la dépense.")],
       ["montant", (v) => { const t = num(v), p = sum(pay, (y) => y.montant); return t && p > t ? `Les paiements (${fcfa(p)}) dépassent le montant total.` : ""; }],
     ]);
-    f.addEventListener("submit", (e) => { e.preventDefault(); if (!ok()) return; save("/api/g/depenses", isNew ? null : x.id, body(), x.chantierId || body().chantierId ? `#g-depenses/${encodeURIComponent(body().chantierId + "|||")}` : "#g-depenses"); });
-    if ($("#encore")) $("#encore").onclick = async () => { if (!ok()) return; try { await api("/api/g/depenses", { method: "POST", body: body() }); G.setDirty(false); toast("Dépense enregistrée. Saisissez la suivante."); f.libelle.value = ""; f.montant.value = ""; f.quantite.value = ""; f.notes.value = ""; documents.length = 0; docsEditor($("#docs"), documents); pay.length = 0; ep.draw(); calc(); f.libelle.focus(); scrollTo({ top: 0, behavior: "smooth" }); } catch (err) { fail(err); } };
+    // Matériau, quantité, destination (volet Construction) : complétés juste avant l'enregistrement
+    if (G.depenseMat) G.depenseMat.brancher(f, d);
+    const corps = async () => (G.depenseMat ? G.depenseMat.completer(body(), d) : body());
+    f.addEventListener("submit", async (e) => { e.preventDefault(); if (!ok()) return; let b; try { b = await corps(); } catch (err) { return fail(err); } save("/api/g/depenses", isNew ? null : x.id, b, x.chantierId || b.chantierId ? `#g-depenses/${encodeURIComponent(b.chantierId + "|||")}` : "#g-depenses"); });
+    if ($("#encore")) $("#encore").onclick = async () => { if (!ok()) return; try { await api("/api/g/depenses", { method: "POST", body: await corps() }); G.setDirty(false); toast("Dépense enregistrée. Saisissez la suivante."); f.libelle.value = ""; f.montant.value = ""; f.quantite.value = ""; if (f.materiau) f.materiau.value = ""; if (f.qte) f.qte.value = ""; f.notes.value = ""; documents.length = 0; docsEditor($("#docs"), documents); pay.length = 0; ep.draw(); calc(); f.libelle.focus(); scrollTo({ top: 0, behavior: "smooth" }); } catch (err) { fail(err); } };
     if ($("#del")) $("#del").onclick = () => supprimer("/api/g/depenses", x.id, "cette dépense", "#g-depenses");
   };
 
