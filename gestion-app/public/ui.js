@@ -371,7 +371,7 @@
   const tap = () => { try { navigator.vibrate && navigator.vibrate(8); } catch (_) {} };
   const ACTIONS = {
     direction: [["Nouvelle dépense", "#g-depense/nouvelle", "receipt"], ["Paiement client", "#g-maisons", "house"], ["Pointage du jour", "#g-equipes/pointage", "check"],
-      ["Entrée / sortie de stock", "#g-stock/mouvement", "package"], ["Opération de trésorerie", "#g-mouvement/nouveau", "wallet"], ["Nouveau chantier", "#g-chantier/nouveau", "hardhat"], ["Nouveau contrat", "#g-contrat/nouveau", "file"], ["Loyer reçu", "#g-contrats/location", "house"]],
+      ["Entrée / sortie de stock", "#g-stock/mouvement", "package"], ["Opération de trésorerie", "#g-mouvement/nouveau", "wallet"], ["Nouveau chantier", "#g-chantier/nouveau", "hardhat"], ["Nouveau contrat", "#g-contrat/nouveau", "file"], ["Encaisser un loyer", "#g-contrats", "house"]],
     chef: [["Pointage du jour", "#g-equipes/pointage", "check"], ["Avancement d'un chantier", "#g-chantiers", "hardhat"], ["Sortie de stock", "#g-stock/mouvement", "package"], ["Voir le planning", "#g-planning", "planning"]],
   };
   let sheetEl = null;

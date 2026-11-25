@@ -696,3 +696,25 @@ body.sheet-open { overflow: hidden; }
 .ct-vars code { font: 600 12px ui-monospace, Consolas, monospace; background: var(--surface-3); color: var(--brand-700); padding: 2px 6px; border-radius: 6px; }
 .ct-pay .r { margin-bottom: 8px; }
 @media (max-width: 900px) { .ct-pay .r, .ct-pay .r--head { grid-template-columns: 1fr 1fr !important; } .ct-pay .r--head { display: none; } .ct-pay .r [data-k="libelle"] { grid-column: 1 / -1; } }
+
+/* ---------- Loyers : tableau mois par mois, encaissement ---------- */
+.t-ok { color: var(--ok); font-weight: 600; }
+.loy-list { display: grid; gap: 8px; }
+.loy { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
+.loy__who, .loy__mt { display: grid; min-width: 0; } .loy__who small, .loy__mt small { color: var(--muted); font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.loy__mt b { font: 700 16px var(--font-display); }
+.loy__acts { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.loy-sum { display: flex; flex-wrap: wrap; gap: 8px 22px; margin-bottom: 12px; font-size: 14px; color: var(--text-2); } .loy-sum b { margin-left: 4px; color: var(--text); }
+.loy-tbl td.num, .loy-tbl th.num { text-align: right; font-variant-numeric: tabular-nums; }
+.loy-tbl tr.loy--impaye td { background: color-mix(in srgb, var(--bad-bg) 55%, transparent); }
+.loy-tbl tr.loy--partiel td { background: color-mix(in srgb, var(--warn-bg, #FBF0D9) 55%, transparent); }
+.loy-tbl tr.loy--avance td, .loy-tbl tr.loy--avenir td { color: var(--muted); }
+.tbl-wrap:has(> .loy-tbl) { overflow-x: auto !important; } .loy-tbl th { position: static !important; }
+.ct-pay__acts { display: flex; gap: 2px; justify-content: flex-end; }
+dialog.enc { border: 0; border-radius: 18px; padding: 0; width: min(460px, calc(100vw - 24px)); background: var(--surface); color: var(--text); box-shadow: var(--shadow-2); }
+dialog.enc::backdrop { background: rgba(10, 16, 7, .5); }
+.enc__f { display: grid; gap: 12px; padding: 22px; } .enc__f h2 { margin: 0; font: 600 19px var(--font-display); } .enc__f p { margin: 0; font-size: 13.5px; }
+.enc__f .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+.enc__chk { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-2); }
+.enc__acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+@media (max-width: 900px) { .loy { grid-template-columns: 1fr auto; } .loy__acts { grid-column: 1 / -1; justify-content: stretch; } .loy__acts .btn { flex: 1; justify-content: center; } .ct-pay .r [data-k="libelle"] { grid-column: 1 / -1; } .ct-pay__acts { grid-column: 1 / -1; } }

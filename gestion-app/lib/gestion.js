@@ -108,12 +108,13 @@ COLLECTIONS.contrats = (b) => {
     type: pick(b.type, LISTES.typeContrat, "autre"), statut: pick(b.statut, LISTES.statutContrat, "brouillon"),
     reference: str(b.reference, 40), titre: str(b.titre, 160),
     partie: str(b.partie, 120), partieTel: str(b.partieTel, 40), partieAdresse: str(b.partieAdresse, 200),
-    partiePiece: str(b.partiePiece, 80), partieNaissance: str(b.partieNaissance, 120),
+    partiePiece: str(b.partiePiece, 80), partieNaissance: str(b.partieNaissance, 120), metier: str(b.metier, 60),
     objet: str(b.objet, 300), lieu: str(b.lieu, 120), chantierId: id(b.chantierId), maisonId: id(b.maisonId),
     contratType: str(b.contratType, 40), dateSignature: date(b.dateSignature), dateDebut: date(b.dateDebut), dateFin: date(b.dateFin),
     essai: str(b.essai, 60), montant: montant(b.montant), periodicite: pick(b.periodicite, ["mensuel", "unique", "journalier", "hebdomadaire", "trimestriel"], "mensuel"),
     caution: montant(b.caution), avance: montant(b.avance), delai: str(b.delai, 80),
-    paiements: arr(b.paiements, 400).map((p) => ({ date: date(p && p.date), montant: montant(p && p.montant), mode: pick(p && p.mode, LISTES.modePaiement, "especes"), libelle: str(p && p.libelle, 120) })).filter((p) => p.montant),
+    paiements: arr(b.paiements, 400).map((p) => ({ date: date(p && p.date), montant: montant(p && p.montant), mode: pick(p && p.mode, LISTES.modePaiement, "especes"), libelle: str(p && p.libelle, 120),
+      nature: pick(p && p.nature, ["loyer", "caution", "salaire", "avance", "autre"], ""), mois: /^\d{4}-\d{2}$/.test(String((p && p.mois) || "")) ? p.mois : "" })).filter((p) => p.montant),
     texte: str(b.texte, 60000), documents: docs(b.documents), notes: str(b.notes, 3000),
   };
   if (!c.partie) throw err("Indiquez le nom de l'autre partie (locataire, salarié, ouvrier…).");
@@ -121,7 +122,7 @@ COLLECTIONS.contrats = (b) => {
 };
 // Modèles de contrat (texte par défaut de chaque type, modifiable par la direction)
 COLLECTIONS.modeles = (b) => {
-  const m = { type: pick(b.type, LISTES.typeContrat, "autre"), titre: str(b.titre, 160), texte: str(b.texte, 60000) };
+  const m = { type: pick(b.type, LISTES.typeContrat, "autre"), metier: str(b.metier, 60), titre: str(b.titre, 160), texte: str(b.texte, 60000) };
   if (!m.texte) throw err("Le texte du modèle est vide.");
   return m;
 };

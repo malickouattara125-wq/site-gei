@@ -158,6 +158,6 @@
   /* ---------- Menu sur téléphone ---------- */
   $("#burger").addEventListener("click", () => document.body.classList.toggle("nav-open"));
 
-  window.GEI = { api, esc, toast, fail, pick, img, lines, views, main, $, $$, me: () => me, setDirty: (v) => { dirty = v; } };
+  window.GEI = { api, esc, toast, fail, pick, img, lines, views, main, $, $$, me: () => me, setDirty: (v) => { dirty = v; }, isDirty: () => dirty };
   window.GEI_START = () => api("/api/g/me").then(showApp).catch(showLogin);
 })();
