@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Guide de style · GEI Gestion</title>
+  <link rel="icon" href="/logo-gei.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/ds.css?v=1">
+  <style>
+    body { margin: 0; }
+    .g { max-width: 1240px; margin: 0 auto; padding: 40px 24px 96px; }
+    .g-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 40px; flex-wrap: wrap; }
+    .g-top p { margin: 8px 0 0; color: var(--muted); max-width: 620px; }
+    .g-sec { margin-top: 48px; }
+    .g-sec > header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+    .g-sec > header span { font: 600 12px var(--font-ui); color: var(--olive-700); background: var(--brand-50); padding: 3px 8px; border-radius: 6px; }
+    :root[data-theme="dark"] .g-sec > header span { color: var(--olive-400); }
+    .g-grid { display: grid; gap: 16px; }
+    .g-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .g-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .g-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .spec { font: 400 12px/1.5 var(--font-ui); color: var(--muted); font-variant-numeric: tabular-nums; }
+    .font-big { font-size: 56px; line-height: 1; color: var(--text); margin: 8px 0 12px; letter-spacing: -.03em; }
+    .scale { display: grid; grid-template-columns: 220px 1fr; gap: 12px 24px; align-items: baseline; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .scale:last-child { border-bottom: 0; }
+    .sw { border-radius: 12px; overflow: hidden; border: var(--card-border); background: var(--surface); }
+    .sw i { display: block; height: 64px; }
+    .sw div { padding: 10px 12px; }
+    .sw b { display: block; font: 500 13px var(--font-ui); color: var(--text); }
+    .sw small { font: 400 12px var(--font-ui); color: var(--muted); font-variant-numeric: tabular-nums; }
+    .box { display: grid; place-items: center; text-align: center; height: 72px; background: var(--surface); border: var(--card-border); font: 500 12px var(--font-ui); color: var(--muted); }
+    .spc { display: flex; align-items: end; gap: 16px; }
+    .spc div { display: grid; gap: 6px; justify-items: center; font: 400 12px var(--font-ui); color: var(--muted); }
+    .spc i { display: block; background: var(--olive-500); border-radius: 3px; width: 16px; }
+    .icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+    .icons div { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); font-size: 13px; color: var(--text-2); }
+    .icons .ic { color: var(--text); }
+    .rec { position: relative; }
+    .rec__total { display: flex; justify-content: space-between; align-items: baseline; }
+    .rec__lines { display: grid; gap: 10px; margin: 16px 0; padding: 16px 0; border-block: 1px solid var(--border); }
+    .rec__lines div { display: flex; justify-content: space-between; font-size: 14px; }
+    .rec__lines b { font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+    .pay { width: 100%; border-collapse: separate; border-spacing: 0; }
+    .pay th { text-align: left; padding: 0 8px 8px; }
+    .pay td { padding: 6px 8px; border-top: 1px solid var(--border); }
+    .pay td:last-child { width: 40px; }
+    .pay tfoot td { border-top: 1px solid var(--border); padding-top: 12px; }
+    .chantier img { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 12px; background: var(--surface-3); }
+    .side-demo { background: var(--forest-900); border-radius: 16px; padding: 16px 12px; display: grid; gap: 2px; width: 256px; color: rgba(255,255,255,.7); align-content: start; }
+    .side-demo .brand { display: flex; align-items: center; gap: 10px; padding: 4px 8px 16px; color: #fff; }
+    .side-demo .brand img { width: 40px; height: 40px; border-radius: 10px; background: #fff; padding: 3px; }
+    .side-demo .brand b { display: block; font: 700 15px var(--font-display); letter-spacing: -.01em; }
+    .side-demo .brand small { font: 500 12px var(--font-ui); color: var(--olive-400); }
+    .side-demo .grp { font: 600 11px var(--font-ui); text-transform: uppercase; letter-spacing: .08em; color: rgba(255,255,255,.5); padding: 14px 10px 6px; }
+    .side-demo a { display: flex; align-items: center; gap: 12px; height: 38px; padding: 0 10px; border-radius: 10px; font: 500 14px var(--font-ui); color: rgba(255,255,255,.7); text-decoration: none; }
+    .side-demo a:hover { background: var(--forest-800); color: #fff; }
+    .side-demo a.on { background: rgba(181,204,90,.14); color: #fff; font-weight: 600; box-shadow: inset 3px 0 0 var(--olive-400); }
+    .side-demo a.on .ic { color: var(--olive-400); }
+    .side-demo .user { display: flex; align-items: center; gap: 10px; margin-top: 16px; padding: 12px 8px 4px; border-top: 1px solid rgba(255,255,255,.08); }
+    .side-demo .av { width: 36px; height: 36px; border-radius: 50%; background: var(--olive-400); color: var(--forest-900); display: grid; place-items: center; font: 700 13px var(--font-display); }
+    .side-demo .user b { display: block; color: #fff; font: 500 13.5px var(--font-ui); }
+    .side-demo .user small { font-size: 12px; color: rgba(255,255,255,.5); }
+    .side-demo .user button { margin-left: auto; background: none; border: 0; color: rgba(255,255,255,.5); cursor: pointer; padding: 6px; border-radius: 8px; }
+    .side-demo .user button:hover { color: #fff; background: var(--forest-800); }
+    .phone { width: 340px; border-radius: 28px; border: 1px solid var(--border); background: var(--bg); overflow: hidden; box-shadow: var(--shadow-2); }
+    .phone__body { padding: 20px 16px; display: grid; gap: 12px; min-height: 300px; align-content: start; }
+    .bnav { display: grid; grid-template-columns: repeat(5, 1fr); background: var(--surface); border-top: 1px solid var(--border); padding: 8px 4px 14px; }
+    .bnav a { display: grid; justify-items: center; gap: 4px; font: 500 11px var(--font-ui); color: var(--muted); text-decoration: none; }
+    .bnav a.on { color: var(--brand-700); }
+    .bnav a.on .ic { background: var(--brand-50); border-radius: 999px; padding: 4px 14px; width: 52px; height: 28px; }
+    .bnav .ic { width: 20px; height: 20px; }
+    .theme { display: inline-flex; background: var(--surface-3); border-radius: 12px; padding: 4px; gap: 2px; }
+    .theme button { border: 0; background: none; height: 34px; padding: 0 12px; border-radius: 9px; display: inline-flex; align-items: center; gap: 6px; font: 500 13px var(--font-ui); color: var(--muted); cursor: pointer; }
+    .theme button.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow-1); }
+    .crumb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+    .crumb a { color: var(--muted); text-decoration: none; } .crumb b { font-weight: 500; color: var(--text); }
+    @media (max-width: 900px) { .g-2, .g-3, .g-4 { grid-template-columns: 1fr; } .scale { grid-template-columns: 1fr; gap: 4px; } }
+  </style>
+</head>
+<body class="ds">
+<div class="g">
+
+  <div class="g-top">
+    <div>
+      <div class="crumb"><a href="/">GEI Gestion</a><svg class="ic"><use href="#i-chevright"/></svg><b>Guide de style</b></div>
+      <h1 class="t-page" style="margin-top:8px">Guide de style</h1>
+      <p>Le design system de GEI Gestion : polices, couleurs, boutons, champs, badges et cartes. Une fois validé, il s'applique à tous les écrans.</p>
+    </div>
+    <div class="theme" role="group" aria-label="Thème">
+      <button type="button" data-t="light" class="on"><svg class="ic"><use href="#i-sun"/></svg>Clair</button>
+      <button type="button" data-t="dark"><svg class="ic"><use href="#i-moon"/></svg>Sombre</button>
+    </div>
+  </div>
+
+  <!-- 1. Polices -->
+  <section class="g-sec">
+    <header><span>01</span><h2 class="t-section">Polices</h2></header>
+    <div class="g-grid g-2">
+      <div class="card">
+        <p class="t-micro" style="margin:0">Titres et chiffres clés</p>
+        <div class="font-big" style="font-family:var(--font-display);font-weight:700">Plus Jakarta Sans</div>
+        <p class="t-help" style="margin:0">Graisses 600 et 700 · titres de page, titres de carte, montants des KPI.</p>
+        <p class="t-kpi" style="margin:16px 0 0">2 781 500<span class="cur">FCFA</span></p>
+      </div>
+      <div class="card">
+        <p class="t-micro" style="margin:0">Interface et texte</p>
+        <div class="font-big" style="font-family:var(--font-ui);font-weight:500">Inter</div>
+        <p class="t-help" style="margin:0">Graisses 400, 500 et 600 · menus, champs, tableaux, boutons, textes.</p>
+        <p style="margin:16px 0 0;color:var(--text)">Achat de fer pour le ferraillage des 4 maisons — Bingerville ADOHA, 17/11/2026.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Échelle typographique -->
+  <section class="g-sec">
+    <header><span>02</span><h2 class="t-section">Échelle typographique</h2></header>
+    <div class="card">
+      <div class="scale"><div class="spec">Titre de page<br>Jakarta 700 · 30 px · -0.02em</div><div class="t-page">Nouvelle dépense</div></div>
+      <div class="scale"><div class="spec">Titre de section / carte<br>Jakarta 600 · 18 px · -0.01em</div><div class="t-section">Montant et paiements</div></div>
+      <div class="scale"><div class="spec">Chiffre clé (KPI)<br>Jakarta 700 · 34 px · chiffres tabulaires</div><div class="t-kpi">730 000<span class="cur">FCFA</span></div></div>
+      <div class="scale"><div class="spec">Texte courant, champs<br>Inter 400 · 14,5 px · interligne 1.5</div><div class="t-body">Saisissez l'achat ou le frais, avec le chantier concerné. Les avances s'ajoutent ligne par ligne.</div></div>
+      <div class="scale"><div class="spec">Libellé de champ<br>Inter 500 · 13 px · gris foncé</div><div class="t-label">Montant total</div></div>
+      <div class="scale"><div class="spec">Aide, sous-titre<br>Inter 400 · 13 px · gris moyen</div><div class="t-help">Laissez vide si le prix n'est pas encore connu.</div></div>
+      <div class="scale"><div class="spec">Micro-libellé, en-tête de tableau<br>Inter 600 · 11 px · majuscules · +0.06em</div><div class="t-micro">Déjà payé</div></div>
+      <div class="scale"><div class="spec">Badge, chip<br>Inter 500 · 12 px</div><div class="row"><span class="badge badge--warn">Partiel</span><span class="chip is-on">Ce mois</span></div></div>
+    </div>
+  </section>
+
+  <!-- 3. Couleurs -->
+  <section class="g-sec">
+    <header><span>03</span><h2 class="t-section">Couleurs</h2></header>
+    <p class="t-help" style="margin:-4px 0 16px">Le vert est la seule couleur de marque. Le bleu marine est retiré : les chiffres clés sont dans la couleur du texte.</p>
+    <p class="t-micro">Marque</p>
+    <div class="g-grid g-4" style="margin-bottom:24px">
+      <div class="sw"><i style="background:var(--forest-900)"></i><div><b>Vert forêt</b><small>#14200F · sidebar</small></div></div>
+      <div class="sw"><i style="background:#2F5A1F"></i><div><b>Vert de marque</b><small>#2F5A1F · boutons, actions</small></div></div>
+      <div class="sw"><i style="background:var(--olive-400)"></i><div><b>Olive lumineux</b><small>#B5CC5A · item actif, accents</small></div></div>
+      <div class="sw"><i style="background:#EEF4E8"></i><div><b>Vert très clair</b><small>#EEF4E8 · fonds teintés</small></div></div>
+    </div>
+    <p class="t-micro">Neutres chauds</p>
+    <div class="g-grid g-4" style="margin-bottom:24px">
+      <div class="sw"><i style="background:var(--bg)"></i><div><b>Fond</b><small>blanc cassé</small></div></div>
+      <div class="sw"><i style="background:var(--surface-3)"></i><div><b>Gris pierre</b><small>zones en retrait</small></div></div>
+      <div class="sw"><i style="background:var(--border)"></i><div><b>Bordure</b><small>traits fins</small></div></div>
+      <div class="sw"><i style="background:var(--text)"></i><div><b>Texte</b><small>titres, chiffres</small></div></div>
+    </div>
+    <p class="t-micro">Statuts</p>
+    <div class="g-grid g-4">
+      <div class="sw"><div style="height:64px;background:var(--ok-bg);display:grid;place-items:center"><span class="badge badge--ok">Payé</span></div><div><b>Payé · terminé</b><small>vert doux</small></div></div>
+      <div class="sw"><div style="height:64px;background:var(--warn-bg);display:grid;place-items:center"><span class="badge badge--warn">Partiel</span></div><div><b>Partiel · en cours</b><small>ambre</small></div></div>
+      <div class="sw"><div style="height:64px;background:var(--bad-bg);display:grid;place-items:center"><span class="badge badge--bad">Impayé</span></div><div><b>Impayé · dépassement</b><small>rouge brique</small></div></div>
+      <div class="sw"><div style="height:64px;background:var(--late-bg);display:grid;place-items:center"><span class="badge badge--late">En retard</span></div><div><b>En retard</b><small>orange brûlé</small></div></div>
+    </div>
+  </section>
+
+  <!-- 4. Espacements, rayons, ombres -->
+  <section class="g-sec">
+    <header><span>04</span><h2 class="t-section">Espacements, rayons, ombres</h2></header>
+    <div class="g-grid g-3">
+      <div class="card"><p class="t-micro" style="margin-top:0">Grille de 4 px</p>
+        <div class="spc"><div><i style="height:4px"></i>4</div><div><i style="height:8px"></i>8</div><div><i style="height:12px"></i>12</div><div><i style="height:16px"></i>16</div><div><i style="height:24px"></i>24</div><div><i style="height:32px"></i>32</div><div><i style="height:48px"></i>48</div></div>
+        <p class="t-help" style="margin:16px 0 0">Cartes : 24 px de marge intérieure · 16 px entre les champs · 32 px entre les sections.</p></div>
+      <div class="card"><p class="t-micro" style="margin-top:0">Rayons</p>
+        <div class="g-grid g-4" style="gap:8px"><div class="box" style="border-radius:8px">8<br>badge</div><div class="box" style="border-radius:12px">12<br>champ</div><div class="box" style="border-radius:16px">16<br>carte</div><div class="box" style="border-radius:20px">20<br>modale</div></div></div>
+      <div class="card"><p class="t-micro" style="margin-top:0">Ombres (2 niveaux)</p>
+        <div class="g-grid g-2" style="gap:12px"><div class="box" style="border-radius:16px;box-shadow:var(--shadow-1)">Niveau 1<br>cartes</div><div class="box" style="border-radius:16px;box-shadow:var(--shadow-2)">Niveau 2<br>menus, survol</div></div></div>
+    </div>
+  </section>
+
+  <!-- 5. Icônes -->
+  <section class="g-sec">
+    <header><span>05</span><h2 class="t-section">Icônes (Lucide, trait 1,75)</h2></header>
+    <div class="card">
+      <p class="t-micro" style="margin-top:0">Une icône par module</p>
+      <div class="icons">
+        <div><svg class="ic ic--18"><use href="#i-dashboard"/></svg>Tableau de gestion</div>
+        <div><svg class="ic ic--18"><use href="#i-planning"/></svg>Planning</div>
+        <div><svg class="ic ic--18"><use href="#i-report"/></svg>Rapport mensuel</div>
+        <div><svg class="ic ic--18"><use href="#i-hardhat"/></svg>Chantiers</div>
+        <div><svg class="ic ic--18"><use href="#i-house"/></svg>Maisons et clients</div>
+        <div><svg class="ic ic--18"><use href="#i-package"/></svg>Stock de matériaux</div>
+        <div><svg class="ic ic--18"><use href="#i-users"/></svg>Équipes et paie</div>
+        <div><svg class="ic ic--18"><use href="#i-receipt"/></svg>Dépenses</div>
+        <div><svg class="ic ic--18"><use href="#i-wallet"/></svg>Trésorerie</div>
+        <div><svg class="ic ic--18"><use href="#i-sheet"/></svg>Importer (Excel)</div>
+        <div><svg class="ic ic--18"><use href="#i-account"/></svg>Mon compte</div>
+      </div>
+      <p class="t-micro">Interface</p>
+      <div class="row" style="gap:16px;color:var(--text-2)">
+        <svg class="ic ic--18"><use href="#i-search"/></svg><svg class="ic ic--18"><use href="#i-bell"/></svg><svg class="ic ic--18"><use href="#i-calendar"/></svg><svg class="ic ic--18"><use href="#i-plus"/></svg><svg class="ic ic--18"><use href="#i-pencil"/></svg><svg class="ic ic--18"><use href="#i-trash"/></svg><svg class="ic ic--18"><use href="#i-download"/></svg><svg class="ic ic--18"><use href="#i-upload"/></svg><svg class="ic ic--18"><use href="#i-filter"/></svg><svg class="ic ic--18"><use href="#i-pin"/></svg><svg class="ic ic--18"><use href="#i-alert"/></svg><svg class="ic ic--18"><use href="#i-check"/></svg><svg class="ic ic--18"><use href="#i-printer"/></svg><svg class="ic ic--18"><use href="#i-logout"/></svg><svg class="ic ic--18"><use href="#i-sidebar"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Boutons -->
+  <section class="g-sec">
+    <header><span>06</span><h2 class="t-section">Boutons</h2></header>
+    <div class="card">
+      <div class="row">
+        <button class="btn btn--primary" type="button"><svg class="ic"><use href="#i-check"/></svg>Enregistrer</button>
+        <button class="btn btn--secondary" type="button">Enregistrer et en saisir une autre</button>
+        <button class="btn btn--tertiary" type="button">Annuler</button>
+        <button class="btn btn--danger" type="button"><svg class="ic"><use href="#i-trash"/></svg>Supprimer</button>
+        <button class="btn btn--secondary btn--icon" type="button" aria-label="Exporter"><svg class="ic"><use href="#i-download"/></svg></button>
+        <button class="btn btn--primary" type="button" disabled>Désactivé</button>
+      </div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn btn--secondary btn--sm" type="button"><svg class="ic"><use href="#i-plus"/></svg>Ajouter une avance</button>
+        <button class="btn btn--tertiary btn--sm" type="button"><svg class="ic"><use href="#i-check"/></svg>Payer le reste</button>
+        <span class="t-help">Petits boutons : 36 px de haut, dans les cartes et les tableaux.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Champs -->
+  <section class="g-sec">
+    <header><span>07</span><h2 class="t-section">Champs de formulaire</h2></header>
+    <div class="g-grid g-3">
+      <div class="card g-grid" style="gap:16px;align-content:start">
+        <label class="field"><span>Libellé <i>*</i></span><input placeholder="Ex. Xavier, maçon – main-d'œuvre"></label>
+        <label class="field"><span>Montant total</span><div class="ig"><input class="money" id="money" inputmode="numeric" value="730 000"><span class="ig__suffix">FCFA</span></div><small class="field__help">Séparateur de milliers automatique, sans flèches.</small></label>
+        <div class="field is-error"><span>Libellé <i>*</i></span><input class="input" value=""><span class="field__err"><svg class="ic"><use href="#i-alertcircle"/></svg>Le libellé de la dépense est obligatoire.</span></div>
+        <label class="field"><span>Notes</span><textarea placeholder="Précisions, numéro de facture…"></textarea></label>
+      </div>
+      <div class="card g-grid" style="gap:8px;align-content:start">
+        <div class="field"><span>Date <i>*</i></span><div class="ig"><svg class="ic"><use href="#i-calendar"/></svg><div class="input is-focus" style="display:flex;align-items:center;padding-left:40px;font-variant-numeric:tabular-nums">25/11/2026</div></div></div>
+        <div class="pop cal">
+          <div class="cal__head"><button class="btn btn--tertiary btn--sm btn--icon" type="button" aria-label="Mois précédent"><svg class="ic"><use href="#i-chevleft"/></svg></button>novembre 2026<button class="btn btn--tertiary btn--sm btn--icon" type="button" aria-label="Mois suivant"><svg class="ic"><use href="#i-chevright"/></svg></button></div>
+          <div class="cal__grid" id="cal"></div>
+          <div class="cal__foot"><button class="btn btn--tertiary btn--sm" type="button">Effacer</button><button class="btn btn--secondary btn--sm" type="button">Aujourd'hui</button></div>
+        </div>
+      </div>
+      <div class="card g-grid" style="gap:8px;align-content:start">
+        <div class="field"><span>Chantier</span><div class="ig"><svg class="ic"><use href="#i-hardhat"/></svg><div class="input is-focus" style="display:flex;align-items:center;padding-left:40px;color:var(--text)">Bingerville ADOHA</div><svg class="ic ig__chev"><use href="#i-chevdown"/></svg></div></div>
+        <div class="pop">
+          <div class="ig pop__search"><svg class="ic"><use href="#i-search"/></svg><input placeholder="Rechercher un chantier…" value="Binger"></div>
+          <div class="opt is-sel">Bingerville ADOHA<svg class="ic"><use href="#i-check"/></svg></div>
+          <div class="opt is-active">Bingerville ADJIN<small>Bingerville</small></div>
+          <div class="opt" style="color:var(--muted)">— Aucun / général —</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Badges et chips -->
+  <section class="g-sec">
+    <header><span>08</span><h2 class="t-section">Badges et filtres</h2></header>
+    <div class="card">
+      <div class="row"><span class="badge badge--ok">Payé</span><span class="badge badge--warn">Partiel</span><span class="badge badge--bad">Impayé</span><span class="badge badge--late">En retard</span><span class="badge">Prix à compléter</span><span class="badge badge--ok">Terminé</span><span class="badge badge--warn">En cours</span></div>
+      <div class="row" style="margin-top:16px"><button class="chip is-on" type="button">Tous <b>15</b></button><button class="chip" type="button">Payé <b>2</b></button><button class="chip" type="button">Partiel <b>3</b></button><button class="chip" type="button">Impayé <b>10</b></button><button class="chip" type="button"><svg class="ic"><use href="#i-filter"/></svg>Catégorie</button></div>
+    </div>
+  </section>
+
+  <!-- 9. Cartes -->
+  <section class="g-sec">
+    <header><span>09</span><h2 class="t-section">Cartes</h2></header>
+    <div class="g-grid g-4" style="margin-bottom:16px">
+      <div class="card kpi"><div class="kpi__top"><span class="t-micro">Chantiers actifs</span><span class="kpi__icon"><svg class="ic"><use href="#i-hardhat"/></svg></span></div><div class="t-kpi">6</div><div class="kpi__foot"><span class="delta delta--up"><svg class="ic" style="width:12px;height:12px"><use href="#i-up"/></svg>+2</span><svg class="spark" viewBox="0 0 96 32"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,26 16,24 32,25 48,18 64,19 80,10 96,8"/></svg></div></div>
+      <div class="card kpi"><div class="kpi__top"><span class="t-micro">Dépenses du mois</span><span class="kpi__icon"><svg class="ic"><use href="#i-receipt"/></svg></span></div><div class="t-kpi">2,96<span class="cur">M FCFA</span></div><div class="kpi__foot"><span class="delta delta--down"><svg class="ic" style="width:12px;height:12px"><use href="#i-up"/></svg>+18 %</span><svg class="spark" viewBox="0 0 96 32"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,22 16,20 32,24 48,16 64,14 80,15 96,6"/></svg></div></div>
+      <div class="card kpi"><div class="kpi__top"><span class="t-micro">Trésorerie</span><span class="kpi__icon"><svg class="ic"><use href="#i-wallet"/></svg></span></div><div class="t-kpi">12,4<span class="cur">M FCFA</span></div><div class="kpi__foot"><span class="delta delta--up"><svg class="ic" style="width:12px;height:12px"><use href="#i-up"/></svg>+4 %</span><svg class="spark" viewBox="0 0 96 32"><polyline fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="0,20 16,18 32,21 48,17 64,15 80,14 96,12"/></svg></div></div>
+      <div class="card kpi"><div class="kpi__top"><span class="t-micro">Reste à payer</span><span class="kpi__icon" style="background:var(--bad-bg);color:var(--bad)"><svg class="ic"><use href="#i-alert"/></svg></span></div><div class="t-kpi">2,11<span class="cur">M FCFA</span></div><div class="kpi__foot"><span class="t-help">fournisseurs et artisans</span></div></div>
+    </div>
+    <div class="g-grid g-3">
+      <div class="card chantier g-grid" style="gap:12px;align-content:start">
+        <img src="/logo-gei.png" alt="" style="object-fit:contain;padding:24px">
+        <div style="display:flex;justify-content:space-between;gap:12px;align-items:center">
+          <div><h3 class="t-section">Bingerville ADOHA</h3><div class="t-help" style="display:flex;gap:4px;align-items:center"><svg class="ic"><use href="#i-pin"/></svg>Bingerville · 4 villas</div></div>
+          <div class="ring" style="--p:35"><span>35 %</span></div>
+        </div>
+        <div class="row" style="justify-content:space-between"><span class="badge badge--warn">Fondations</span><span class="t-help num">2,78 M / 8 M FCFA</span></div>
+        <div class="progress"><i style="width:35%"></i></div>
+      </div>
+      <div class="card rec card--raised">
+        <span class="t-micro">Récapitulatif</span>
+        <div class="rec__total" style="margin-top:8px"><span class="t-label">Montant total</span><span class="badge badge--warn">Partiel</span></div>
+        <div class="t-kpi" data-count="730000" style="margin-top:4px">730 000<span class="cur">FCFA</span></div>
+        <div class="rec__lines">
+          <div><span>Déjà payé</span><b>500 000 <span class="cur">FCFA</span></b></div>
+          <div><span>Reste à payer</span><b style="color:var(--bad)">230 000 <span class="cur">FCFA</span></b></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span class="t-help">Progression du paiement</span><span class="t-label num">68 %</span></div>
+        <div class="progress"><i style="width:68%"></i></div>
+      </div>
+      <div class="card">
+        <div class="card__head" style="margin-bottom:12px"><h3 class="t-section">Paiements</h3><span class="t-help">avance, puis solde</span></div>
+        <table class="pay">
+          <thead><tr><th class="t-micro">Date</th><th class="t-micro" style="text-align:right">Montant</th><th class="t-micro">Mode</th><th></th></tr></thead>
+          <tbody>
+            <tr><td class="num">12/11/2026</td><td class="num" style="text-align:right;color:var(--text);font-weight:500">500 000</td><td>Espèces</td><td><button class="btn btn--tertiary btn--sm btn--icon" type="button" aria-label="Retirer"><svg class="ic"><use href="#i-x"/></svg></button></td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="4"><div class="row" style="gap:8px"><button class="btn btn--secondary btn--sm" type="button"><svg class="ic"><use href="#i-plus"/></svg>Ajouter une avance</button><button class="btn btn--tertiary btn--sm" type="button">Payer le reste</button></div></td></tr></tfoot>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. Tableau, toast, chargement -->
+  <section class="g-sec">
+    <header><span>10</span><h2 class="t-section">Tableau, message, chargement</h2></header>
+    <div class="card" style="padding:8px 8px 0;overflow-x:auto">
+      <table class="tbl">
+        <thead><tr><th>Date</th><th>Désignation</th><th>Chantier</th><th class="r">Montant</th><th class="r">Reste</th><th>Statut</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="num">17/11/2026</td><td><strong>Achat de bois pour la chaise</strong></td><td>Bingerville ADOHA</td><td class="r num">304 000</td><td class="r num">304 000</td><td><span class="badge badge--bad">Impayé</span></td><td><div class="acts"><button class="btn btn--tertiary btn--sm btn--icon" type="button" aria-label="Modifier"><svg class="ic"><use href="#i-pencil"/></svg></button></div></td></tr>
+          <tr><td class="num">12/11/2026</td><td><strong>Xavier, maçon – main-d'œuvre</strong></td><td>Bingerville ADOHA</td><td class="r num">730 000</td><td class="r num">230 000</td><td><span class="badge badge--warn">Partiel</span></td><td><div class="acts"><button class="btn btn--tertiary btn--sm btn--icon" type="button" aria-label="Modifier"><svg class="ic"><use href="#i-pencil"/></svg></button></div></td></tr>
+          <tr><td class="num">10/11/2026</td><td><strong>Démolition de la clôture</strong></td><td>Bingerville ADOHA</td><td class="r num">30 000</td><td class="r num">0</td><td><span class="badge badge--ok">Payé</span></td><td><div class="acts"><button class="btn btn--tertiary btn--sm btn--icon" type="button" aria-label="Modifier"><svg class="ic"><use href="#i-pencil"/></svg></button></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="g-grid g-2" style="margin-top:16px">
+      <div class="card"><p class="t-micro" style="margin-top:0">Message de confirmation</p><div class="toast-ds"><svg class="ic ic--18"><use href="#i-check"/></svg>Dépense enregistrée</div></div>
+      <div class="card"><p class="t-micro" style="margin-top:0">Chargement (skeleton)</p><div class="g-grid" style="gap:10px"><div class="skel" style="height:14px;width:40%"></div><div class="skel" style="height:32px;width:70%"></div><div class="skel" style="height:8px"></div></div></div>
+    </div>
+  </section>
+
+  <!-- 11. Navigation -->
+  <section class="g-sec">
+    <header><span>11</span><h2 class="t-section">Navigation</h2></header>
+    <div class="row" style="align-items:flex-start;gap:24px">
+      <nav class="side-demo" aria-label="Aperçu du menu">
+        <div class="brand"><img src="/logo-gei.png" alt=""><div><b>GEI Gestion</b><small>Global Empire Immobilier</small></div></div>
+        <div class="grp">Pilotage</div>
+        <a href="#" class="on"><svg class="ic ic--18"><use href="#i-dashboard"/></svg>Tableau de gestion</a>
+        <a href="#"><svg class="ic ic--18"><use href="#i-planning"/></svg>Planning</a>
+        <a href="#"><svg class="ic ic--18"><use href="#i-report"/></svg>Rapport mensuel</a>
+        <div class="grp">Opérations</div>
+        <a href="#"><svg class="ic ic--18"><use href="#i-hardhat"/></svg>Chantiers</a>
+        <a href="#"><svg class="ic ic--18"><use href="#i-house"/></svg>Maisons et clients</a>
+        <a href="#"><svg class="ic ic--18"><use href="#i-package"/></svg>Stock de matériaux</a>
+        <a href="#"><svg class="ic ic--18"><use href="#i-users"/></svg>Équipes et paie</a>
+        <div class="grp">Finances</div>
+        <a href="#"><svg class="ic ic--18"><use href="#i-receipt"/></svg>Dépenses</a>
+        <a href="#"><svg class="ic ic--18"><use href="#i-wallet"/></svg>Trésorerie</a>
+        <div class="grp">Paramètres</div>
+        <a href="#"><svg class="ic ic--18"><use href="#i-sheet"/></svg>Importer (Excel)</a>
+        <a href="#"><svg class="ic ic--18"><use href="#i-account"/></svg>Mon compte</a>
+        <div class="user"><span class="av">AD</span><div><b>admin</b><small>Direction générale</small></div><button type="button" aria-label="Se déconnecter"><svg class="ic"><use href="#i-logout"/></svg></button></div>
+      </nav>
+      <div class="phone" aria-label="Aperçu mobile">
+        <div class="phone__body">
+          <span class="t-help">Mercredi 25 novembre</span>
+          <div class="t-page" style="font-size:24px">Bonjour</div>
+          <div class="card kpi" style="padding:16px"><span class="t-micro">Reste à payer</span><div class="t-kpi" style="font-size:26px">2 001 500<span class="cur">FCFA</span></div></div>
+          <div class="card" style="padding:16px;display:flex;justify-content:space-between;align-items:center"><div><b style="font-weight:500;color:var(--text)">Bingerville ADOHA</b><div class="t-help">Fondations</div></div><div class="ring" style="--p:35"><span>35 %</span></div></div>
+        </div>
+        <nav class="bnav">
+          <a href="#" class="on"><svg class="ic"><use href="#i-dashboard"/></svg>Accueil</a>
+          <a href="#"><svg class="ic"><use href="#i-hardhat"/></svg>Chantiers</a>
+          <a href="#"><svg class="ic"><use href="#i-receipt"/></svg>Dépenses</a>
+          <a href="#"><svg class="ic"><use href="#i-wallet"/></svg>Trésorerie</a>
+          <a href="#"><svg class="ic"><use href="#i-menu"/></svg>Plus</a>
+        </nav>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script src="/icons.js?v=1"></script>
+<script>
+  // Thème clair / sombre
+  document.querySelectorAll(".theme button").forEach((b) => b.addEventListener("click", () => {
+    document.documentElement.dataset.theme = b.dataset.t;
+    document.querySelectorAll(".theme button").forEach((x) => x.classList.toggle("on", x === b));
+  }));
+  if (new URLSearchParams(location.search).get("theme") === "dark") document.querySelector('.theme [data-t="dark"]').click();
+  // Montant : séparateur de milliers
+  const money = document.getElementById("money");
+  money.addEventListener("input", () => { const n = money.value.replace(/\D/g, ""); money.value = n ? Number(n).toLocaleString("fr-FR").replace(/ | /g, " ") : ""; });
+  // Calendrier de démonstration (novembre 2026, semaine du lundi)
+  const cal = document.getElementById("cal");
+  let h = ["L", "M", "M", "J", "V", "S", "D"].map((j) => `<b>${j}</b>`).join("");
+  const first = (new Date(2026, 10, 1).getDay() + 6) % 7;
+  for (let i = first; i > 0; i--) h += `<button type="button" class="is-out">${32 - i}</button>`;
+  for (let d = 1; d <= 30; d++) h += `<button type="button" class="${d === 25 ? "is-sel" : ""}">${d}</button>`;
+  cal.innerHTML = h;
+</script>
+</body>
+</html>
