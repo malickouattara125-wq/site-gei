@@ -859,3 +859,15 @@ body.panneau-open { overflow: hidden; }
 .dq__pay { border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px 14px; margin: 0; display: grid; gap: 10px; }
 .dq__pay legend { padding: 0 6px; font-size: var(--fs-label); font-weight: 500; color: var(--text-2); }
 .dq__pay .seg { justify-self: start; } .dq__pay .seg button { height: 34px; padding: 0 14px; font-size: 13.5px; }
+
+/* ---------- Stock par programme ---------- */
+.stk-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 0 0 16px; }
+.stk-prog { min-width: 260px; }
+.stk-prog select { height: 44px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface); padding: 0 12px; font: inherit; color: var(--text); width: 100%; }
+.stk-alerte { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 99px; background: var(--bad-bg); color: var(--bad); font-size: 13px; font-weight: 600; }
+.stk-alerte .ic { width: 15px; height: 15px; }
+.stk-tbl td.num, .stk-tbl th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stk-tbl tr.stk--bas td { background: color-mix(in srgb, var(--bad-bg) 50%, transparent); }
+.stk-reste { font: 700 15px var(--font-display); }
+.tbl-wrap:has(> .stk-tbl) { overflow-x: auto !important; } .stk-tbl th { position: static !important; }
+@media (max-width: 900px) { .stk-prog { min-width: 0; flex: 1 1 100%; } }

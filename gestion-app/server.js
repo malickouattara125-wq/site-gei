@@ -42,6 +42,24 @@ const TYPES = {
 
 auth.ensureAdmin();
 
+// Volet Construction : un achat de matériau envoyé « au stock du chantier » crée son entrée de stock,
+// la met à jour si l'achat change, et la retire si l'achat est supprimé ou envoyé ailleurs.
+function stockDepuisAchat(dep, supprime) {
+  if (!dep || !dep.id) return;
+  const stock = store.load("g-stock", []);
+  const ancien = stock.find((s) => s.depenseId === dep.id);
+  const reste = stock.filter((s) => s.depenseId !== dep.id);
+  const garder = !supprime && dep.destination === "stock" && dep.articleId && dep.qte > 0;
+  if (garder) {
+    reste.push({ id: ancien ? ancien.id : crypto.randomBytes(6).toString("hex"), date: dep.date, articleId: dep.articleId, chantierId: dep.chantierId || "", villaId: "",
+      sens: "entree", quantite: dep.qte, notes: `Achat : ${dep.libelle || ""}`.slice(0, 300), depenseId: dep.id,
+      prixUnitaire: dep.montant && dep.qte ? Math.round(dep.montant / dep.qte) : 0, creePar: (ancien && ancien.creePar) || dep.creePar || "", creeLe: (ancien && ancien.creeLe) || new Date().toISOString() });
+  }
+  if (garder || ancien) store.save("g-stock", reste);
+}
+// Au démarrage : les achats déjà envoyés au stock reçoivent leur entrée s'ils n'en ont pas encore
+for (const dep of store.load("g-depenses", [])) if (dep.destination === "stock" && dep.articleId && dep.qte > 0 && !store.load("g-stock", []).some((s) => s.depenseId === dep.id)) stockDepuisAchat(dep);
+
 /* ---------------- Outils ---------------- */
 const LOCAL = /^(127\.|::1$|::ffff:127\.)/;
 function ip(req) {
@@ -231,16 +249,18 @@ async function api(req, res, pathname) {
     }
     if (!mg[2]) {
       if (method === "GET") return json(res, 200, list);
-      if (method === "POST") { const x = { id: id(), ...clean(await readBody(req, 300000)), creePar: session.user, creeLe: new Date().toISOString() }; list.push(x); store.save(name, list); return json(res, 200, x); }
+      if (method === "POST") { const x = { id: id(), ...clean(await readBody(req, 300000)), creePar: session.user, creeLe: new Date().toISOString() }; list.push(x); store.save(name, list); if (mg[1] === "depenses") stockDepuisAchat(x); return json(res, 200, x); }
       return json(res, 405, { error: "Méthode non permise" });
     }
     const i = list.findIndex((x) => x.id === mg[2]);
     if (i < 0) return json(res, 404, { error: "Introuvable" });
+    const avantSuppr = list[i];
     // Modification : les champs absents de la requête gardent leur valeur (les anciens formulaires n'effacent pas les nouveaux champs)
     if (method === "PUT") list[i] = { id: list[i].id, ...clean({ ...list[i], ...(await readBody(req, 600000)) }), creePar: list[i].creePar, creeLe: list[i].creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() };
     else if (method === "DELETE") list.splice(i, 1);
     else return json(res, 405, { error: "Méthode non permise" });
     store.save(name, list);
+    if (mg[1] === "depenses") stockDepuisAchat(method === "DELETE" ? avantSuppr : list[i], method === "DELETE");
     return json(res, 200, list[i] || { ok: true });
   }
   return json(res, 404, { error: "Introuvable" });

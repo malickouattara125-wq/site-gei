@@ -56,7 +56,7 @@
   /* ---------- Fiche villa ---------- */
   views["g-villa"] = async (arg) => {
     const vid = String(arg || "").split("/")[0];
-    const d = await charger("villas", "chantiers", ...(argent() ? ["maisons"] : []));
+    const d = await charger("villas", "chantiers", "stock", "articles", ...(argent() ? ["maisons"] : []));
     const v = d.villas.find((x) => x.id === vid);
     if (!v) { main.innerHTML = U.vide("Villa introuvable.", "house"); return; }
     const c = d.chantiers.find((x) => x.id === v.chantierId) || { nom: "Programme", id: v.chantierId };
@@ -71,9 +71,17 @@
           <span class="ph__meta">${retard ? `<b class="t-bad">En retard · prévue le ${U.dateFr(p.dateFin)}</b>` : p.dateFin ? `Fin prévue ${U.dateFr(p.dateFin)}` : "Dates à définir"}${(p.photos || []).length ? ` · ${I("image")} ${(p.photos || []).length}` : ""}</span>
           <span class="ph__bar"><i style="width:${p.avancement}%"></i></span></button>
         <span class="ph__pct">${p.avancement} %</span></li>`; };
+    const recu = () => {
+      const sorties = (d.stock || []).filter((s) => s.villaId === v.id && s.sens === "sortie").sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      const art = (id) => (d.articles || []).find((a) => a.id === id) || { nom: "?", unite: "" };
+      const tot = {}; sorties.forEach((s) => { tot[s.articleId] = (tot[s.articleId] || 0) + s.quantite; });
+      const resume = Object.keys(tot).map((id) => `${String(Math.round(tot[id] * 100) / 100).replace(".", ",")} ${art(id).unite} de ${art(id).nom}`).join(" · ");
+      return `<details class="onglet"><summary>${I("chevright")}<b>Matériel reçu du stock</b><span class="muted">${sorties.length ? esc(resume) : "rien pour le moment"}</span></summary>
+        ${sorties.length ? U.tableau([["Date", (s) => U.dateFr(s.date)], ["Matériau", (s) => esc(art(s.articleId).nom)], ["Quantité", (s) => `${String(s.quantite).replace(".", ",")} ${esc(art(s.articleId).unite)}`, 1], ["Note", (s) => esc(s.notes || "")], ["Par", (s) => esc(s.creePar || "")]], sorties) : '<p class="muted">Utilisez « Sortir du stock » quand du matériel du chantier est utilisé pour cette villa.</p>'}</details>`;
+    };
     const colonne = (titre, liste) => `<div class="phcol"><h3>${titre}</h3><ul class="phases">${liste.map(ligne).join("")}</ul></div>`;
     main.innerHTML = U.head(`Villa ${esc(v.lot)}`, `${esc(c.nom)}${v.type ? " · " + esc(v.type) : ""}`,
-      `<a class="btn btn--tertiary" href="#g-chantier/${c.id}">${I("chevleft")}Programme</a>${argent() ? `<a class="btn btn--secondary" href="#g-depense/nouvelle/${c.id}/${v.id}">${I("receipt")}Nouvelle dépense</a>` : ""}`,
+      `<a class="btn btn--tertiary" href="#g-chantier/${c.id}">${I("chevleft")}Programme</a>${argent() ? `<a class="btn btn--secondary" href="#g-depense/nouvelle/${c.id}/${v.id}">${I("receipt")}Nouvelle dépense</a>` : ""}<button type="button" class="btn btn--secondary" id="sortirV">${I("package")}Sortir du stock</button>`,
       [["Chantiers", "#g-chantiers"], [esc(c.nom), `#g-chantier/${c.id}`], [`Villa ${esc(v.lot)}`, ""]]) + `
       <section class="panel vres">
         <div class="vres__av">${U.ring(a)}<div><b>${a} %</b><span>${esc(K.ETATS[e])} · phase : ${esc(K.phaseEnCours(v))}</span></div></div>
@@ -89,6 +97,7 @@
       <section class="panel"><div class="sec__head"><span class="sec__n">${I("planning")}</span><div><h2>Phases</h2><p>Touchez une phase pour mettre à jour son avancement, ses dates et ajouter une photo. Le rond coche la phase comme terminée.</p></div></div>
         <div class="phcols${v.niveau === "gros_oeuvre" ? " phcols--1" : ""}">${colonne("Gros œuvre", gros)}${v.niveau === "gros_oeuvre" ? "" : colonne("Second œuvre et finitions", second)}</div>
       </section>
+      ${recu()}
       <details class="onglet"${nbPhotos ? " open" : ""}><summary>${I("chevright")}<b>Photos</b><span class="muted">${nbPhotos} photo(s), classées par phase</span></summary>
         ${nbPhotos ? K.phasesUtiles(v).filter((p) => (p.photos || []).length).map((p) => `<h4 class="gal__t">${esc(p.nom)}</h4><div class="vgal">${p.photos.slice().reverse().map((ph) => `<a href="${esc(img(ph.src))}" target="_blank" rel="noopener"><img src="${esc(img(ph.src))}" alt="${esc(ph.legende || p.nom)}" loading="lazy"><span>${ph.date ? U.dateFr(ph.date) : ""}${ph.legende ? " · " + esc(ph.legende) : ""}</span></a>`).join("")}</div>`).join("")
           : '<p class="muted">Aucune photo pour le moment. Touchez une phase puis « Prendre une photo ».</p>'}
@@ -137,6 +146,7 @@
       };
     }
 
+    if ($("#sortirV")) $("#sortirV").onclick = () => (G.sortirStock ? G.sortirStock({ chantierId: c.id, villaId: v.id }) : null);
     if ($("#editV")) $("#editV").onclick = () => {
       const pn = panneau(`Modifier la villa ${v.lot}`, `<form id="fv" class="grid grid--1">
           <label class="field"><span>Numéro de lot <i class="req">*</i></span><input name="lot" value="${esc(v.lot)}"></label>
