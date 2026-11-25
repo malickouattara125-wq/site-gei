@@ -751,3 +751,47 @@ dialog.enc::backdrop { background: rgba(10, 16, 7, .5); }
 .menu-p__pop button, .menu-p__pop a { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 0; border-radius: 8px; background: none; font: 500 14px var(--font-ui); color: var(--text-2); cursor: pointer; text-align: left; text-decoration: none; }
 .menu-p__pop button:hover, .menu-p__pop a:hover { background: var(--surface-2); color: var(--text); }
 @media (max-width: 900px) { .kpis--3 { grid-template-columns: 1fr 1fr; } .kpis--3 .kpi:last-child { grid-column: 1 / -1; } .prog-grid { grid-template-columns: 1fr; } .prog-search { max-width: none; } }
+
+/* ---------- Volet Construction : fiche Programme (grille des villas) ---------- */
+.prog__msg--page { margin: 0 0 16px; font-size: 13.5px; }
+.vgrid__head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 10px 20px; margin-bottom: 14px; }
+.vgrid__head h2 { margin: 0; }
+.vlegende { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12.5px; color: var(--text-2); }
+.vlegende span { display: inline-flex; align-items: center; gap: 6px; } .vlegende b { color: var(--text); }
+.vt-dot { width: 12px; height: 12px; border-radius: 4px; display: inline-block; }
+.vt-dot--demarrer { background: var(--surface-3); border: 1px solid var(--border-strong); }
+.vt-dot--encours { background: color-mix(in srgb, var(--olive-500) 40%, var(--surface)); }
+.vt-dot--terminee { background: var(--brand-700); }
+.vt-dot--retard { background: var(--bad); }
+.vgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.vt { display: grid; gap: 3px; padding: 12px 12px 10px; border-radius: 14px; border: 1px solid var(--border); text-decoration: none; color: var(--text-2); transition: transform 120ms var(--ease), box-shadow var(--t); min-width: 0; }
+.vt:hover { text-decoration: none; transform: translateY(-2px); box-shadow: var(--shadow-2); }
+.vt:active { transform: scale(.97); }
+.vt__lot { font: 700 20px/1.1 var(--font-display); color: var(--text); letter-spacing: -.01em; }
+.vt__type, .vt__niv { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vt__niv { opacity: .8; }
+.vt__pct { display: grid; gap: 4px; margin-top: 6px; }
+.vt__pct b { font: 600 13px var(--font-ui); }
+.vt__pct i { display: block; height: 5px; border-radius: 99px; background: linear-gradient(90deg, currentColor var(--p), color-mix(in srgb, currentColor 18%, transparent) var(--p)); }
+.vt--demarrer { background: var(--surface-2); color: var(--muted); }
+.vt--encours { background: color-mix(in srgb, var(--olive-500) 18%, var(--surface)); border-color: color-mix(in srgb, var(--olive-500) 45%, var(--border)); color: var(--brand-700); }
+.vt--terminee { background: var(--brand-700); border-color: var(--brand-700); color: var(--on-brand); }
+.vt--terminee .vt__lot { color: var(--on-brand); }
+.vt--retard { background: var(--bad-bg); border-color: color-mix(in srgb, var(--bad) 45%, var(--border)); color: var(--bad); }
+.onglets { display: grid; gap: 10px; }
+.onglet { background: var(--surface); border: var(--card-border); border-radius: var(--r-card); box-shadow: var(--shadow-1); padding: 0 18px; }
+.onglet > summary { display: flex; align-items: center; gap: 10px; padding: 16px 0; cursor: pointer; list-style: none; flex-wrap: wrap; }
+.onglet > summary::-webkit-details-marker { display: none; }
+.onglet > summary .ic { color: var(--muted); transition: transform var(--t) var(--ease); }
+.onglet[open] > summary .ic { transform: rotate(90deg); }
+.onglet > summary b { color: var(--text); font: 600 15px var(--font-display); }
+.onglet > summary .muted { margin-left: auto; font-size: 13px; }
+.onglet[open] { padding-bottom: 16px; }
+.grid--3c { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.vphases { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.vphases li { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.vphases li span { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border-strong); display: grid; place-items: center; }
+.vphases li.is-ok span { background: var(--brand-700); border-color: var(--brand-700); color: var(--on-brand); }
+.vphases li.is-ok span .ic { width: 14px; height: 14px; }
+.vphases em { font-style: normal; font-weight: 600; color: var(--text-2); }
+@media (max-width: 600px) { .vgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .onglet > summary .muted { margin-left: 0; width: 100%; } }
