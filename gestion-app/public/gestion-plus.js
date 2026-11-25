@@ -140,8 +140,12 @@
   const memo = (k, v) => { try { if (v === undefined) return JSON.parse(localStorage.getItem(k)); localStorage.setItem(k, JSON.stringify(v)); } catch { return null; } };
 
   views["g-planning"] = async () => {
-    const d = await load("chantiers");
+    const d = await load("chantiers", "villas");
     const tous = d.chantiers.filter((c) => c.statut !== "termine");
+    // Volet Construction : villas dont les phases ont des dates
+    const KC = G.construction;
+    const villasDe = (c) => (d.villas || []).filter((v) => v.chantierId === c.id && (v.phases || []).some((x) => x.dateDebut || x.dateFin)).sort((a, b) => String(a.lot).localeCompare(String(b.lot), "fr", { numeric: true }));
+    const bornesVilla = (v) => { const ds = (v.phases || []).flatMap((x) => [x.dateDebut, x.dateFin]).filter(Boolean).sort(); return [ds[0], ds[ds.length - 1]]; };
     const t = today();
     const enRetard = (e) => e.dateFin && e.dateFin < t && (e.avancement || 0) < 100;
     const retardJ = (fin) => J(t) - J(fin);
@@ -167,7 +171,7 @@
 
     function dessiner() {
       const ch = tous.filter((c) => !filtre || c.id === filtre);
-      const dates = ch.flatMap((c) => [c.dateDebut, c.dateFin, ...(c.etapes || []).flatMap((e) => [e.dateDebut, e.dateFin])]).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x || "")).sort();
+      const dates = ch.flatMap((c) => [c.dateDebut, c.dateFin, ...(c.etapes || []).flatMap((e) => [e.dateDebut, e.dateFin]), ...villasDe(c).flatMap(bornesVilla)]).filter((x) => /^\d{4}-\d{2}-\d{2}$/.test(x || "")).sort();
       // Retards : tous, pas seulement le premier
       const retards = ch.flatMap((c) => (c.etapes || []).map((e, i) => ({ c, e, i })).filter(({ e }) => enRetard(e)));
       $("#gtr").hidden = !retards.length;
@@ -211,10 +215,13 @@
         const av = et.length ? Math.round(sum(et, (e) => e.avancement) / et.length) : 0;
         const de = et.map((e) => e.dateDebut).filter(Boolean).sort(), fe = et.map((e) => e.dateFin).filter(Boolean).sort();
         const cd = c.dateDebut || de[0], cf = c.dateFin || fe[fe.length - 1], plie = plies.has(c.id);
-        return `<div class="gt__row gt__row--ch" data-c="${c.id}"><div class="gt__nom">${et.length ? `<button type="button" class="gt__chev" data-tog="${c.id}" aria-expanded="${!plie}" aria-label="${plie ? "Déplier" : "Replier"} les étapes">${G.ui.I("chevright")}</button>` : '<span class="gt__chev"></span>'}<a href="${lien(c)}">${esc(c.nom)}</a><span class="gt__av">${av} %</span></div>
+        return `<div class="gt__row gt__row--ch" data-c="${c.id}"><div class="gt__nom">${et.length || villasDe(c).length ? `<button type="button" class="gt__chev" data-tog="${c.id}" aria-expanded="${!plie}" aria-label="${plie ? "Déplier" : "Replier"} les étapes">${G.ui.I("chevright")}</button>` : '<span class="gt__chev"></span>'}<a href="${lien(c)}">${esc(c.nom)}</a><span class="gt__av">${av} %</span></div>
           <div class="gt__track">${barre(`b-${c.id}`, lien(c), cd, cf, av, cf && cf < t && av < 100, c.nom)}</div></div>` +
           et.map((e, i) => `<div class="gt__row gt__row--et" data-of="${c.id}"${plie ? " hidden" : ""}><div class="gt__nom"><a href="${lien(c, i)}">${esc(e.nom)}</a></div>
-            <div class="gt__track">${barre(`b-${c.id}-${i}`, lien(c, i), e.dateDebut, e.dateFin, e.avancement || 0, enRetard(e), `${e.nom} · ${c.nom}`)}</div></div>`).join("");
+            <div class="gt__track">${barre(`b-${c.id}-${i}`, lien(c, i), e.dateDebut, e.dateFin, e.avancement || 0, enRetard(e), `${e.nom} · ${c.nom}`)}</div></div>`).join("") +
+          (KC ? villasDe(c).map((v) => { const [vs, vf] = bornesVilla(v);
+            return `<div class="gt__row gt__row--et gt__row--villa" data-of="${c.id}"${plie ? " hidden" : ""}><div class="gt__nom"><a href="#g-villa/${v.id}"><b>Villa ${esc(v.lot)}</b> · ${esc(KC.phaseEnCours(v))}</a></div>
+            <div class="gt__track">${barre(`b-${c.id}-v${v.id}`, `#g-villa/${v.id}`, vs, vf, KC.avancementVilla(v), KC.enRetardVilla(v), `Villa ${v.lot} · ${c.nom}`)}</div></div>`; }).join("") : "");
       }).join("");
       $("#gtp").innerHTML = `<div class="gt" id="gt"><div class="gt__in" style="width:calc(var(--gt-nom) + ${W}px)">
           <div class="gt__head"><div class="gt__nom gt__corner">Chantier / étape</div>

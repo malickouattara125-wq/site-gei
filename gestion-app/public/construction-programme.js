@@ -60,7 +60,9 @@
         <div class="vgrid__head"><h2>Villas</h2><div class="vlegende">${Object.entries(K.ETATS).map(([k, l]) => `<span><i class="vt-dot vt-dot--${k}"></i>${l} <b>${n[k]}</b></span>`).join("")}</div></div>
         ${vs.length ? `<div class="vgrid">${vs.map((v) => tuile(v, d)).join("")}</div>` : U.vide(argent() ? "Aucune villa pour le moment. Cliquez sur « Ajouter des villas » : une seule, ou une série (A01 à A20) en une fois." : "Aucune villa pour le moment.", "house")}
       </section>
+      <div id="progPlus"></div>
       ${onglets(c, d)}`;
+    if (K.progPlus) K.progPlus(c, vs, d);
     if ($("#addV")) $("#addV").onclick = () => ajouterVillas(c, vs, () => fiche(c.id));
     if ($("#archiver")) $("#archiver").onclick = async () => {
       const fin = c.statut !== "termine"; if (!confirm(fin ? "Marquer ce programme comme terminé ? Il restera consultable." : "Remettre ce programme en cours ?")) return;

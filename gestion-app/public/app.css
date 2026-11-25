@@ -871,3 +871,28 @@ body.panneau-open { overflow: hidden; }
 .stk-reste { font: 700 15px var(--font-display); }
 .tbl-wrap:has(> .stk-tbl) { overflow-x: auto !important; } .stk-tbl th { position: static !important; }
 @media (max-width: 900px) { .stk-prog { min-width: 0; flex: 1 1 100%; } }
+
+/* ---------- Coût réel, finitions, comparatif, avancement rapide ---------- */
+.cbar { display: flex; height: 14px; border-radius: 99px; overflow: hidden; gap: 2px; margin: 4px 0 10px; background: var(--surface-3); }
+.cbar i { display: block; height: 100%; min-width: 4px; }
+.cleg { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--text-2); margin-bottom: 12px; }
+.cleg span { display: inline-flex; align-items: center; gap: 6px; } .cleg i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; } .cleg b { color: var(--text); } .cleg em { font-style: normal; color: var(--muted); }
+.cmat { font-size: 13.5px; color: var(--text-2); margin: 0 0 12px; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.onglet--in { box-shadow: none; border: 1px solid var(--border); margin-top: 6px; }
+.dep-move { height: 34px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); font: inherit; font-size: 13px; padding: 0 8px; max-width: 170px; }
+.fin-tbl td { vertical-align: top; } .fin-tbl tr.fin--opt td { background: color-mix(in srgb, var(--warn-bg, #FBF0D9) 55%, transparent); }
+.fin-tbl td.num, .fin-tbl th.num, .cmp-tbl td.num, .cmp-tbl th.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.tbl-wrap:has(> .fin-tbl), .tbl-wrap:has(> .cmp-tbl) { overflow-x: auto !important; } .fin-tbl th, .cmp-tbl th { position: static !important; }
+.fin-gam { display: grid; gap: 8px; } .fin-gam .seg { justify-self: start; }
+.fin-l { display: grid; gap: 10px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); }
+.fin-l--opt { border-color: color-mix(in srgb, var(--warn, #C88A1E) 45%, var(--border)); }
+.fin-l__b { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+#finL { display: grid; gap: 10px; }
+.av-t { margin: 0 0 12px; }
+.av-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; }
+.av-v { display: grid; gap: 2px; padding: 14px 12px; border-radius: 14px; border: 1px solid var(--border); text-decoration: none; min-height: 88px; }
+.av-v:hover { text-decoration: none; } .av-v:active { transform: scale(.97); }
+.av-v b { font: 700 20px var(--font-display); } .av-v span { font-weight: 700; } .av-v small { font-size: 11.5px; opacity: .8; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.av-v.vt--terminee b, .av-v.vt--terminee span, .av-v.vt--terminee small { color: var(--on-brand); }
+.gt__row--villa .gt__nom a { color: var(--text-2); } .gt__row--villa .gt__nom b { color: var(--text); }
+@media print { .side, .topbar, .bnav, .savebar, .top__actions, .menu-p, .pay-actions { display: none !important; } }

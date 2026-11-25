@@ -97,6 +97,7 @@
       <section class="panel"><div class="sec__head"><span class="sec__n">${I("planning")}</span><div><h2>Phases</h2><p>Touchez une phase pour mettre à jour son avancement, ses dates et ajouter une photo. Le rond coche la phase comme terminée.</p></div></div>
         <div class="phcols${v.niveau === "gros_oeuvre" ? " phcols--1" : ""}">${colonne("Gros œuvre", gros)}${v.niveau === "gros_oeuvre" ? "" : colonne("Second œuvre et finitions", second)}</div>
       </section>
+      <div id="villaPlus"></div>
       ${recu()}
       <details class="onglet"${nbPhotos ? " open" : ""}><summary>${I("chevright")}<b>Photos</b><span class="muted">${nbPhotos} photo(s), classées par phase</span></summary>
         ${nbPhotos ? K.phasesUtiles(v).filter((p) => (p.photos || []).length).map((p) => `<h4 class="gal__t">${esc(p.nom)}</h4><div class="vgal">${p.photos.slice().reverse().map((ph) => `<a href="${esc(img(ph.src))}" target="_blank" rel="noopener"><img src="${esc(img(ph.src))}" alt="${esc(ph.legende || p.nom)}" loading="lazy"><span>${ph.date ? U.dateFr(ph.date) : ""}${ph.legende ? " · " + esc(ph.legende) : ""}</span></a>`).join("")}</div>`).join("")
@@ -146,6 +147,7 @@
       };
     }
 
+    if (K.villaPlus) K.villaPlus(v, c, d);
     if ($("#sortirV")) $("#sortirV").onclick = () => (G.sortirStock ? G.sortirStock({ chantierId: c.id, villaId: v.id }) : null);
     if ($("#editV")) $("#editV").onclick = () => {
       const pn = panneau(`Modifier la villa ${v.lot}`, `<form id="fv" class="grid grid--1">
