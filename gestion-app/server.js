@@ -106,6 +106,8 @@ function sessionLocale(req) {
   const admin = store.load("admin", null);
   return admin ? { user: admin.user, role: "dg", locale: true } : null;
 }
+// Villas : une mise à jour qui n'envoie que certaines phases ne remet pas les autres à zéro (fusion par clé)
+const fusionPhases = (avant, recues) => (Array.isArray(recues) ? (avant || []).map((p) => { const n = recues.find((x) => x && x.cle === p.cle); return n ? { ...p, ...n } : p; }).concat(recues.filter((x) => x && !(avant || []).some((p) => p.cle === x.cle))) : avant);
 const str = (v, max) => (typeof v === "string" ? v.trim().slice(0, max) : "");
 const slugify = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 40);
 const id = () => crypto.randomBytes(6).toString("hex");
@@ -245,7 +247,7 @@ async function api(req, res, pathname) {
         if (i < 0) return json(res, 404, { error: "Introuvable" });
         const b = await readBody(req, 600000);
         const avant = list[i];
-        list[i] = { ...avant, ...clean({ ...avant, phases: b.phases }), id: avant.id, creePar: avant.creePar, creeLe: avant.creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() };
+        list[i] = { ...avant, ...clean({ ...avant, phases: fusionPhases(avant.phases, b.phases) }), id: avant.id, creePar: avant.creePar, creeLe: avant.creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() };
         store.save(name, list);
         return json(res, 200, lecture.villas(list[i]));
       }
@@ -265,7 +267,8 @@ async function api(req, res, pathname) {
     if (i < 0) return json(res, 404, { error: "Introuvable" });
     const avantSuppr = list[i];
     // Modification : les champs absents de la requête gardent leur valeur (les anciens formulaires n'effacent pas les nouveaux champs)
-    if (method === "PUT") list[i] = { id: list[i].id, ...clean({ ...list[i], ...(await readBody(req, 600000)) }), creePar: list[i].creePar, creeLe: list[i].creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() };
+    if (method === "PUT") { const corps = await readBody(req, 600000); if (mg[1] === "villas" && corps && corps.phases) corps.phases = fusionPhases(list[i].phases, corps.phases);
+      list[i] = { id: list[i].id, ...clean({ ...list[i], ...corps }), creePar: list[i].creePar, creeLe: list[i].creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() }; }
     else if (method === "DELETE") list.splice(i, 1);
     else return json(res, 405, { error: "Méthode non permise" });
     store.save(name, list);
