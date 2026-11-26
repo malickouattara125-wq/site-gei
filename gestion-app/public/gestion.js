@@ -410,8 +410,8 @@
     main.innerHTML = head(isNew ? "Nouvelle maison" : `${esc(m.programme)} · lot ${esc(m.lot)}`, isNew ? "Ajoutez une maison (lot) d'un programme." : `${st(m.statut)} ${m.clientNom ? "· " + esc(m.clientNom) : ""}`, relance + '<a class="btn btn--text" href="#g-maisons">← Retour</a>') + `
       <form class="form" id="f" novalidate>
         <section class="panel"><h2>La maison</h2><div class="grid">
-          <label><span>Programme *</span><input name="programme" list="progs" value="${esc(m.programme || "")}" placeholder="Ex. Cité Les Rives de l'Opulence"><datalist id="progs">${progs.map((p) => `<option value="${esc(p)}">`).join("")}</datalist></label>
-          <label><span>Numéro du lot *</span><input name="lot" value="${esc(m.lot || "")}" placeholder="Ex. A12"></label>
+          <label><span>Programme ou quartier *</span><input name="programme" list="progs" value="${esc(m.programme || "")}" placeholder="Ex. Les Rives de l'Opulence, ou Cocody Angré pour une location"><datalist id="progs">${progs.map((p) => `<option value="${esc(p)}">`).join("")}</datalist></label>
+          <label><span>Numéro du lot ou nom du bien *</span><input name="lot" value="${esc(m.lot || "")}" placeholder="Ex. A12, ou Villa 4 pièces"></label>
           <label><span>Type</span><input name="type" value="${esc(m.type || "")}" placeholder="Ex. Villa basse 4 pièces"></label>
           <label><span>Superficie</span><input name="superficie" value="${esc(m.superficie || "")}" placeholder="Ex. 300 m²"></label>
           <label><span>Prix de vente (FCFA)</span><input name="prix" inputmode="numeric" value="${m.prix || ""}" placeholder="Ex. 40000000"></label>
@@ -608,6 +608,7 @@
     const [onglet = "ouvriers", p1 = "", p2 = ""] = String(arg || "").split("/");
     const d = await load("ouvriers", "pointages", "chantiers");
     if (!argent() && onglet !== "pointage") { location.replace("#g-equipes/pointage"); return; }
+    const nouvelOuvrier = '<a class="btn btn--primary" href="#g-ouvrier/nouveau">+ Nouvel ouvrier</a>';
     const tabs = `<nav class="tabs-g">${(argent() ? [["ouvriers", "Ouvriers"], ["pointage", "Pointage du jour"], ["paie", "Paie de la semaine"]] : [["pointage", "Pointage du jour"]]).map(([k, l]) => `<a href="#g-equipes/${k}" class="${k === onglet ? "is-on" : ""}">${l}</a>`).join("")}</nav>`;
     if (onglet === "ouvriers") {
       const cols = [["Nom", (o) => `<b>${esc(o.nom)}</b>${o.actif ? "" : ' <span class="st">inactif</span>'}`], ["Métier", (o) => esc(o.metier || "—")], ["Téléphone", (o) => esc(o.tel || "—")], ["Chantier", (o) => esc(nomChantier(d.chantiers, o.chantierId))], ["Tarif / jour", (o) => fcfa(o.tarifJour), 1]];
@@ -621,13 +622,13 @@
       const exist = d.pointages.find((p) => p.date === date && p.chantierId === cid);
       const presents = new Set(exist ? exist.presents : []);
       const liste = d.ouvriers.filter((o) => o.actif || presents.has(o.id)).sort((a, b) => ((b.chantierId === cid) - (a.chantierId === cid)) || a.nom.localeCompare(b.nom));
-      main.innerHTML = head("Équipes et paie", "Cochez les ouvriers présents sur le chantier ce jour-là.", "") + tabs + `
+      main.innerHTML = head("Équipes et paie", "Cochez les ouvriers présents sur le chantier ce jour-là.", argent() ? nouvelOuvrier : "") + tabs + `
         <section class="panel"><div class="filters">
           <label>Date<input type="date" id="pd" value="${date}"></label>
           <label>Chantier<select id="pc">${d.chantiers.map((c) => `<option value="${c.id}"${c.id === cid ? " selected" : ""}>${esc(c.nom)}</option>`).join("")}</select></label>
         </div>
         ${d.chantiers.length ? (liste.length ? `<div class="checks" id="pl">${liste.map((o) => `<label><input type="checkbox" value="${o.id}"${presents.has(o.id) ? " checked" : ""}> ${esc(o.nom)} <span class="muted">${esc(o.metier || "")}${o.chantierId && o.chantierId !== cid ? " · autre chantier" : ""}</span></label>`).join("")}</div>
-          <p class="muted" id="ptot"></p><div class="savebar"><button class="btn btn--primary" id="psave">Enregistrer le pointage</button></div>` : '<p class="empty">Ajoutez d\'abord des ouvriers (onglet « Ouvriers »).</p>') : '<p class="empty">Créez d\'abord un chantier.</p>'}</section>`;
+          <p class="muted" id="ptot"></p><div class="savebar"><button class="btn btn--primary" id="psave">Enregistrer le pointage</button></div>` : `<p class="empty">Aucun ouvrier enregistré pour l'instant.</p>${argent() ? `<p style="text-align:center">${nouvelOuvrier}</p>` : ""}`) : '<p class="empty">Créez d\'abord un chantier.</p>'}</section>`;
       const goP = () => { location.hash = `#g-equipes/pointage/${$("#pd").value}/${$("#pc").value}`; };
       if ($("#pd")) { $("#pd").onchange = goP; $("#pc").onchange = goP; }
       const tot = () => { const ids = $$("#pl input:checked").map((i) => i.value); const t = sum(ids, (id) => (d.ouvriers.find((o) => o.id === id) || {}).tarifJour); if ($("#ptot")) $("#ptot").innerHTML = `${ids.length} présent(s)` + (argent() ? ` · coût de la journée : <b>${fcfa(t)}</b>` : ""); };
@@ -648,7 +649,7 @@
     const mvts = await api("/api/g/mouvements");
     const dejaPaye = mvts.find((x) => x.reference === `paie-${deb}`);
     const totalPaie = sum(lignes, (l) => l.montant);
-    main.innerHTML = head("Équipes et paie", `Semaine du ${dfr(deb)} au ${dfr(fin)}.`, '<button class="btn btn--ghost" id="xp">Exporter (Excel)</button>' +
+    main.innerHTML = head("Équipes et paie", `Semaine du ${dfr(deb)} au ${dfr(fin)}.`, '<button class="btn btn--ghost" id="xp">Exporter (Excel)</button>' + nouvelOuvrier +
       (totalPaie ? (dejaPaye ? `<span class="st st--termine">Paie enregistrée dans la trésorerie</span>` : '<button class="btn btn--primary" id="payer">Paie versée : l\'enregistrer dans la caisse</button>') : "")) + tabs + `
       <section class="panel"><div class="filters">
         <a class="btn btn--sm btn--ghost" href="#g-equipes/paie/${plusJours(deb, -7)}">← Semaine précédente</a>

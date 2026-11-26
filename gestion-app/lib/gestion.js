@@ -53,7 +53,7 @@ const COLLECTIONS = {
       paiements: arr(b.paiements, 200).map((p) => ({ date: date(p && p.date), montant: montant(p && p.montant), mode: pick(p && p.mode, LISTES.modePaiement, "autre"), reference: str(p && p.reference, 80) })).filter((p) => p.montant),
       notes: str(b.notes, 3000), documents: docs(b.documents),
     };
-    if (!m.programme || !m.lot) throw err("Le programme et le numéro du lot sont obligatoires.");
+    if (!m.programme || !m.lot) throw err("Le programme (ou quartier) et le numéro du lot (ou nom du bien) sont obligatoires.");
     return m;
   },
   depenses: (b) => {
