@@ -4,9 +4,50 @@
 const fs = require("fs");
 const path = require("path");
 
-const DATA = path.join(__dirname, "..", "data");
-const SEED = path.join(__dirname, "..", "seed");
-fs.mkdirSync(DATA, { recursive: true });
+const os = require("os");
+const APP = path.join(__dirname, "..");
+
+/* ---------- Où ranger les données ----------
+   - Variable GEI_DONNEES : ce dossier-là (prioritaire).
+   - En ligne (cPanel / production) ou hors Windows : à côté de l'application, comme avant.
+   - Sur un PC Windows : Documents\GEI-Gestion-Donnees, séparé du code (les mises à jour n'y touchent jamais).
+   Au premier lancement, les données déjà présentes dans le dossier de l'application y sont COPIÉES (rien n'est effacé). */
+function documentsWindows() {
+  try {
+    const out = require("child_process").execFileSync("reg", ["query", "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", "/v", "Personal"], { encoding: "utf8", windowsHide: true, timeout: 5000 });
+    const m = /Personal\s+REG_\w+\s+(.+)/.exec(out);
+    if (m && fs.existsSync(m[1].trim())) return m[1].trim();
+  } catch { /* on prend le dossier Documents habituel */ }
+  return path.join(os.homedir(), "Documents");
+}
+function dossierDonnees() {
+  if (process.env.GEI_DONNEES) return path.resolve(process.env.GEI_DONNEES);
+  if (process.env.NODE_ENV === "production" || process.env.PASSENGER_APP_ENV || process.platform !== "win32") return APP;
+  return path.join(documentsWindows(), "GEI-Gestion-Donnees");
+}
+const BASE = dossierDonnees();
+const DATA = path.join(BASE, "data");
+const UPLOADS = path.join(BASE, "uploads");     // photos de chantier
+const FICHIERS = path.join(BASE, "fichiers");   // pièces jointes (factures, contrats…)
+const SEED = path.join(APP, "seed");
+
+// Copie unique des anciennes données (dossier de l'application → nouveau dossier), si le nouveau est encore vide
+if (BASE !== APP && !fs.existsSync(path.join(DATA, "admin.json"))) {
+  const anciens = path.join(APP, "data");
+  if (fs.existsSync(anciens) && fs.readdirSync(anciens).some((f) => f.endsWith(".json"))) {
+    for (const d of ["data", "uploads", "fichiers"]) {
+      const src = path.join(APP, d);
+      if (fs.existsSync(src)) fs.cpSync(src, path.join(BASE, d), { recursive: true, force: false, errorOnExist: false });
+    }
+    try {
+      fs.writeFileSync(path.join(anciens, "LISEZ-MOI-DONNEES-DEPLACEES.txt"),
+        `Depuis le ${new Date().toLocaleDateString("fr-FR")}, les données de GEI Gestion sont rangées ici :\r\n${BASE}\r\n\r\n` +
+        "Ce dossier-ci est une ancienne copie, gardée par sécurité. L'application ne s'en sert plus.\r\n", "utf8");
+    } catch { /* simple note */ }
+    console.log(`Données copiées vers : ${BASE}`);
+  }
+}
+for (const d of [DATA, UPLOADS, FICHIERS]) fs.mkdirSync(d, { recursive: true });
 
 const cache = {};
 const timers = {};
@@ -60,4 +101,4 @@ function flushAll() {
   }
 }
 
-module.exports = { load, save, saveLater, flushAll, DATA };
+module.exports = { load, save, saveLater, flushAll, DATA, UPLOADS, FICHIERS, BASE };

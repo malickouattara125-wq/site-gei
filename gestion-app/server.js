@@ -13,8 +13,9 @@ const xlsx = require("./lib/xlsx");
 
 const PORT = +process.env.PORT || 8780;
 const PUBLIC = path.join(__dirname, "public");
-const UPLOADS = path.join(__dirname, "uploads");     // photos de chantier (accès réservé aux comptes)
-const FICHIERS = path.join(__dirname, "fichiers");   // pièces jointes (factures, contrats…)
+// Emplacement des données : voir lib/store.js (Documents\GEI-Gestion-Donnees sur un PC Windows, à côté de l'appli en ligne)
+const UPLOADS = store.UPLOADS;     // photos de chantier (accès réservé aux comptes)
+const FICHIERS = store.FICHIERS;   // pièces jointes (factures, contrats…)
 fs.mkdirSync(UPLOADS, { recursive: true });
 fs.mkdirSync(FICHIERS, { recursive: true });
 
@@ -305,5 +306,5 @@ const server = http.createServer(async (req, res) => {
     return send(res, status, "Erreur du serveur");
   }
 });
-server.listen(PORT, () => console.log(`GEI Gestion : http://localhost:${PORT}`));
+server.listen(PORT, () => console.log(`GEI Gestion : http://localhost:${PORT}\nDonnées : ${store.BASE}`));
 for (const sig of ["SIGINT", "SIGTERM"]) process.on(sig, () => { if (store.flushAll) store.flushAll(); process.exit(0); });
