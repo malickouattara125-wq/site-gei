@@ -90,14 +90,8 @@
   };
   const prochaine = (m) => { let cumul = 0; const p = paye(m); for (const e of (m.echeancier || []).slice().sort((a, b) => String(a.date).localeCompare(String(b.date)))) { cumul += e.montant; if (cumul > p) return e; } return null; };
 
-  // Export Excel (CSV lisible par Excel en français : point-virgule, BOM)
-  function exporter(nom, cols, rows) {
-    const cell = (v) => { const s = String(v == null ? "" : v); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-    const csv = "﻿" + [cols.map((c) => cell(c[0])).join(";")].concat(rows.map((r) => cols.map((c) => cell(c[1](r))).join(";"))).join("\r\n");
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
-    a.download = `${nom}-${today()}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-  }
+  // Export d'une liste : fichier Excel .xlsx natif (ou PDF) aux couleurs de GEI — voir exports.js
+  function exporter(nom, cols, rows, format = "xlsx", opts = {}) { G.exp.lancer(G.exp.simple(nom, cols, rows, opts), format); }
   const head = (...a) => G.ui.head(...a);
   const tableau = (...a) => G.ui.tableau(...a);
   main.addEventListener("click", (e) => { const tr = e.target.closest("tr[data-href]"); if (tr && !e.target.closest("a,button,input,select")) location.hash = tr.dataset.href; });
@@ -188,7 +182,7 @@
 
     main.innerHTML = `
       <div class="hello"><div><small>${jour}</small><h1>Bonjour, ${esc(G.me().user || "")}</h1></div>
-        <div class="top__actions"><a class="btn btn--secondary" href="#g-maisons">${I("house")}Paiement client</a><a class="btn btn--primary" href="#g-depense/nouvelle">${I("plus")}Nouvelle dépense</a></div></div>
+        <div class="top__actions">${G.exp.bouton()}<a class="btn btn--secondary" href="#g-maisons">${I("house")}Paiement client</a><a class="btn btn--primary" href="#g-depense/nouvelle">${I("plus")}Nouvelle dépense</a></div></div>
       <div class="kc-grid">
         ${kc("#g-chantiers", "", "Chantiers actifs", "hardhat", `<span data-count="${encours.length}">${encours.length}</span>`,
           U.delta(nouveaux ? `+${nouveaux} ce mois` : `${actifs.length} non terminés`, nouveaux ? true : null), U.spark(six.map((mm) => d.chantiers.filter((c) => (c.dateDebut || String(c.creeLe || "").slice(0, 10)) <= finMois(mm)).length)))}
@@ -225,6 +219,16 @@
         </aside>
       </div>`;
 
+    G.exp.brancher("xp", () => ({
+      fichier: `GEI_Tableau-de-gestion_${today()}`, titre: "Tableau de gestion", filtres: `Situation au ${G.exp.dateFr(today())}`, orientation: "portrait",
+      chiffres: [{ l: "Trésorerie disponible", v: treso }, { l: "Dépenses du mois", v: depMois }, { l: "Reste à payer", v: reste, bad: reste > 0, s: impayes + " dépense(s)" }, { l: "Tâches en retard", v: retards.length, type: "nombre", bad: retards.length > 0 }],
+      feuilles: [
+        { nom: "Synthèse", titre: "Indicateurs", colonnes: [{ t: "Indicateur" }, { t: "Valeur", type: "montant" }], total: false, lignes: [
+          ["Chantiers actifs", { v: encours.length, type: "nombre" }], ["Dépenses du mois", depMois], ["Trésorerie disponible", treso], ["Reste à payer aux fournisseurs", reste], ["Dépenses à régler", { v: impayes, type: "nombre" }], ["Tâches en retard", { v: retards.length, type: "nombre" }]] },
+        { nom: "Chantiers en cours", titre: "Chantiers", colonnes: [{ t: "Chantier" }, { t: "Lieu" }, { t: "Statut" }, { t: "Phase" }, { t: "Avancement", type: "pct" }, { t: "Budget", type: "montant" }, { t: "Dépensé", type: "montant" }, { t: "Budget consommé", type: "pct" }],
+          lignes: actifs.map((c) => { const dep = depenseChantier(c, d); return [c.nom, c.lieu, LIB.statut[c.statut] || "", phase(c), avancement(c), c.budget || "", dep, c.budget ? Math.round(dep / c.budget * 100) : ""]; }) },
+        { nom: "Alertes", titre: "Alertes", colonnes: [{ t: "Alerte" }, { t: "Détail" }], lignes: alertes.map((a) => [a.titre, a.texte]) },
+      ] }));
     // Graphique : dépenses par chantier et par catégorie
     const CATS = [...Object.entries(LIB.categorie).map(([k, l], i) => [k, l, `var(--c${i + 1})`]), ["paie", "Paie des ouvriers", "var(--info)"]];
     const tarif = Object.fromEntries(d.ouvriers.map((o) => [o.id, o.tarifJour || 0]));
@@ -388,7 +392,7 @@
       ["Prix", (m) => fcfa(m.prix), 1], ["Payé", (m) => fcfa(paye(m)), 1], ["Reste", (m) => fcfa(du(m)), 1],
       ["Prochaine échéance", (m) => { const e = prochaine(m); return retard(m) ? `<span class="st st--pause">En retard : ${fcfa(retard(m))}</span>` : e ? `${dfr(e.date)} · ${fcfa(e.montant)}` : "—"; }]];
     main.innerHTML = head("Maisons et clients", "Chaque maison de chaque programme : statut, client, échéancier et paiements.",
-      '<button class="btn btn--ghost" id="xp">Exporter (Excel)</button><a class="btn btn--primary" href="#g-maison/nouvelle">+ Nouvelle maison</a>') + `
+      G.exp.bouton() + '<a class="btn btn--primary" href="#g-maison/nouvelle">+ Nouvelle maison</a>') + `
       <section class="panel"><div class="filters">
         <label>Programme<select id="fprog"><option value="">Tous</option>${progs.map((p) => `<option${p === fp[0] ? " selected" : ""}>${esc(p)}</option>`).join("")}</select></label>
         <label>Statut<select id="fst">${opts({ disponible: "Disponible", reservee: "Réservée", vendue: "Vendue", livree: "Livrée" }, fp[1], "Tous")}</select></label>
@@ -396,7 +400,12 @@
       ${tableau(cols, list, (m) => `#g-maison/${m.id}`, ["Total", `${list.length} lots`, "", "", "", fcfa(sum(list, (m) => m.prix)), fcfa(sum(list, paye)), fcfa(sum(list, du)), ""])}</section>`;
     const go = () => { location.hash = `#g-maisons/${encodeURIComponent($("#fprog").value + "|" + $("#fst").value)}`; };
     $("#fprog").onchange = go; $("#fst").onchange = go;
-    $("#xp").onclick = () => exporter("maisons-clients", [["Programme", (m) => m.programme], ["Lot", (m) => m.lot], ["Type", (m) => m.type], ["Superficie", (m) => m.superficie], ["Statut", (m) => LIB.statut[m.statut]], ["Client", (m) => m.clientNom], ["Téléphone", (m) => m.clientTel], ["E-mail", (m) => m.clientEmail], ["Pays", (m) => m.clientPays], ["Prix", (m) => m.prix], ["Payé", paye], ["Reste", du], ["En retard", retard]], list);
+    G.exp.brancher("xp", () => ({
+      fichier: `GEI_Maisons-et-clients_${today()}${fp[0] ? "_" + G.exp.slug(fp[0]) : ""}`, titre: "Maisons et clients", orientation: "paysage",
+      filtres: G.exp.filtres([["Programme", fp[0]], ["Statut", fp[1] ? LIB.statut[fp[1]] : ""]]),
+      chiffres: [{ l: "Prix total", v: sum(list, (m) => m.prix), s: list.length + " lot(s)" }, { l: "Encaissé", v: sum(list, paye) }, { l: "Reste à encaisser", v: sum(list, du) }, { l: "En retard", v: sum(list, retard), bad: sum(list, retard) > 0 }],
+      feuilles: [{ nom: "Maisons", colonnes: [{ t: "Programme / quartier" }, { t: "Lot" }, { t: "Type" }, { t: "Superficie" }, { t: "Statut" }, { t: "Client" }, { t: "Téléphone" }, { t: "Prix", type: "montant" }, { t: "Encaissé", type: "montant" }, { t: "Reste", type: "montant" }, { t: "En retard", type: "montant" }],
+        lignes: list.map((m) => [m.programme, m.lot, m.type, m.superficie, LIB.statut[m.statut] || "", m.clientNom, m.clientTel, m.prix || "", paye(m), du(m), retard(m)]) }] }));
   };
 
   views["g-maison"] = async (mid) => {
@@ -407,7 +416,7 @@
     const ech = (m.echeancier || []).map((x) => ({ ...x })), pay = (m.paiements || []).map((x) => ({ ...x })), documents = (m.documents || []).map((x) => ({ ...x }));
     const relance = !isNew && retard(m) > 0 && m.clientTel ? `<a class="btn btn--ghost" target="_blank" rel="noopener" href="https://wa.me/${waTel(m.clientTel)}?text=${encodeURIComponent(`Bonjour ${m.clientNom || ""},\n\nGlobal Empire Immobilier vous rappelle qu'un montant de ${fcfa(retard(m))} est arrivé à échéance pour votre maison (${m.programme}, lot ${m.lot}).\n\nMerci de nous contacter pour le règlement. Bonne journée.`)}">Relancer sur WhatsApp</a>` : "";
     const progs = [...new Set(d.maisons.map((x) => x.programme))].sort();
-    main.innerHTML = head(isNew ? "Nouvelle maison" : `${esc(m.programme)} · lot ${esc(m.lot)}`, isNew ? "Ajoutez une maison (lot) d'un programme." : `${st(m.statut)} ${m.clientNom ? "· " + esc(m.clientNom) : ""}`, relance + '<a class="btn btn--text" href="#g-maisons">← Retour</a>') + `
+    main.innerHTML = head(isNew ? "Nouvelle maison" : `${esc(m.programme)} · lot ${esc(m.lot)}`, isNew ? "Ajoutez une maison (lot) d'un programme." : `${st(m.statut)} ${m.clientNom ? "· " + esc(m.clientNom) : ""}`, (isNew ? "" : G.exp.bouton("xpm")) + relance + '<a class="btn btn--text" href="#g-maisons">← Retour</a>') + `
       <form class="form" id="f" novalidate>
         <section class="panel"><h2>La maison</h2><div class="grid">
           <label><span>Programme ou quartier *</span><input name="programme" list="progs" value="${esc(m.programme || "")}" placeholder="Ex. Les Rives de l'Opulence, ou Cocody Angré pour une location"><datalist id="progs">${progs.map((p) => `<option value="${esc(p)}">`).join("")}</datalist></label>
@@ -450,6 +459,17 @@
     bilan();
     docsEditor($("#docs"), documents);
     f.addEventListener("click", (e) => { const i = e.target.dataset.recu; if (i != null) recu(m, +i); });
+    if (!isNew) G.exp.brancher("xpm", () => {
+      let cumul = 0; const p = paye(m);
+      const echs = (m.echeancier || []).slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).map((e) => { cumul += e.montant || 0; return [e.date, e.libelle, e.montant, cumul <= p ? "Payé" : cumul - (e.montant || 0) < p ? "Payé en partie" : e.date && e.date < today() ? "En retard" : "À venir"]; });
+      return { fichier: `GEI_Releve-client_${G.exp.slug(m.programme)}_${G.exp.slug(m.lot)}`, titre: `Relevé client — ${m.programme}, lot ${m.lot}`, orientation: "portrait",
+        filtres: [m.clientNom ? "Client : " + m.clientNom : "", m.clientTel ? "Tél. " + m.clientTel : "", m.type, LIB.statut[m.statut]].filter(Boolean).join(" · "),
+        chiffres: [{ l: "Prix de vente", v: m.prix || 0 }, { l: "Déjà payé", v: p }, { l: "Reste à payer", v: du(m), bad: retard(m) > 0, s: retard(m) ? "dont en retard : " + G.ui.sep(retard(m)) + " FCFA" : "" }],
+        feuilles: [
+          { nom: "Échéancier", titre: "Échéancier", colonnes: [{ t: "Échéance", type: "date" }, { t: "Libellé" }, { t: "Montant", type: "montant" }, { t: "Statut" }], lignes: echs },
+          { nom: "Paiements", titre: "Paiements reçus", colonnes: [{ t: "Date", type: "date" }, { t: "Montant", type: "montant" }, { t: "Mode" }, { t: "Référence / reçu" }], lignes: (m.paiements || []).slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).map((x) => [x.date, x.montant, LIB.mode[x.mode] || "", x.reference]) },
+        ] };
+    });
     f.addEventListener("submit", (e) => { e.preventDefault(); const v = Object.fromEntries(new FormData(f)); save("/api/g/maisons", isNew ? null : m.id, { ...v, prix: num(v.prix), echeancier: ech, paiements: pay, documents }, isNew ? "#g-maisons" : `#g-maison/${m.id}`); });
     if ($("#del")) $("#del").onclick = () => supprimer("/api/g/maisons", m.id, "cette maison et son historique de paiements", "#g-maisons");
   };
@@ -480,7 +500,7 @@
 
   /* ================= Dépenses ================= */
   views["g-depenses"] = async (filtre) => {
-    const d = await load("depenses", "chantiers");
+    const d = await load("depenses", "chantiers", "villas");
     const [fc = "", fcat = "", fm = "", fst = ""] = (filtre || "").split("|");
     const base = d.depenses.filter((x) => (!fc || x.chantierId === fc) && (!fcat || x.categorie === fcat) && (!fm || mois(x.date) === fm)).sort((a, b) => String(b.date).localeCompare(String(a.date)) || String(b.creeLe || "").localeCompare(String(a.creeLe || "")));
     const moisDispo = [...new Set(d.depenses.map((x) => mois(x.date)))].filter(Boolean).sort().reverse();
@@ -491,7 +511,7 @@
       ["Chantier", (x) => esc(nomChantier(d.chantiers, x.chantierId))], ["Catégorie", (x) => esc(LIB.categorie[x.categorie])],
       ["Montant", (x) => (x.montant ? U.sep(x.montant) : "—"), 1], ["Payé", (x) => U.sep(verseDep(x)), 1], ["Reste", (x) => (resteDep(x) ? `<b>${U.sep(resteDep(x))}</b>` : "0"), 1], ["Statut", badgeDep]];
     main.innerHTML = head("Dépenses", "Achats, main-d'œuvre, transport, location… avec les avances versées et le reste à payer.",
-      `<button class="btn btn--secondary" id="xp">${I("download")}Exporter (Excel)</button><a class="btn btn--primary" href="#g-depense/nouvelle">${I("plus")}Nouvelle dépense</a>`, [["Finances", "#g-depenses"], ["Dépenses", ""]]) + `
+      `${G.exp.bouton()}<a class="btn btn--primary" href="#g-depense/nouvelle">${I("plus")}Nouvelle dépense</a>`, [["Finances", "#g-depenses"], ["Dépenses", ""]]) + `
       <div class="kpis">
         <div class="kpi"><small>Montant total</small><b>${U.money(sum(base, (x) => x.montant))}</b><span>${base.length} dépense(s)</span></div>
         <div class="kpi"><small>Déjà payé</small><b>${U.money(sum(base, verseDep))}</b><span>avances et soldes</span></div>
@@ -519,7 +539,16 @@
     let tq; $("#q").addEventListener("input", () => { clearTimeout(tq); tq = setTimeout(draw, 150); });
     const go = () => { location.hash = `#g-depenses/${encodeURIComponent([$("#fc").value, $("#fcat").value, $("#fm").value, fst].join("|"))}`; };
     ["#fc", "#fcat", "#fm"].forEach((s) => { $(s).onchange = go; });
-    $("#xp").onclick = () => exporter("depenses", [["Date", (x) => x.date], ["Chantier", (x) => nomChantier(d.chantiers, x.chantierId)], ["Catégorie", (x) => LIB.categorie[x.categorie]], ["Libellé", (x) => x.libelle], ["Quantité", (x) => x.quantite], ["Fournisseur", (x) => x.fournisseur], ["Montant total", (x) => x.montant], ["Avance payée", verseDep], ["Reste à payer", resteDep], ["Statut", (x) => statutDep(x)[1]], ["Saisi par", (x) => x.creePar]], draw.list);
+    G.exp.brancher("xp", () => {
+      const list = draw.list, q = ($("#q").value || "").trim();
+      const villa = (id) => { const v = (d.villas || []).find((y) => y.id === id); return v ? "Villa " + v.lot : ""; };
+      const nomC = fc ? nomChantier(d.chantiers, fc) : "";
+      return { fichier: `GEI_Depenses_${fm || G.exp.auj().slice(0, 7)}${fc ? "_" + G.exp.slug(nomC) : ""}`, titre: "Dépenses", orientation: "paysage",
+        filtres: G.exp.filtres([["Chantier", nomC], ["Catégorie", fcat ? LIB.categorie[fcat] : ""], ["Mois", fm ? G.exp.moisFr(fm) : ""], ["Statut", fst ? (chips.find((c) => c[0] === fst) || [])[1] : ""], ["Recherche", q ? "« " + q + " »" : ""]]),
+        chiffres: [{ l: "Total dépensé", v: sum(list, (x) => x.montant), s: list.length + " dépense(s)" }, { l: "Déjà payé", v: sum(list, verseDep) }, { l: "Reste à payer", v: sum(list, resteDep), bad: sum(list, resteDep) > 0 }],
+        feuilles: [{ nom: "Dépenses", colonnes: [{ t: "Date", type: "date" }, { t: "Chantier" }, { t: "Villa" }, { t: "Catégorie" }, { t: "Désignation" }, { t: "Fournisseur" }, { t: "Quantité" }, { t: "Mode" }, { t: "Montant", type: "montant" }, { t: "Payé", type: "montant" }, { t: "Reste", type: "montant" }, { t: "Statut" }],
+          lignes: list.map((x) => [x.date, nomChantier(d.chantiers, x.chantierId), villa(x.villaId), LIB.categorie[x.categorie] || "", x.libelle, x.fournisseur, x.qte ? `${x.qte} ${x.unite || ""}`.trim() : x.quantite, LIB.mode[x.mode] || "", x.montant, verseDep(x), resteDep(x), statutDep(x)[1]]) }] };
+    });
   };
 
   views["g-depense"] = async (arg) => {
@@ -612,9 +641,11 @@
     const tabs = `<nav class="tabs-g">${(argent() ? [["ouvriers", "Ouvriers"], ["pointage", "Pointage du jour"], ["paie", "Paie de la semaine"]] : [["pointage", "Pointage du jour"]]).map(([k, l]) => `<a href="#g-equipes/${k}" class="${k === onglet ? "is-on" : ""}">${l}</a>`).join("")}</nav>`;
     if (onglet === "ouvriers") {
       const cols = [["Nom", (o) => `<b>${esc(o.nom)}</b>${o.actif ? "" : ' <span class="st">inactif</span>'}`], ["Métier", (o) => esc(o.metier || "—")], ["Téléphone", (o) => esc(o.tel || "—")], ["Chantier", (o) => esc(nomChantier(d.chantiers, o.chantierId))], ["Tarif / jour", (o) => fcfa(o.tarifJour), 1]];
-      main.innerHTML = head("Équipes et paie", "Ouvriers, présence sur les chantiers et paie de la semaine.", '<button class="btn btn--ghost" id="xp">Exporter (Excel)</button><a class="btn btn--primary" href="#g-ouvrier/nouveau">+ Nouvel ouvrier</a>') + tabs +
+      main.innerHTML = head("Équipes et paie", "Ouvriers, présence sur les chantiers et paie de la semaine.", G.exp.bouton() + nouvelOuvrier) + tabs +
         `<section class="panel">${tableau(cols, d.ouvriers.slice().sort((a, b) => (b.actif - a.actif) || a.nom.localeCompare(b.nom)), (o) => `#g-ouvrier/${o.id}`)}</section>`;
-      $("#xp").onclick = () => exporter("ouvriers", [["Nom", (o) => o.nom], ["Métier", (o) => o.metier], ["Téléphone", (o) => o.tel], ["Chantier", (o) => nomChantier(d.chantiers, o.chantierId)], ["Tarif / jour", (o) => o.tarifJour], ["Actif", (o) => (o.actif ? "oui" : "non")]], d.ouvriers);
+      G.exp.brancher("xp", () => ({ fichier: `GEI_Ouvriers_${today()}`, titre: "Liste des ouvriers", filtres: `${d.ouvriers.filter((o) => o.actif).length} ouvrier(s) en activité sur ${d.ouvriers.length}`, orientation: "portrait",
+        feuilles: [{ nom: "Ouvriers", colonnes: [{ t: "Nom et prénoms" }, { t: "Métier" }, { t: "Téléphone" }, { t: "Chantier habituel" }, { t: "Tarif / jour", type: "montant", total: false }, { t: "Actif" }],
+          lignes: d.ouvriers.slice().sort((a, b) => (b.actif - a.actif) || a.nom.localeCompare(b.nom)).map((o) => [o.nom, o.metier, o.tel, nomChantier(d.chantiers, o.chantierId), o.tarifJour || "", o.actif ? "Oui" : "Non"]) }] }));
       return;
     }
     if (onglet === "pointage") {
@@ -649,7 +680,7 @@
     const mvts = await api("/api/g/mouvements");
     const dejaPaye = mvts.find((x) => x.reference === `paie-${deb}`);
     const totalPaie = sum(lignes, (l) => l.montant);
-    main.innerHTML = head("Équipes et paie", `Semaine du ${dfr(deb)} au ${dfr(fin)}.`, '<button class="btn btn--ghost" id="xp">Exporter (Excel)</button>' + nouvelOuvrier +
+    main.innerHTML = head("Équipes et paie", `Semaine du ${dfr(deb)} au ${dfr(fin)}.`, G.exp.bouton() + nouvelOuvrier +
       (totalPaie ? (dejaPaye ? `<span class="st st--termine">Paie enregistrée dans la trésorerie</span>` : '<button class="btn btn--primary" id="payer">Paie versée : l\'enregistrer dans la caisse</button>') : "")) + tabs + `
       <section class="panel"><div class="filters">
         <a class="btn btn--sm btn--ghost" href="#g-equipes/paie/${plusJours(deb, -7)}">← Semaine précédente</a>
@@ -663,7 +694,11 @@
       if (!confirm(`Enregistrer une sortie de caisse de ${fcfa(totalPaie)} pour la paie de cette semaine ?`)) return;
       try { await api("/api/g/mouvements", { method: "POST", body: { date: fin > today() ? today() : fin, sens: "sortie", compte: "caisse", categorie: "salaires", libelle: `Paie des ouvriers · semaine du ${dfr(deb)}`, montant: totalPaie, reference: `paie-${deb}` } }); toast("Paie enregistrée dans la trésorerie"); views["g-equipes"](`paie/${deb}`); } catch (err) { fail(err); }
     };
-    $("#xp").onclick = () => exporter(`paie-semaine-${deb}`, [["Ouvrier", (l) => l.o.nom], ["Métier", (l) => l.o.metier], ["Téléphone", (l) => l.o.tel], ["Chantier(s)", (l) => l.chantiers], ["Jours", (l) => l.jours], ["Tarif / jour", (l) => l.o.tarifJour], ["À payer", (l) => l.montant]], lignes);
+    G.exp.brancher("xp", () => ({ fichier: `GEI_Paie_semaine-${deb}`, titre: "État de paie de la semaine", filtres: `Semaine du ${dfr(deb)} au ${dfr(fin)}${dejaPaye ? " · paie enregistrée dans la trésorerie" : ""}`, orientation: "portrait",
+      chiffres: [{ l: "Total à payer", v: totalPaie }, { l: "Journées travaillées", v: sum(lignes, (l) => l.jours), type: "nombre" }, { l: "Ouvriers payés", v: lignes.length, type: "nombre" }],
+      note: "Chaque ouvrier signe dans la colonne « Émargement » à la remise de sa paie.",
+      feuilles: [{ nom: "Paie", emargement: true, colonnes: [{ t: "Ouvrier" }, { t: "Métier" }, { t: "Chantier(s)" }, { t: "Jours", type: "nombre", total: true }, { t: "Tarif / jour", type: "montant", total: false }, { t: "À payer", type: "montant" }],
+        lignes: lignes.map((l) => [l.o.nom, l.o.metier, l.chantiers, l.jours, l.o.tarifJour || 0, l.montant]) }] }));
   };
 
   views["g-ouvrier"] = async (oid) => {

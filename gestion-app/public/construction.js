@@ -55,8 +55,8 @@
       ? `<div class="kpi"><small>Dépensé ce mois</small><b>${U.money(depMois)}</b><span>${new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" })}</span></div>`
       : `<div class="kpi"><small>Villas terminées</small><b>${villasActives.filter((v) => etatVilla(v) === "terminee").length}</b><span>sur ${villasActives.length} villa(s)</span></div>`;
     main.innerHTML = U.head("Chantiers", argent() ? "Tous les programmes de construction. Cliquez sur une carte pour voir ses villas." : "Vos programmes : cliquez sur une carte pour mettre à jour l'avancement.",
-      (argent() ? `<details class="menu-p"><summary class="btn btn--tertiary btn--icon" aria-label="Autres actions" title="Autres actions">${I("more")}</summary><div class="menu-p__pop"><button type="button" id="xp">${I("download")}Exporter (Excel)</button></div></details><a class="btn btn--primary" href="#g-chantier/nouveau">${I("plus")}Nouveau programme</a>` :
-        `<details class="menu-p"><summary class="btn btn--tertiary btn--icon" aria-label="Autres actions" title="Autres actions">${I("more")}</summary><div class="menu-p__pop"><button type="button" id="xp">${I("download")}Exporter (Excel)</button></div></details>`), [["Opérations", "#g-chantiers"], ["Chantiers", ""]]) + `
+      (argent() ? `${G.exp.bouton()}<a class="btn btn--primary" href="#g-chantier/nouveau">${I("plus")}Nouveau programme</a>` :
+        `${G.exp.bouton()}`), [["Opérations", "#g-chantiers"], ["Chantiers", ""]]) + `
       <div class="kpis kpis--3">
         <div class="kpi"><small>Programmes en cours</small><b>${enCours.length}</b><span>${villasActives.length} villa(s) au total</span></div>
         <div class="kpi"><small>Avancement moyen</small><b>${moy} %</b><div class="progress"><i style="width:${moy}%"></i></div></div>
@@ -70,8 +70,17 @@
       $$("#pg .prog").forEach((el) => { const ok = !s || el.dataset.q.includes(s); el.hidden = !ok; n += ok; });
       $("#pn").hidden = !!n;
     });
-    $("#xp").onclick = () => G.calc.exporter("programmes", [["Programme", (c) => c.nom], ["Lieu", (c) => c.lieu], ["Statut", (c) => STATUT_PROG[c.statut] || c.statut], ["Avancement %", (c) => avancementProgramme(c, d.villas)],
-      ["Villas", (c) => d.villas.filter((v) => v.chantierId === c.id).length], ["Début", (c) => c.dateDebut], ["Livraison prévue", (c) => c.dateFin]].concat(argent() ? [["Budget", (c) => c.budget], ["Dépensé", (c) => G.calc.depenseChantier(c, d)]] : []), progs);
+    G.exp.brancher("xp", () => {
+      const q = (($("#q") || {}).value || "").trim().toLowerCase();
+      const liste = progs.filter((c) => !q || [c.nom, c.lieu].join(" ").toLowerCase().includes(q));
+      const dep = (c) => G.calc.depenseChantier(c, d), nbV = (c) => d.villas.filter((v) => v.chantierId === c.id).length;
+      const cols = [{ t: "Programme" }, { t: "Lieu" }, { t: "Statut" }, { t: "Villas", type: "nombre", total: true }, { t: "Avancement", type: "pct" }, { t: "Début", type: "date" }, { t: "Livraison prévue", type: "date" }];
+      if (argent()) cols.push({ t: "Budget", type: "montant" }, { t: "Dépensé", type: "montant" }, { t: "Reste du budget", type: "montant" });
+      return { fichier: `GEI_Programmes_${today()}`, titre: "Programmes de construction", orientation: "paysage", filtres: G.exp.filtres([["Recherche", q ? "« " + q + " »" : ""]]),
+        chiffres: argent() ? [{ l: "Budget total", v: sum(liste, (c) => c.budget) }, { l: "Dépensé", v: sum(liste, dep) }, { l: "Reste", v: sum(liste, (c) => (c.budget || 0) - dep(c)) }, { l: "Avancement moyen", v: moy, type: "pct" }]
+          : [{ l: "Programmes en cours", v: enCours.length, type: "nombre" }, { l: "Villas", v: villasActives.length, type: "nombre" }, { l: "Avancement moyen", v: moy, type: "pct" }],
+        feuilles: [{ nom: "Programmes", colonnes: cols, lignes: liste.map((c) => [c.nom, c.lieu, STATUT_PROG[c.statut] || c.statut, nbV(c), avancementProgramme(c, d.villas), c.dateDebut, c.dateFin].concat(argent() ? [c.budget || "", dep(c), (c.budget || 0) - dep(c)] : [])) }] };
+    });
   };
 
   function carte(c, d) {

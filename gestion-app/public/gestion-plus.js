@@ -21,11 +21,7 @@
   const MODE_COMPTE = { especes: "caisse", virement: "banque", cheque: "banque", mobile_money: "mobile_money", autre: "caisse" };
   const CAT = { solde_initial: "Solde de départ", apport: "Apport / financement", vente_autre: "Autre recette", frais_generaux: "Frais généraux (bureau)", salaires: "Salaires", loyer: "Loyer", carburant: "Carburant / déplacements", impots: "Impôts et taxes", banque: "Frais bancaires", autre: "Autre" };
   const LIBCAT = { materiaux: "Matériaux", main_oeuvre: "Main-d'œuvre", sous_traitance: "Sous-traitance", transport: "Transport", location: "Engins et outillage", frais_chantier: "Frais de chantier", administratif: "Études et administratif", autre: "Divers" };
-  function exporter(nom, cols, rows) {
-    const cell = (v) => { const s = String(v == null ? "" : v); return /[;"\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
-    const csv = "﻿" + [cols.map((c) => cell(c[0])).join(";")].concat(rows.map((r) => cols.map((c) => cell(c[1](r))).join(";"))).join("\r\n");
-    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" })); a.download = `${nom}-${today()}.csv`; a.click();
-  }
+  function exporter(nom, cols, rows, format = "xlsx", opts = {}) { G.exp.lancer(G.exp.simple(nom, cols, rows, opts), format); }
 
   /* ---------- Trésorerie : toutes les entrées et sorties d'argent ---------- */
   function operations(d) {
@@ -45,7 +41,7 @@
     const moisDispo = [...new Set(ops.map((o) => mois(o.date)).filter(Boolean))].sort().reverse();
     const ent = sum(list.filter((o) => o.sens === "entree"), (o) => o.montant), sor = sum(list.filter((o) => o.sens === "sortie"), (o) => o.montant);
     main.innerHTML = head("Trésorerie", "Tout l'argent qui entre et qui sort : ventes, dépenses de chantier, frais généraux, salaires…",
-      '<button class="btn btn--ghost" id="xp">Exporter (Excel)</button><a class="btn btn--primary" href="#g-mouvement/nouveau">+ Autre opération</a>') + `
+      G.exp.bouton() + '<a class="btn btn--primary" href="#g-mouvement/nouveau">+ Autre opération</a>') + `
       <div class="kpis">${Object.entries(COMPTE).map(([k, l]) => `<div class="kpi"><small>${l}</small><b>${fcfa(solde(k))}</b><span>solde actuel</span></div>`).join("")}
         <div class="kpi kpi--alert"><small>Total disponible</small><b>${fcfa(solde("caisse") + solde("banque") + solde("mobile_money"))}</b></div></div>
       <section class="panel"><p class="muted" style="margin-top:0">Les paiements des clients et les dépenses payées s'ajoutent tout seuls. Ici, enregistrez le reste : <b>solde de départ</b> de chaque compte, frais du bureau, salaires du personnel fixe, apports…</p>
@@ -58,7 +54,21 @@
           list, (o) => o.href, ["Total", "", "", `Solde de la période : <b>${fcfa(ent - sor)}</b>`, fcfa(ent), fcfa(sor)])}</section>`;
     const go = () => { location.hash = `#g-tresorerie/${encodeURIComponent($("#fm").value + "|" + $("#fc").value)}`; };
     $("#fm").onchange = go; $("#fc").onchange = go;
-    $("#xp").onclick = () => exporter("tresorerie", [["Date", (o) => o.date], ["Compte", (o) => COMPTE[o.compte]], ["Origine", (o) => o.origine], ["Libellé", (o) => o.libelle], ["Entrée", (o) => (o.sens === "entree" ? o.montant : "")], ["Sortie", (o) => (o.sens === "sortie" ? o.montant : "")]], list);
+    G.exp.brancher("xp", (per) => {
+      const finM = (mm) => { const [y, mo] = mm.split("-").map(Number); return `${mm}-${String(new Date(y, mo, 0).getDate()).padStart(2, "0")}`; };
+      const du0 = per ? per.du : fm ? `${fm}-01` : "", au0 = per ? per.au : fm ? finM(fm) : "";
+      const signe = (o) => (o.sens === "entree" ? o.montant : -o.montant), duCompte = (o) => !fc || o.compte === fc;
+      const sel = ops.filter((o) => duCompte(o) && (!du0 || String(o.date) >= du0) && (!au0 || String(o.date) <= au0)).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      const debut = du0 ? sum(ops.filter((o) => duCompte(o) && o.date && String(o.date) < du0), signe) : 0;
+      let solde = debut;
+      const lignes = sel.map((o) => { solde += signe(o); return [o.date, COMPTE[o.compte] || "", o.origine, o.libelle, o.sens === "entree" ? o.montant : "", o.sens === "sortie" ? o.montant : "", solde]; });
+      const e = sum(sel.filter((o) => o.sens === "entree"), (o) => o.montant), s = sum(sel.filter((o) => o.sens === "sortie"), (o) => o.montant);
+      const libP = per ? per.libelle : fm ? moisFr(fm) : "toutes les dates";
+      return { fichier: `GEI_Tresorerie_${per && per.mois ? per.mois : fm || (du0 ? du0 + "_" + au0 : today())}`, titre: "Trésorerie", orientation: "portrait",
+        filtres: G.exp.filtres([["Période", libP], ["Compte", fc ? COMPTE[fc] : "tous les comptes"]]),
+        chiffres: [{ l: "Solde de début", v: debut }, { l: "Entrées", v: e }, { l: "Sorties", v: s }, { l: "Solde de fin", v: debut + e - s, bad: debut + e - s < 0 }],
+        feuilles: [{ nom: "Trésorerie", colonnes: [{ t: "Date", type: "date" }, { t: "Compte" }, { t: "Origine" }, { t: "Libellé" }, { t: "Entrée", type: "montant" }, { t: "Sortie", type: "montant" }, { t: "Solde cumulé", type: "montant", total: false }], lignes }] };
+    }, { periode: true, libelleAffiche: `Ce qui est affiché (${fm ? moisFr(fm) : "toutes les dates"})` });
   };
   views["g-mouvement"] = async (mid) => {
     const isNew = mid === "nouveau";
@@ -153,7 +163,7 @@
     let filtre = "";
     const plies = new Set(memo("gei-plan-plie") || []);
 
-    main.innerHTML = head("Planning", "Les étapes de chaque chantier dans le temps. Survolez une barre pour le détail, cliquez pour modifier l'étape.") + `
+    main.innerHTML = head("Planning", "Les étapes de chaque chantier dans le temps. Survolez une barre pour le détail, cliquez pour modifier l'étape.", G.exp.bouton()) + `
       <section class="panel gt-alerts" id="gtr" hidden></section>
       <section class="panel">
         <div class="gt-bar">
@@ -280,12 +290,27 @@
     $("#gtp").addEventListener("scroll", cacher, true); $("#gtp").addEventListener("mouseleave", cacher);
 
     dessiner();
+    G.exp.brancher("xp", () => {
+      const ch = tous.filter((c) => !filtre || c.id === filtre);
+      const statutE = (e) => ((e.avancement || 0) >= 100 ? "Terminé" : enRetard(e) ? "En retard" : e.dateDebut && e.dateDebut <= t ? "En cours" : "À venir");
+      const ligneE = (c, quoi, e) => [c.nom, quoi, e.nom, e.dateDebut, e.dateFin, e.avancement || 0, statutE(e), enRetard(e) ? retardJ(e.dateFin) : ""];
+      const lignes = ch.flatMap((c) => [
+        ...(c.etapes || []).map((e) => ligneE(c, "Étape du chantier", e)),
+        ...villasDe(c).flatMap((v) => (v.phases || []).filter((x) => x.dateDebut || x.dateFin).map((x) => ligneE(c, `Villa ${v.lot}`, x))),
+      ]);
+      const nRetard = lignes.filter((l) => l[6] === "En retard").length;
+      const nomF = filtre ? (tous.find((c) => c.id === filtre) || {}).nom : "";
+      return { fichier: `GEI_Planning_${today()}${nomF ? "_" + G.exp.slug(nomF) : ""}`, titre: "Planning des chantiers", orientation: "paysage",
+        filtres: G.exp.filtres([["Chantier", nomF || "tous les chantiers en cours"]]),
+        chiffres: [{ l: "Étapes suivies", v: lignes.length, type: "nombre" }, { l: "Terminées", v: lignes.filter((l) => l[6] === "Terminé").length, type: "nombre" }, { l: "En retard", v: nRetard, type: "nombre", bad: nRetard > 0 }],
+        feuilles: [{ nom: "Planning", colonnes: [{ t: "Programme" }, { t: "Villa / étape" }, { t: "Phase" }, { t: "Début", type: "date" }, { t: "Fin prévue", type: "date" }, { t: "Avancement", type: "pct" }, { t: "Statut" }, { t: "Retard (jours)", type: "nombre" }], lignes }] };
+    });
   };
 
   /* ---------- Rapport mensuel imprimable ---------- */
   views["g-rapport"] = async (m) => {
     m = m || mois(today());
-    const d = await load("chantiers", "maisons", "depenses", "ouvriers", "pointages", "mouvements");
+    const d = await load("chantiers", "maisons", "depenses", "ouvriers", "pointages", "mouvements", "articles", "stock", "villas");
     const tarif = Object.fromEntries(d.ouvriers.map((o) => [o.id, o.tarifJour || 0]));
     const pts = d.pointages.filter((p) => mois(p.date) === m);
     const paie = sum(pts, (p) => sum(p.presents, (id) => tarif[id] || 0));
@@ -299,7 +324,7 @@
     const reste = sum(d.maisons, (x) => (["reservee", "vendue", "livree"].includes(x.statut) ? Math.max(0, (x.prix || 0) - sum(x.paiements || [], (p) => p.montant)) : 0));
     const moisDispo = [...new Set([mois(today()), ...d.depenses.map((x) => mois(x.date)), ...d.maisons.flatMap((x) => (x.paiements || []).map((p) => mois(p.date)))].filter(Boolean))].sort().reverse();
     main.innerHTML = head(`Rapport de ${moisFr(m)}`, "Résumé du mois pour la direction. Bouton « Imprimer » pour l'enregistrer en PDF.",
-      `<label class="muted">Mois <select id="rm">${moisDispo.map((x) => `<option value="${x}"${x === m ? " selected" : ""}>${moisFr(x)}</option>`).join("")}</select></label><button class="btn btn--primary" onclick="print()">Imprimer / PDF</button>`) + `
+      `<label class="muted">Mois <select id="rm">${moisDispo.map((x) => `<option value="${x}"${x === m ? " selected" : ""}>${moisFr(x)}</option>`).join("")}</select></label>${G.exp.bouton()}`) + `
       <div class="rapport">
         <div class="rapport__titre"><img src="/logo-gei.png" alt="" width="48" height="48"><div><b>Global Empire Immobilier SARL</b><br>Rapport de gestion · ${moisFr(m)}</div></div>
         <div class="kpis"><div class="kpi"><small>Encaissé (ventes)</small><b>${fcfa(totalEnc)}</b><span>${enc.length} paiement(s)</span></div>
@@ -315,6 +340,40 @@
           ${tableau([["Date", (p) => dfr(p.date)], ["Client", (p) => esc(p.m.clientNom || "—")], ["Maison", (p) => `${esc(p.m.programme)} · lot ${esc(p.m.lot)}`], ["Montant", (p) => fcfa(p.montant), 1]], enc, null, ["Total", "", "", fcfa(totalEnc)])}</section>
       </div>`;
     $("#rm").onchange = () => { location.hash = `#g-rapport/${$("#rm").value}`; };
+    G.exp.brancher("xp", (per) => {
+      const finM = (mm) => { const [y, mo] = mm.split("-").map(Number); return `${mm}-${String(new Date(y, mo, 0).getDate()).padStart(2, "0")}`; };
+      const P = per || { du: `${m}-01`, au: finM(m), libelle: moisFr(m), mois: m };
+      const dans = (dt) => dt && String(dt) >= P.du && String(dt) <= P.au;
+      const ptsP = d.pointages.filter((p) => dans(p.date));
+      const paieP = sum(ptsP, (p) => sum(p.presents, (id) => tarif[id] || 0));
+      const depsP = d.depenses.filter((x) => dans(x.date)).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      const encP = d.maisons.flatMap((x) => (x.paiements || []).filter((p) => dans(p.date)).map((p) => ({ ...p, m: x }))).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      const mvP = d.mouvements.filter((x) => dans(x.date));
+      const fraisP = sum(mvP.filter((x) => x.sens === "sortie" && !String(x.reference || "").startsWith("paie-")), (x) => x.montant);
+      const apportsP = sum(mvP.filter((x) => x.sens === "entree" && x.categorie !== "solde_initial"), (x) => x.montant);
+      const encT = sum(encP, (p) => p.montant), depT = sum(depsP, (x) => x.montant), resultat = encT + apportsP - depT - paieP - fraisP;
+      const coutC = (c, liste, pts) => sum(liste.filter((x) => x.chantierId === c.id), (x) => x.montant) + sum(pts.filter((p) => p.chantierId === c.id), (p) => sum(p.presents, (id) => tarif[id] || 0));
+      const art = (id) => d.articles.find((a) => a.id === id) || { nom: "?", unite: "" };
+      const nomC = (id) => (d.chantiers.find((c) => c.id === id) || {}).nom || "Dépôt général";
+      const villa = (id) => { const v = d.villas.find((y) => y.id === id); return v ? "Villa " + v.lot : ""; };
+      const versé = G.verseDep || ((x) => 0), resteD = G.resteDep || ((x) => 0);
+      return { fichier: `GEI_Rapport-mensuel_${P.mois || P.du + "_" + P.au}`, titre: `Rapport de gestion — ${P.libelle}`, orientation: "portrait",
+        filtres: `Période : ${P.libelle} (du ${G.exp.dateFr(P.du)} au ${G.exp.dateFr(P.au)})`,
+        chiffres: [{ l: "Encaissé (ventes)", v: encT, s: encP.length + " paiement(s)" }, { l: "Dépenses de chantier", v: depT, s: depsP.length + " dépense(s)" }, { l: "Paie des ouvriers", v: paieP }, { l: "Résultat", v: resultat, bad: resultat < 0, s: "dont frais généraux " + G.ui.sep(fraisP) + " FCFA" }],
+        feuilles: [
+          { nom: "Synthèse", titre: "Synthèse", colonnes: [{ t: "Poste" }, { t: "Montant", type: "montant" }], total: false, lignes: [["Encaissements des ventes", encT], ["Apports et autres entrées", apportsP], ["Dépenses de chantier", -depT], ["Paie des ouvriers", -paieP], ["Frais généraux", -fraisP], ["Résultat de la période", resultat], ["Reste à encaisser sur les ventes (total)", reste]] },
+          { nom: "Chantiers", titre: "Chantiers", colonnes: [{ t: "Chantier" }, { t: "Statut" }, { t: "Dépenses de la période", type: "montant" }, { t: "Budget", type: "montant" }, { t: "Budget utilisé (total)", type: "pct" }],
+            lignes: d.chantiers.filter((c) => c.statut !== "termine" || coutC(c, depsP, ptsP)).map((c) => [c.nom, { preparation: "En préparation", en_cours: "En cours", pause: "En pause", termine: "Terminé" }[c.statut] || "", coutC(c, depsP, ptsP), c.budget || "", c.budget ? Math.round(coutC(c, d.depenses, d.pointages) / c.budget * 100) : ""]) },
+          { nom: "Dépenses", titre: "Dépenses", colonnes: [{ t: "Date", type: "date" }, { t: "Chantier" }, { t: "Catégorie" }, { t: "Désignation" }, { t: "Fournisseur" }, { t: "Montant", type: "montant" }, { t: "Payé", type: "montant" }, { t: "Reste", type: "montant" }],
+            lignes: depsP.map((x) => [x.date, nomC(x.chantierId), LIBCAT[x.categorie] || "", x.libelle, x.fournisseur, x.montant, versé(x), resteD(x)]) },
+          { nom: "Encaissements", titre: "Ventes et encaissements", colonnes: [{ t: "Date", type: "date" }, { t: "Client" }, { t: "Maison" }, { t: "Mode" }, { t: "Montant", type: "montant" }],
+            lignes: encP.map((p) => [p.date, p.m.clientNom || "", `${p.m.programme} · lot ${p.m.lot}`, { especes: "Espèces", virement: "Virement", cheque: "Chèque", mobile_money: "Mobile Money" }[p.mode] || "Autre", p.montant]) },
+          { nom: "Paie", titre: "Paie des ouvriers (pointages)", colonnes: [{ t: "Date", type: "date" }, { t: "Chantier" }, { t: "Présents", type: "nombre", total: true }, { t: "Coût", type: "montant" }],
+            lignes: ptsP.slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).map((p) => [p.date, nomC(p.chantierId), p.presents.length, sum(p.presents, (id) => tarif[id] || 0)]) },
+          { nom: "Stock", titre: "Mouvements de stock", colonnes: [{ t: "Date", type: "date" }, { t: "Matériau" }, { t: "Mouvement" }, { t: "Quantité", type: "nombre", total: false }, { t: "Unité" }, { t: "Programme" }, { t: "Villa" }],
+            lignes: d.stock.filter((s) => dans(s.date)).sort((a, b) => String(a.date).localeCompare(String(b.date))).map((s) => [s.date, art(s.articleId).nom, s.sens === "entree" ? (s.depenseId ? "Achat" : "Entrée") : "Sortie", s.quantite, art(s.articleId).unite, nomC(s.chantierId), villa(s.villaId)]) },
+        ] };
+    }, { periode: true, libelleAffiche: `Ce qui est affiché (${moisFr(m)})` });
   };
 
   /* ---------- Import depuis Excel (fichier CSV) ---------- */

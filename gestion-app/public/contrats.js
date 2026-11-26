@@ -361,7 +361,7 @@ ${FAIT}`;
     const vus = liste.filter((c) => !ft || c.type === ft).sort((a, b) => String(b.dateDebut || b.creeLe || "").localeCompare(String(a.dateDebut || a.creeLe || "")));
     const n = (t) => liste.filter((c) => c.type === t).length;
     main.innerHTML = U.head("Contrats", "Locations, contrats de travail par métier, ouvriers et autres : le contrat, les paiements et les échéances.",
-      `<a class="btn btn--secondary" href="#g-modeles">${I("file")}Modèles de contrat</a><a class="btn btn--primary" href="#g-contrat/nouveau">${I("plus")}Nouveau contrat</a>`, [["Opérations", "#g-contrats"], ["Contrats", ""]]) + `
+      `${G.exp.bouton()}<a class="btn btn--secondary" href="#g-modeles">${I("file")}Modèles de contrat</a><a class="btn btn--primary" href="#g-contrat/nouveau">${I("plus")}Nouveau contrat</a>`, [["Opérations", "#g-contrats"], ["Contrats", ""]]) + `
       <div class="kpis kpis--4">
         <div class="kpi"><small>Contrats actifs</small><b>${actifs.length}</b><span>${liste.length} au total</span></div>
         <div class="kpi"><small>Loyers de ${esc(moisFr(cur))}</small><b>${fcfa(recuMois)}</b><span>encaissés sur ${fcfa(duMois)}</span></div>
@@ -385,6 +385,19 @@ ${FAIT}`;
           ["Statut", (c) => badge(c.statut)],
         ], vus, (c) => `#g-contrat/${c.id}`) : U.vide(ft ? `Aucun contrat de type « ${TYPES[ft].court} » pour le moment.` : "Aucun contrat pour le moment. Cliquez sur « Nouveau contrat ».", "file")}
       </section>`;
+    G.exp.brancher("xp", () => {
+      const baux = liste.filter((c) => c.type === "location" && (c.statut === "actif" || c.statut === "termine")).map((c) => ({ c, L: loyers(c) })).sort((a, b) => b.L.retard - a.L.retard || String(a.c.partie).localeCompare(String(b.c.partie)));
+      const bien = (c) => { const m = maisons.find((x) => x.id === c.maisonId); return m ? `${m.programme} · lot ${m.lot}` : c.objet || c.lieu || ""; };
+      const ST = { actif: "Actif", termine: "Terminé" };
+      return { fichier: `GEI_Etat-des-loyers_${cur}`, titre: "État des loyers", orientation: "paysage", filtres: `Situation au ${G.exp.dateFr(G.exp.auj())} · mois en cours : ${moisFr(cur)}`,
+        chiffres: [{ l: `Loyers attendus (${moisFr(cur)})`, v: duMois }, { l: "Encaissés ce mois", v: recuMois }, { l: "Loyers impayés", v: impayes, bad: impayes > 0 }, { l: "Locataires en retard", v: locs.filter(({ L }) => L.retard).length, type: "nombre" }],
+        feuilles: [
+          { nom: "Locataires", titre: "Par locataire", colonnes: [{ t: "Locataire" }, { t: "Téléphone" }, { t: "Bien loué" }, { t: "Loyer mensuel", type: "montant", total: false }, { t: "Début du bail", type: "date" }, { t: "Mois payés", type: "nombre", total: true }, { t: "Mois impayés", type: "nombre", total: true }, { t: "Payé à ce jour", type: "montant" }, { t: "Reste dû", type: "montant" }, { t: "Statut" }],
+            lignes: baux.map(({ c, L }) => [c.partie, c.partieTel, bien(c), c.montant, c.dateDebut, L.mois.filter((o) => o.m <= cur && !o.reste).length, L.nbImpayes, L.paye, L.retard, ST[c.statut] || c.statut]) },
+          { nom: "Mois par mois", titre: "Mois par mois", colonnes: [{ t: "Locataire" }, { t: "Mois" }, { t: "Dû", type: "montant" }, { t: "Payé", type: "montant" }, { t: "Reste", type: "montant" }, { t: "Statut" }],
+            lignes: baux.flatMap(({ c, L }) => L.mois.map((o) => [c.partie, moisFr(o.m), o.du, o.paye, o.reste, STATUT_LOYER[o.statut] ? STATUT_LOYER[o.statut][0] : ""])) },
+        ] };
+    });
     $$("[data-enc]").forEach((b) => (b.onclick = () => encaisser(liste.find((c) => c.id === b.dataset.enc), ctx, () => views["g-contrats"](filtre))));
     $$("[data-appel]").forEach((b) => (b.onclick = () => { const c = liste.find((x) => x.id === b.dataset.appel), L = loyers(c), o = L.mois.find((x) => x.reste > 0); docAppel(c, ctx, o ? o.m : moisCourant()); }));
   };

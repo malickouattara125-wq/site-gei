@@ -896,3 +896,14 @@ body.panneau-open { overflow: hidden; }
 .av-v.vt--terminee b, .av-v.vt--terminee span, .av-v.vt--terminee small { color: var(--on-brand); }
 .gt__row--villa .gt__nom a { color: var(--text-2); } .gt__row--villa .gt__nom b { color: var(--text); }
 @media print { .side, .topbar, .bnav, .savebar, .top__actions, .menu-p, .pay-actions { display: none !important; } }
+
+/* ---------- Exports PDF / Excel ---------- */
+.exp > summary.btn { display: inline-flex; }
+.exp .menu-p__pop { min-width: 190px; }
+.exp-dlg { border: 1px solid var(--border); border-radius: 16px; padding: 20px; width: min(92vw, 420px); background: var(--surface); color: var(--text); box-shadow: var(--shadow-2); }
+.exp-dlg::backdrop { background: rgba(15, 20, 30, .45); }
+.exp-dlg form { gap: 12px; }
+.exp-dlg h2 { font: 700 18px var(--font-display); }
+.exp-dates { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.exp-dates label { display: grid; gap: 4px; font-size: 13px; color: var(--muted); }
+.exp-dlg__pied { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }

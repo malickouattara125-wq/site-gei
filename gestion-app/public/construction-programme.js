@@ -51,7 +51,7 @@
     const menu = argent() ? `<details class="menu-p"><summary class="btn btn--tertiary btn--icon" aria-label="Autres actions" title="Autres actions">${I("more")}</summary><div class="menu-p__pop">
         <a href="#g-chantier/${c.id}/modifier">${I("pencil")}Modifier le programme</a>
         <button type="button" id="archiver">${I("check")}${c.statut === "termine" ? "Réactiver le programme" : "Archiver (terminé)"}</button>
-        <button type="button" id="xpv">${I("download")}Exporter les villas (Excel)</button></div></details>` : "";
+        <button type="button" id="xpvp">${I("printer")}Villas : PDF</button><button type="button" id="xpv">${I("sheet")}Villas : Excel</button></div></details>` : "";
     const actions = argent() ? `${menu}<a class="btn btn--secondary" href="#g-depense/nouvelle/${c.id}">${I("receipt")}Nouvelle dépense</a><button type="button" class="btn btn--primary" id="addV">${I("plus")}Ajouter des villas</button>` : "";
     main.innerHTML = U.head(esc(c.nom), `${esc(STATUT_PROG[c.statut] || c.statut)}${c.lieu ? " · " + esc(c.lieu) : ""}${dates ? " · " + dates : ""}`, actions, [["Chantiers", "#g-chantiers"], [esc(c.nom), ""]]) + `
       ${alertes.length ? `<p class="prog__msg prog__msg--page">${I("alertcircle")}${esc(alertes.join(" · "))}</p>` : ""}
@@ -68,8 +68,10 @@
       const fin = c.statut !== "termine"; if (!confirm(fin ? "Marquer ce programme comme terminé ? Il restera consultable." : "Remettre ce programme en cours ?")) return;
       try { await api(`/api/g/chantiers/${c.id}`, { method: "PUT", body: { statut: fin ? "termine" : "en_cours" } }); toast(fin ? "Programme archivé" : "Programme réactivé"); fiche(c.id); } catch (err) { fail(err); }
     };
-    if ($("#xpv")) $("#xpv").onclick = () => G.calc.exporter(`villas-${c.nom}`, [["Lot", (v) => v.lot], ["Type", (v) => v.type], ["Surface m²", (v) => v.surface || ""], ["Niveau", (v) => NIVEAUX[v.niveau]], ["Gamme", (v) => GAMMES[v.gamme]],
-      ["Avancement %", K.avancementVilla], ["Phase en cours", K.phaseEnCours], ["État", (v) => K.ETATS[K.etatVilla(v)]], ["Budget", (v) => v.budget || ""]], vs);
+    const xpVillas = (format) => G.calc.exporter(`Villas ${c.nom}`, [["Lot", (v) => v.lot], ["Type", (v) => v.type], ["Surface m²", (v) => v.surface || ""], ["Niveau", (v) => NIVEAUX[v.niveau]], ["Gamme", (v) => GAMMES[v.gamme]],
+      ["Avancement %", K.avancementVilla], ["Phase en cours", K.phaseEnCours], ["État", (v) => K.ETATS[K.etatVilla(v)]], ["Budget", (v) => v.budget || ""]], vs, format, { titre: `Villas du programme ${c.nom}`, filtres: `Programme : ${c.nom}` });
+    if ($("#xpv")) $("#xpv").onclick = () => xpVillas("xlsx");
+    if ($("#xpvp")) $("#xpvp").onclick = () => xpVillas("pdf");
   }
 
   function tuile(v, d) {

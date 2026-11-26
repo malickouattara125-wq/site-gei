@@ -9,6 +9,7 @@ const crypto = require("crypto");
 const store = require("./lib/store");
 const auth = require("./lib/auth");
 const gestion = require("./lib/gestion");
+const xlsx = require("./lib/xlsx");
 
 const PORT = +process.env.PORT || 8780;
 const PUBLIC = path.join(__dirname, "public");
@@ -161,7 +162,15 @@ async function api(req, res, pathname) {
   }
 
   const chef = session.role === "chef";
-  if (chef && /^\/api\/g\/(maisons|depenses|mouvements|import|sauvegarde|contrats|modeles)/.test(pathname)) return json(res, 403, { error: "Accès réservé à la direction et à la comptabilité." });
+  if (chef && /^\/api\/g\/(maisons|depenses|mouvements|import|sauvegarde|contrats|modeles|export)/.test(pathname)) return json(res, 403, { error: "Accès réservé à la direction et à la comptabilité." });
+
+  // Export Excel (.xlsx natif) : le navigateur envoie le tableau affiché (mêmes filtres), le serveur fabrique le fichier
+  if (pathname === "/api/g/export/xlsx" && method === "POST") {
+    const b = await readBody(req, 8 * 1024 * 1024);
+    const nom = (String(b.fichier || "GEI_Export").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z0-9_.-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 90) || "GEI_Export") + ".xlsx";
+    const buf = xlsx.classeur({ ...b, auteur: session.user, entreprise: ENTREPRISE.nom.replace(/SARL$/, "Sarl") });
+    return send(res, 200, buf, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", { "Content-Disposition": `attachment; filename="${nom}"`, "Cache-Control": "no-store" });
+  }
 
   // Sauvegarde complète (DG)
   if (pathname === "/api/g/sauvegarde" && method === "GET") {

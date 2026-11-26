@@ -12,6 +12,7 @@
   const q2 = (n) => Math.round((+n || 0) * 100) / 100;
   const fq = (n) => String(q2(n)).replace(".", ",");
   const argent = () => G.me().role !== "chef";
+  const sum = (a, f = (x) => x) => a.reduce((t, x) => t + (+f(x) || 0), 0);
   const charger = async (...n) => Object.fromEntries(await Promise.all(n.map(async (x) => [x, await api("/api/g/" + x).catch(() => [])])));
   const triLot = (a, b) => String(a.lot).localeCompare(String(b.lot), "fr", { numeric: true });
 
@@ -114,7 +115,7 @@
     const villa = (id) => d.villas.find((v) => v.id === id);
     const menu = argent() ? `<details class="menu-p"><summary class="btn btn--tertiary btn--icon" aria-label="Autres actions" title="Autres actions">${I("more")}</summary><div class="menu-p__pop"><a href="#g-article/nouveau">${I("plus")}Nouveau matériau (article)</a><button type="button" id="ent">${I("package")}Entrée de stock (livraison)</button></div></details>` : `<button type="button" class="btn btn--secondary" id="ent">${I("package")}Entrée</button>`;
     main.innerHTML = U.head("Stock de matériaux", cid ? `Stock du chantier : ${esc(nomProg(cid))}` : "Ce qui reste au stock, par matériau. Choisissez un programme pour voir son stock de chantier.",
-      `${menu}<button type="button" class="btn btn--primary" id="sortir">${I("package")}Sortir du stock</button>`, [["Opérations", "#g-stock"], ["Stock", ""]]) + `
+      `${G.exp.bouton()}${menu}<button type="button" class="btn btn--primary" id="sortir">${I("package")}Sortir du stock</button>`, [["Opérations", "#g-stock"], ["Stock", ""]]) + `
       <div class="stk-bar"><label class="stk-prog"><span class="sr-only">Programme</span><select id="stp"><option value="">Tous les programmes</option>${d.chantiers.filter((c) => c.statut !== "termine" || c.id === cid).map((c) => `<option value="${c.id}"${c.id === cid ? " selected" : ""}>${esc(c.nom)}</option>`).join("")}</select></label>
         ${bas.length ? `<span class="stk-alerte">${I("alertcircle")}${bas.length} matériau(x) sous le seuil</span>` : ""}</div>
       <section class="panel">${ids.length ? `<div class="tbl-wrap"><table class="tbl stk-tbl" data-nopage><thead><tr><th>Matériau</th><th class="num">Reste</th><th class="num">Entré</th><th class="num">Sorti</th><th class="num">Seuil d'alerte</th>${argent() ? '<th class="num">Prix moyen</th><th class="num">Valeur</th>' : ""}</tr></thead><tbody>
@@ -132,6 +133,21 @@
     $("#stp").addEventListener("change", (e) => { location.hash = e.target.value ? `#g-stock/${e.target.value}` : "#g-stock"; });
     $("#sortir").onclick = () => sortirStock({ chantierId: cid });
     if ($("#ent")) $("#ent").onclick = () => entreeStock({ chantierId: cid });
+    G.exp.brancher("xp", () => {
+      const tousM = d.stock.filter((s) => !cid || s.chantierId === cid).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+      const pm = (id) => (argent() ? prixMoyen(d.stock, d.articles, id, cid) : 0);
+      const colsE = [{ t: "Matériau" }, { t: "Unité" }, { t: "Entrées", type: "nombre", total: false }, { t: "Sorties", type: "nombre", total: false }, { t: "Stock", type: "nombre", total: false }, { t: "Seuil d'alerte", type: "nombre", total: false }, { t: "État" }];
+      if (argent()) colsE.push({ t: "Prix moyen", type: "montant", total: false }, { t: "Valeur", type: "montant" });
+      const valeur = sum(ids, (id) => Math.max(0, st[id].reste) * pm(id));
+      return { fichier: `GEI_Stock_${G.exp.auj()}${cid ? "_" + G.exp.slug(nomProg(cid)) : ""}`, titre: "Stock de matériaux", orientation: "paysage",
+        filtres: G.exp.filtres([["Programme", cid ? nomProg(cid) : "tous les programmes"]]),
+        chiffres: (argent() ? [{ l: "Valeur du stock", v: valeur }] : []).concat([{ l: "Matériaux suivis", v: ids.length, type: "nombre" }, { l: "Sous le seuil", v: bas.length, type: "nombre", bad: bas.length > 0 }]),
+        feuilles: [
+          { nom: "État du stock", titre: "État du stock", colonnes: colsE, lignes: ids.map((id) => { const a = art(id), o = st[id]; return [a.nom, a.unite, o.entre, o.sorti, Math.max(0, o.reste), a.seuil || "", a.seuil && o.reste <= a.seuil ? "Stock bas" : "Normal"].concat(argent() ? [pm(id) || "", Math.round(Math.max(0, o.reste) * pm(id))] : []); }) },
+          { nom: "Mouvements", titre: "Mouvements", colonnes: [{ t: "Date", type: "date" }, { t: "Matériau" }, { t: "Mouvement" }, { t: "Quantité", type: "nombre", total: false }, { t: "Unité" }, { t: "Programme" }, { t: "Villa" }, { t: "Note" }, { t: "Par" }],
+            lignes: tousM.map((s) => { const v = villa(s.villaId); return [s.date, art(s.articleId).nom, s.sens === "entree" ? (s.depenseId ? "Achat" : "Entrée") : "Sortie", s.quantite, art(s.articleId).unite, nomProg(s.chantierId), v ? "Villa " + v.lot : "", s.notes, s.creePar]; }) },
+        ] };
+    });
     if (ouvrir) sortirStock({});
   };
 })();

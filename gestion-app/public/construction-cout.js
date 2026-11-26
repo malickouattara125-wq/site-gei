@@ -81,7 +81,7 @@
       const art = (id) => (d.articles || []).find((a) => a.id === id) || { nom: "?", unite: "" };
       const autresVillas = d.villas.filter((x) => x.chantierId === v.chantierId && x.id !== v.id).sort(triLot);
       blocs.push(`<section class="panel"><div class="sec__head"><span class="sec__n">${I("receipt")}</span><div><h2>Dépenses de la villa</h2><p>Coût réel : dépenses directes, matériel sorti du stock et part des frais communs (${c.repartition === "surface" ? "selon la surface" : "à parts égales"}).</p></div>
-          <details class="menu-p" style="margin-left:auto"><summary class="btn btn--tertiary btn--icon" aria-label="Autres actions">${I("more")}</summary><div class="menu-p__pop"><button type="button" id="xpVilla">${I("download")}Exporter les dépenses (Excel)</button><button type="button" id="prVilla">${I("printer")}Imprimer / PDF</button></div></details></div>
+          <details class="menu-p" style="margin-left:auto"><summary class="btn btn--tertiary btn--icon" aria-label="Autres actions">${I("more")}</summary><div class="menu-p__pop"><button type="button" id="xpVillaP">${I("printer")}Dépenses : PDF</button><button type="button" id="xpVilla">${I("sheet")}Dépenses : Excel</button><button type="button" id="prVilla">${I("printer")}Imprimer / PDF</button></div></details></div>
         <div class="kpis kpis--3">
           <div class="kpi"><small>Coût réel</small><b>${U.money(k.total)}</b><span>${v.surface && k.total ? `${fcfa(k.total / v.surface)} / m²` : "coût au m² : surface à indiquer"}</span></div>
           <div class="kpi"><small>Budget prévu</small><b>${v.budget ? U.money(v.budget) : "—"}</b><span>${maison && maison.prix ? `prix de vente ${fcfa(maison.prix)}` : "aucun prix de vente lié"}</span></div>
@@ -96,15 +96,16 @@
               <td><select class="dep-move" data-dep="${x.id}" aria-label="Déplacer la dépense"><option value="">—</option><option value="commun">Commune au programme</option>${autresVillas.map((o) => `<option value="${o.id}">Villa ${esc(o.lot)}</option>`).join("")}</select></td></tr>`; }).join("")}</tbody></table></div>` : '<p class="muted">Aucune dépense directe. Utilisez « Nouvelle dépense » en haut de la page.</p>'}
         </details></section>`);
       // Étape 10 : export et impression des dépenses de la villa
-      K._villaExport = () => G.calc.exporter(`depenses-villa-${v.lot}`, [["Date", (x) => x.date], ["Libellé", (x) => x.libelle], ["Catégorie", (x) => CAT[x.categorie] || x.categorie], ["Matériau", (x) => (x.articleId ? art(x.articleId).nom : "")], ["Quantité", (x) => x.qte || ""], ["Unité", (x) => x.unite || ""], ["Fournisseur", (x) => x.fournisseur || ""], ["Montant", (x) => x.montant], ["Payé", (x) => (G.verseDep ? G.verseDep(x) : "")], ["Reste", (x) => (G.resteDep ? G.resteDep(x) : "")]],
-        [...k.directes, ...k.sorties.map((s) => ({ date: s.date, libelle: `Sortie de stock : ${art(s.articleId).nom}`, categorie: "materiaux", articleId: s.articleId, qte: s.quantite, unite: art(s.articleId).unite, montant: Math.round(k.valeurSortie(s)) })), ...(k.communs ? [{ date: today(), libelle: "Part des frais communs du programme", categorie: "autre", montant: Math.round(k.communs) }] : [])]);
+      K._villaExport = (format) => G.calc.exporter(`Dépenses villa ${v.lot}`, [["Date", (x) => x.date], ["Libellé", (x) => x.libelle], ["Catégorie", (x) => CAT[x.categorie] || x.categorie], ["Matériau", (x) => (x.articleId ? art(x.articleId).nom : "")], ["Quantité", (x) => x.qte || ""], ["Unité", (x) => x.unite || ""], ["Fournisseur", (x) => x.fournisseur || ""], ["Montant", (x) => x.montant], ["Payé", (x) => (G.verseDep ? G.verseDep(x) : "")], ["Reste", (x) => (G.resteDep ? G.resteDep(x) : "")]],
+        [...k.directes, ...k.sorties.map((s) => ({ date: s.date, libelle: `Sortie de stock : ${art(s.articleId).nom}`, categorie: "materiaux", articleId: s.articleId, qte: s.quantite, unite: art(s.articleId).unite, montant: Math.round(k.valeurSortie(s)) })), ...(k.communs ? [{ date: today(), libelle: "Part des frais communs du programme", categorie: "autre", montant: Math.round(k.communs) }] : [])], format, { titre: `Dépenses de la villa ${v.lot}`, filtres: `Programme : ${c.nom} · Villa ${v.lot}` });
     }
     box.innerHTML = blocs.join("");
     // Actions
     if ($("#finAppl")) $("#finAppl").onclick = () => enregistrerFin(v, finitionsGamme(v.gamme), "Finitions remplies");
     if ($("#finEdit")) $("#finEdit").onclick = () => editerFinitions(v, c);
     if ($("#finPrint")) $("#finPrint").onclick = () => imprimerFinitions(v, c);
-    if ($("#xpVilla")) $("#xpVilla").onclick = () => K._villaExport();
+    if ($("#xpVilla")) $("#xpVilla").onclick = () => K._villaExport("xlsx");
+    if ($("#xpVillaP")) $("#xpVillaP").onclick = () => K._villaExport("pdf");
     if ($("#prVilla")) $("#prVilla").onclick = () => print();
     $$(".dep-move", box).forEach((s) => s.addEventListener("change", async () => {
       if (!s.value) return; const cible = s.value === "commun" ? "commune au programme" : `villa ${(d.villas.find((x) => x.id === s.value) || {}).lot}`;
