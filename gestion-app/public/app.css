@@ -911,3 +911,19 @@ body.panneau-open { overflow: hidden; }
 /* Chantiers particuliers */
 .sec__n svg { width: 16px; height: 16px; }
 .prog__type { display: inline-block; font-size: 12px; font-weight: 600; color: var(--brand-700); background: var(--brand-50); border-radius: 999px; padding: 2px 9px; }
+
+/* Pointage : le total ne remonte plus sous les cartes des ouvriers */
+.panel > .checks + .muted { margin-top: 10px; }
+/* Très grands montants : le « F » passe à la ligne au lieu de recouvrir le chiffre */
+.kc { container-type: inline-size; }
+.kc__val { white-space: nowrap; font-size: clamp(16px, 11cqi, 30px); }
+/* Badges longs dans les tableaux (ex. « En retard : … ») : retour à la ligne au lieu d élargir la page */
+.tbl td .st { white-space: normal; height: auto; min-height: 24px; padding-top: 3px; padding-bottom: 3px; line-height: 1.3; }
+/* Tableaux larges : les titres de colonnes peuvent passer sur 2 lignes plutôt que d élargir la page */
+.tbl th { white-space: normal; }
+/* Grand écran : si un tableau est trop large, les montants passent à la ligne au lieu de faire déborder la page */
+@media (min-width: 1101px) { .tbl td.num { white-space: normal; } }
+.kc__foot { flex-wrap: wrap; min-width: 0; }
+/* Cartes chiffres : jamais plus larges que leur colonne ; un très long montant passe à la ligne */
+.kpi { grid-template-columns: minmax(0, 1fr); }
+.kpi > b .num, .kpi > span { white-space: normal; overflow-wrap: anywhere; }
