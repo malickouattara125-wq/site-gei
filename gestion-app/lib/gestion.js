@@ -188,6 +188,20 @@ function depuisImport(nom, row) {
     return { ...row, paiements: verse ? [{ date: date(row.date) || new Date().toISOString().slice(0, 10), montant: verse, mode: row.mode }] : [] };
   }
   if (nom === "ouvriers") return { ...row, actif: !/^(non|no|0|false)$/i.test(String(row.actif || "oui").trim()) };
+  // Contrat de location repris d'Excel : caution + loyers payés mois par mois (colonnes m01 à m12 = janvier à décembre de l'année « annee »)
+  if (nom === "contrats") {
+    const annee = /^\d{4}$/.test(String(row.annee || "")) ? String(row.annee) : String(new Date().getFullYear());
+    const debut = date(row.dateDebut), fin = date(row.dateFin), auj = new Date().toISOString().slice(0, 10);
+    const MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
+    const paiements = [];
+    const caution = montant(row.caution);
+    if (caution) paiements.push({ date: debut || auj, montant: caution, mode: row.mode, nature: "caution", libelle: "Caution (reprise Excel)" });
+    for (let i = 1; i <= 12; i++) {
+      const v = montant(row["m" + String(i).padStart(2, "0")]);
+      if (v) paiements.push({ date: `${annee}-${String(i).padStart(2, "0")}-05`, montant: v, mode: row.mode, nature: "loyer", mois: `${annee}-${String(i).padStart(2, "0")}`, libelle: `Loyer de ${MOIS[i - 1]} ${annee} (reprise Excel)` });
+    }
+    return { ...row, type: "location", statut: fin && fin < auj ? "termine" : "actif", periodicite: "mensuel", caution, paiements };
+  }
   return row;
 }
 

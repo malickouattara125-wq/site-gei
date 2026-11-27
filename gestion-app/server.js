@@ -207,7 +207,7 @@ async function api(req, res, pathname) {
   }
 
   // Import depuis Excel (CSV converti dans le navigateur)
-  const mi = /^\/api\/g\/import\/(maisons|depenses|ouvriers|chantiers)$/.exec(pathname);
+  const mi = /^\/api\/g\/import\/(maisons|depenses|ouvriers|chantiers|contrats)$/.exec(pathname);
   if (mi && method === "POST") {
     const b = await readBody(req, 4 * 1024 * 1024);
     const rows = Array.isArray(b.rows) ? b.rows.slice(0, 3000) : [];

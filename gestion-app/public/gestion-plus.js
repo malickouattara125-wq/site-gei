@@ -390,6 +390,10 @@
     depenses: { titre: "Dépenses", champs: [["date", "Date", ["date"]], ["libelle", "Libellé *", ["libelle", "designation", "description", "objet", "article"]], ["montant", "Montant total", ["montant", "montanttotal", "montanttotalf", "total", "prix", "cout", "somme"]], ["avance", "Avance payée", ["avance", "avancepayee", "avancepayeef", "dejapaye", "montantpaye", "verse"]],
       ["categorie", "Catégorie", ["categorie", "type", "nature"]], ["fournisseur", "Fournisseur", ["fournisseur", "vendeur", "magasin"]], ["quantite", "Quantité / détail", ["quantite", "quantitedetail", "detail", "qte", "nombre"]], ["mode", "Mode de paiement", ["mode", "modedepaiement", "paiement"]], ["paye", "Tout payé (oui/non)", ["paye", "payee", "regle"]], ["chantier", "Chantier (nom)", ["chantier", "site", "projet"]]] },
     ouvriers: { titre: "Ouvriers", champs: [["nom", "Nom *", ["nom", "nomprenoms", "ouvrier", "nomsetprenoms"]], ["metier", "Métier", ["metier", "fonction", "poste", "specialite"]], ["tel", "Téléphone", ["telephone", "tel", "contact"]], ["tarifJour", "Tarif / jour", ["tarif", "tarifjour", "journalier", "salairejour", "prixjour"]]] },
+    contrats: { titre: "Contrats de location", champs: [["partie", "Locataire *", ["locataire", "nomdulocataire", "partie", "occupant"]], ["partieTel", "Téléphone", ["telephone", "tel", "contact", "whatsapp"]],
+      ["bien", "Bien loué", ["bienloue", "bien", "maison", "magasin", "logement", "local"]], ["montant", "Loyer mensuel *", ["loyermensuel", "loyer", "montantduloyer"]], ["caution", "Caution versée", ["caution", "cautionversee", "depotdegarantie"]],
+      ["dateDebut", "Date de début *", ["datededebut", "debutdubail", "dateentree", "datedentree"]], ["dateFin", "Date de fin", ["datedefin", "findubail"]], ["mode", "Mode de paiement", ["modedepaiement", "mode", "paiement"]],
+      ["m01", "Janv. 2026", ["janv2026", "janvier2026"]], ["m02", "Févr. 2026", ["fevr2026", "fevrier2026"]], ["m03", "Mars 2026", ["mars2026", "mars2026"]], ["m04", "Avr. 2026", ["avr2026", "avril2026"]], ["m05", "Mai 2026", ["mai2026", "mai2026"]], ["m06", "Juin 2026", ["juin2026", "juin2026"]], ["m07", "Juil. 2026", ["juil2026", "juillet2026"]], ["m08", "Août 2026", ["aout2026", "aout2026"]], ["m09", "Sept. 2026", ["sept2026", "septembre2026"]], ["m10", "Oct. 2026", ["oct2026", "octobre2026"]], ["m11", "Nov. 2026", ["nov2026", "novembre2026"]], ["m12", "Déc. 2026", ["dec2026", "decembre2026"]], ["notes", "Notes", ["notes", "remarques", "observations"]]] },
     chantiers: { titre: "Chantiers", champs: [["nom", "Nom *", ["nom", "chantier", "projet"]], ["lieu", "Lieu", ["lieu", "ville", "localisation"]], ["client", "Client", ["client", "proprietaire"]], ["budget", "Budget", ["budget", "montant", "cout"]], ["dateDebut", "Début (AAAA-MM-JJ)", ["debut", "datedebut"]], ["dateFin", "Fin prévue", ["fin", "datefin"]]] },
   };
   // Modèles d'exemple à télécharger : titres reconnus automatiquement à l'import + 2 lignes d'exemple
@@ -402,6 +406,9 @@
       ["06/11/2026", "Fer à béton de 12", "300 barres", "2450000", "1500000", "Matériaux", "Quincaillerie Abobo", "Virement", "Villas ADOHA"]],
     ouvriers: [["Nom", "Métier", "Téléphone", "Tarif jour"],
       ["Traoré Moussa", "Maçon", "0700000002", "8000"], ["Kouassi Jean", "Charpentier", "0700000003", "9000"]],
+    contrats: [["Locataire", "Téléphone", "Bien loué", "Loyer mensuel", "Caution versée", "Date de début", "Date de fin", "Mode de paiement", "Janv. 2026", "Févr. 2026", "Mars 2026", "Avr. 2026", "Mai 2026", "Juin 2026", "Juil. 2026", "Août 2026", "Sept. 2026", "Oct. 2026", "Nov. 2026", "Déc. 2026", "Notes"],
+      ["Yao Serge", "0505050505", "Magasin M3", "150000", "300000", "01/01/2026", "", "Espèces", "150000", "150000", "150000", "150000", "150000", "150000", "150000", "150000", "150000", "150000", "", "", ""],
+      ["Bamba Awa", "0707070707", "Villa 4 pièces Angré", "250000", "500000", "01/06/2026", "31/05/2027", "Virement", "", "", "", "", "", "250000", "250000", "250000", "250000", "", "", "", "Paye avec retard"]],
     chantiers: [["Nom", "Lieu", "Client", "Budget", "Date début", "Date fin"],
       ["Villas ADOHA", "Bingerville", "Programme GEI", "180000000", "01/06/2026", "30/03/2027"],
       ["Résidence ADJIN", "Bingerville", "Programme GEI", "95000000", "10/08/2026", "30/05/2027"]],
@@ -438,18 +445,19 @@
     catch { return { texte: new TextDecoder("windows-1252").decode(buf), enc: "Windows-1252" }; }
   }
   const dateISO = (v) => { v = String(v || "").trim(); let m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})$/.exec(v); if (m) { const y = m[3].length === 2 ? "20" + m[3] : m[3]; if (+m[2] < 1 || +m[2] > 12 || +m[1] < 1 || +m[1] > 31) return ""; return `${y}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`; } m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v); return m ? m[0] : ""; };
-  const MONTANTS = ["prix", "montant", "avance", "tarifJour", "budget", "montantPaye"], DATES = ["date", "dateDebut", "dateFin"];
-  const OBLIG = { maisons: [["programme", "Programme manquant"], ["lot", "Lot manquant"]], depenses: [["libelle", "Désignation manquante"]], ouvriers: [["nom", "Nom manquant"]], chantiers: [["nom", "Nom manquant"]] };
+  const MONTANTS = ["prix", "montant", "avance", "tarifJour", "budget", "montantPaye", "caution", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12"], DATES = ["date", "dateDebut", "dateFin"];
+  const OBLIG = { maisons: [["programme", "Programme manquant"], ["lot", "Lot manquant"]], depenses: [["libelle", "Désignation manquante"]], ouvriers: [["nom", "Nom manquant"]], chantiers: [["nom", "Nom manquant"]], contrats: [["partie", "Locataire manquant"], ["montant", "Loyer mensuel manquant"], ["dateDebut", "Date de début manquante"]] };
   const INFO_IMPORT = {
     maisons: { ic: "house", desc: "Lots, prix, clients et sommes déjà versées.", page: "#g-maisons", lien: "Voir les maisons" },
     depenses: { ic: "receipt", desc: "Achats et frais, avec l'avance payée.", page: "#g-depenses", lien: "Voir les dépenses" },
     ouvriers: { ic: "users", desc: "Noms, métiers, téléphones et tarifs par jour.", page: "#g-equipes", lien: "Voir les équipes" },
     chantiers: { ic: "hardhat", desc: "Nom, lieu, client, budget et dates.", page: "#g-chantiers", lien: "Voir les chantiers" },
+    contrats: { ic: "file", desc: "Locataires déjà en place : loyer, caution et loyers payés mois par mois.", page: "#g-contrats", lien: "Voir les contrats" },
   };
   const taille = (o) => (o < 1024 ? `${o} o` : o < 1048576 ? `${(o / 1024).toFixed(1).replace(".", ",")} Ko` : `${(o / 1048576).toFixed(1).replace(".", ",")} Mo`);
 
   views["g-import"] = async () => {
-    const chantiers = await api("/api/g/chantiers");
+    const [chantiers, maisons] = await Promise.all([api("/api/g/chantiers"), api("/api/g/maisons").catch(() => [])]);
     const I = G.ui.I;
     let type = "", fichier = null, tetes = [], lignes = [], resultat = null;
     const histo = () => { try { return JSON.parse(localStorage.getItem("gei-imports")) || []; } catch { return []; } };
@@ -504,6 +512,12 @@
         delete o.chantier;
       }
       if (type === "depenses" && o.avance && o.montant && +o.avance > +o.montant) err.push("Avance plus grande que le montant total");
+      // Contrat : le bien loué est relié à la fiche maison / magasin du même nom, sinon il est gardé comme texte
+      if (type === "contrats") {
+        o.annee = "2026";
+        if (o.bien) { const b = SANS(o.bien); const m = maisons.find((x) => SANS(x.lot) === b || SANS(`${x.programme}${x.lot}`) === b) || maisons.find((x) => b.length > 3 && SANS(`${x.programme}${x.lot}`).includes(b)); if (m) o.maisonId = m.id; else o.objet = o.bien; }
+        delete o.bien;
+      }
       for (const [k, msg] of OBLIG[type]) if (!o[k]) err.push(msg);
       return { o, err };
     }
