@@ -378,7 +378,7 @@ ${FAIT}`;
           ["Référence", (c) => `<b>${esc(c.reference || "—")}</b>`],
           ["Type", (c) => `${esc(TYPES[c.type].court)}${c.metier && nomMetier(c.type, c.metier) ? `<br><small class="muted">${esc(nomMetier(c.type, c.metier))}</small>` : ""}`],
           ["Partie", (c) => `<b>${esc(c.partie)}</b>${c.partieTel ? `<br><small class="muted">${esc(c.partieTel)}</small>` : ""}`],
-          ["Objet", (c) => esc(c.objet || "—")],
+          ["Objet", (c) => { const m = maisons.find((x) => x.id === c.maisonId); return esc(c.objet || (m ? `${m.bien === "magasin" ? "Magasin · " : ""}${m.programme} · ${m.lot}` : "") || "—"); }],
           ["Montant", (c) => (c.montant ? `${fcfa(c.montant)}<br><small class="muted">${esc(PERIODES[c.periodicite] || "")}</small>` : "—"), 1],
           ["Fin", (c) => { const j = joursAvant(c.dateFin); return c.dateFin ? `${U.dateFr(c.dateFin)}${c.statut === "actif" && j !== null && j <= 30 ? `<br><small class="${j < 0 ? "t-bad" : "t-warn"}">${j < 0 ? "dépassée" : `dans ${j} j`}</small>` : ""}` : "—"; }],
           ["À suivre", (c) => { const L = loyers(c), r = L.retard || resteForfait(c); return r ? `<b class="t-bad">${fcfa(r)}</b><br><small class="muted">${c.type === "location" ? `${L.nbImpayes} mois impayé(s)` : "reste à payer"}</small>` : "—"; }, 1],
@@ -387,7 +387,7 @@ ${FAIT}`;
       </section>`;
     G.exp.brancher("xp", () => {
       const baux = liste.filter((c) => c.type === "location" && (c.statut === "actif" || c.statut === "termine")).map((c) => ({ c, L: loyers(c) })).sort((a, b) => b.L.retard - a.L.retard || String(a.c.partie).localeCompare(String(b.c.partie)));
-      const bien = (c) => { const m = maisons.find((x) => x.id === c.maisonId); return m ? `${m.programme} · lot ${m.lot}` : c.objet || c.lieu || ""; };
+      const bien = (c) => { const m = maisons.find((x) => x.id === c.maisonId); return m ? `${m.bien === "magasin" ? "Magasin · " : ""}${m.programme} · lot ${m.lot}` : c.objet || c.lieu || ""; };
       const ST = { actif: "Actif", termine: "Terminé" };
       return { fichier: `GEI_Etat-des-loyers_${cur}`, titre: "État des loyers", orientation: "paysage", filtres: `Situation au ${G.exp.dateFr(G.exp.auj())} · mois en cours : ${moisFr(cur)}`,
         chiffres: [{ l: `Loyers attendus (${moisFr(cur)})`, v: duMois }, { l: "Encaissés ce mois", v: recuMois }, { l: "Loyers impayés", v: impayes, bad: impayes > 0 }, { l: "Locataires en retard", v: locs.filter(({ L }) => L.retard).length, type: "nombre" }],
@@ -448,7 +448,7 @@ ${FAIT}`;
             </div></section>
           <section class="panel">${sec(2, "Conditions", "Ce qui est loué, le poste ou les travaux, les dates et le montant.")}
             <div class="grid">
-              ${champ("location", `<label class="full"><span>Maison concernée (facultatif)</span><select name="maisonId"><option value="">— Aucune / autre bien —</option>${maisons.map((m) => `<option value="${m.id}"${m.id === c.maisonId ? " selected" : ""}>${esc(`${m.programme} · lot ${m.lot}${m.type ? " · " + m.type : ""}`)}</option>`).join("")}</select></label>`)}
+              ${champ("location", `<label class="full"><span>Maison ou magasin concerné (facultatif)</span><select name="maisonId"><option value="">— Aucun / autre bien —</option>${maisons.map((m) => `<option value="${m.id}"${m.id === c.maisonId ? " selected" : ""}>${esc(`${m.bien === "magasin" ? "Magasin · " : ""}${m.programme} · lot ${m.lot}${m.type ? " · " + m.type : ""}`)}</option>`).join("")}</select></label>`)}
               ${champ("ouvrier", `<label class="full"><span>Chantier</span><select name="chantierId"><option value="">— Aucun —</option>${chantiers.map((x) => `<option value="${x.id}"${x.id === c.chantierId ? " selected" : ""}>${esc(x.nom)}</option>`).join("")}</select></label>`)}
               <label class="full"><span id="lObjet">${esc(CHAMPS[c.type].objet)}</span><input name="objet" value="${esc(c.objet || "")}"></label>
               <label><span id="lLieu">${esc(CHAMPS[c.type].lieu)}</span><input name="lieu" value="${esc(c.lieu || "")}"></label>

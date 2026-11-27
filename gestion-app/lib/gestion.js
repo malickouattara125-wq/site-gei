@@ -18,7 +18,7 @@ const docs = (v) => arr(v, 50).map((d) => ({ nom: str(d && d.nom, 120), fichier:
 
 const LISTES = {
   statutChantier: ["preparation", "en_cours", "pause", "termine"],
-  statutMaison: ["disponible", "reservee", "vendue", "livree"],
+  statutMaison: ["disponible", "reservee", "vendue", "livree", "louee"],
   // 8 catégories : les 6 d'origine (mêmes clés, libellés renommés à l'écran) + sous-traitance et frais de chantier
   categorieDepense: ["materiaux", "main_oeuvre", "sous_traitance", "transport", "location", "frais_chantier", "administratif", "autre"],
   niveauVilla: ["gros_oeuvre", "cle_en_main"],
@@ -51,6 +51,7 @@ const COLLECTIONS = {
   },
   maisons: (b) => {
     const m = {
+      bien: pick(b.bien, ["maison", "magasin"], "maison"),
       programme: str(b.programme, 120), lot: str(b.lot, 40), type: str(b.type, 80), superficie: str(b.superficie, 40),
       prix: montant(b.prix), statut: pick(b.statut, LISTES.statutMaison, "disponible"), chantierId: id(b.chantierId),
       clientNom: str(b.clientNom, 120), clientTel: str(b.clientTel, 40), clientEmail: str(b.clientEmail, 120), clientPays: str(b.clientPays, 60),

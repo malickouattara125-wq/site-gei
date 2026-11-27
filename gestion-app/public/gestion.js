@@ -14,7 +14,7 @@
   const sum = (a, f = (x) => x) => a.reduce((t, x) => t + (+f(x) || 0), 0);
   const num = (v) => { const x = parseFloat(String(v || "").replace(/\s/g, "").replace(",", ".")); return isFinite(x) ? x : 0; };
   const LIB = {
-    statut: { preparation: "En préparation", en_cours: "En cours", pause: "En pause", termine: "Terminé", disponible: "Disponible", reservee: "Réservée", vendue: "Vendue", livree: "Livrée" },
+    statut: { preparation: "En préparation", en_cours: "En cours", pause: "En pause", termine: "Terminé", disponible: "Disponible", reservee: "Réservée", vendue: "Vendue", livree: "Livrée", louee: "Louée" },
     categorie: { materiaux: "Matériaux", main_oeuvre: "Main-d'œuvre", sous_traitance: "Sous-traitance", transport: "Transport", location: "Engins et outillage", frais_chantier: "Frais de chantier", administratif: "Études et administratif", autre: "Divers" },
     mode: { especes: "Espèces", virement: "Virement", cheque: "Chèque", mobile_money: "Mobile Money", autre: "Autre" },
   };
@@ -463,45 +463,50 @@
     const d = await load("maisons", "chantiers");
     const progs = [...new Set(d.maisons.map((m) => m.programme))].sort();
     const fp = (filtre || "").split("|");
-    const list = d.maisons.filter((m) => (!fp[0] || m.programme === fp[0]) && (!fp[1] || m.statut === fp[1]))
+    const estMag = (m) => m.bien === "magasin", fb = ["maisons", "magasins"].includes(fp[2]) ? fp[2] : "";
+    const list = d.maisons.filter((m) => (!fp[0] || m.programme === fp[0]) && (!fp[1] || m.statut === fp[1]) && (!fb || (fb === "magasins") === estMag(m)))
       .sort((a, b) => a.programme.localeCompare(b.programme) || String(a.lot).localeCompare(String(b.lot), "fr", { numeric: true }));
-    const cols = [["Programme", (m) => esc(m.programme)], ["Lot", (m) => `<b>${esc(m.lot)}</b>`], ["Type", (m) => esc(m.type)], ["Statut", (m) => st(m.statut)], ["Client", (m) => esc(m.clientNom || "—")],
+    const cols = [["Programme", (m) => esc(m.programme)], ["Lot", (m) => `<b>${esc(m.lot)}</b>`], ["Type", (m) => `${estMag(m) ? '<span class="st st--magasin">Magasin</span> ' : ""}${esc(m.type)}`], ["Statut", (m) => st(m.statut)], ["Client", (m) => esc(m.clientNom || "—")],
       ["Prix", (m) => fcfa(m.prix), 1], ["Payé", (m) => fcfa(paye(m)), 1], ["Reste", (m) => fcfa(du(m)), 1],
       ["Prochaine échéance", (m) => { const e = prochaine(m); return retard(m) ? `<span class="st st--pause">En retard : ${fcfa(retard(m))}</span>` : e ? `${dfr(e.date)} · ${fcfa(e.montant)}` : "—"; }]];
-    main.innerHTML = head("Maisons et clients", "Chaque maison de chaque programme : statut, client, échéancier et paiements.",
-      G.exp.bouton() + '<a class="btn btn--primary" href="#g-maison/nouvelle">+ Nouvelle maison</a>') + `
+    const lienB = (k) => `#g-maisons/${encodeURIComponent([fp[0] || "", fp[1] || "", k].join("|"))}`, nbMag = d.maisons.filter(estMag).length;
+    main.innerHTML = head("Maisons et clients", "Maisons et magasins, à vendre ou à louer : statut, client, échéancier et paiements. Les loyers se suivent dans Contrats.",
+      G.exp.bouton() + '<a class="btn btn--secondary" href="#g-maison/nouveau-magasin">+ Nouveau magasin</a><a class="btn btn--primary" href="#g-maison/nouvelle">+ Nouvelle maison</a>') + `
+      <div class="chips" role="group" aria-label="Type de bien">${[["", "Tous", d.maisons.length], ["maisons", "Maisons", d.maisons.length - nbMag], ["magasins", "Magasins", nbMag]].map(([k, l, nb]) => `<a class="chip${fb === k ? " is-on" : ""}" href="${lienB(k)}">${l} <b>${nb}</b></a>`).join("")}</div>
       <section class="panel"><div class="filters">
         <label>Programme<select id="fprog"><option value="">Tous</option>${progs.map((p) => `<option${p === fp[0] ? " selected" : ""}>${esc(p)}</option>`).join("")}</select></label>
-        <label>Statut<select id="fst">${opts({ disponible: "Disponible", reservee: "Réservée", vendue: "Vendue", livree: "Livrée" }, fp[1], "Tous")}</select></label>
+        <label>Statut<select id="fst">${opts({ disponible: "Disponible", reservee: "Réservée", vendue: "Vendue", livree: "Livrée", louee: "Louée" }, fp[1], "Tous")}</select></label>
       </div>
-      ${tableau(cols, list, (m) => `#g-maison/${m.id}`, ["Total", `${list.length} lots`, "", "", "", fcfa(sum(list, (m) => m.prix)), fcfa(sum(list, paye)), fcfa(sum(list, du)), ""])}</section>`;
-    const go = () => { location.hash = `#g-maisons/${encodeURIComponent($("#fprog").value + "|" + $("#fst").value)}`; };
+      ${tableau(cols, list, (m) => `#g-maison/${m.id}`, ["Total", `${list.length} bien(s)`, "", "", "", fcfa(sum(list, (m) => m.prix)), fcfa(sum(list, paye)), fcfa(sum(list, du)), ""])}</section>`;
+    const go = () => { location.hash = `#g-maisons/${encodeURIComponent($("#fprog").value + "|" + $("#fst").value + "|" + fb)}`; };
     $("#fprog").onchange = go; $("#fst").onchange = go;
     G.exp.brancher("xp", () => ({
       fichier: `GEI_Maisons-et-clients_${today()}${fp[0] ? "_" + G.exp.slug(fp[0]) : ""}`, titre: "Maisons et clients", orientation: "paysage",
-      filtres: G.exp.filtres([["Programme", fp[0]], ["Statut", fp[1] ? LIB.statut[fp[1]] : ""]]),
+      filtres: G.exp.filtres([["Biens", fb === "magasins" ? "Magasins" : fb === "maisons" ? "Maisons" : ""], ["Programme", fp[0]], ["Statut", fp[1] ? LIB.statut[fp[1]] : ""]]),
       chiffres: [{ l: "Prix total", v: sum(list, (m) => m.prix), s: list.length + " lot(s)" }, { l: "Encaissé", v: sum(list, paye) }, { l: "Reste à encaisser", v: sum(list, du) }, { l: "En retard", v: sum(list, retard), bad: sum(list, retard) > 0 }],
-      feuilles: [{ nom: "Maisons", colonnes: [{ t: "Programme / quartier" }, { t: "Lot" }, { t: "Type" }, { t: "Superficie" }, { t: "Statut" }, { t: "Client" }, { t: "Téléphone" }, { t: "Prix", type: "montant" }, { t: "Encaissé", type: "montant" }, { t: "Reste", type: "montant" }, { t: "En retard", type: "montant" }],
-        lignes: list.map((m) => [m.programme, m.lot, m.type, m.superficie, LIB.statut[m.statut] || "", m.clientNom, m.clientTel, m.prix || "", paye(m), du(m), retard(m)]) }] }));
+      feuilles: [{ nom: "Biens", colonnes: [{ t: "Bien" }, { t: "Programme / quartier" }, { t: "Lot" }, { t: "Type" }, { t: "Superficie" }, { t: "Statut" }, { t: "Client" }, { t: "Téléphone" }, { t: "Prix", type: "montant" }, { t: "Encaissé", type: "montant" }, { t: "Reste", type: "montant" }, { t: "En retard", type: "montant" }],
+        lignes: list.map((m) => [estMag(m) ? "Magasin" : "Maison", m.programme, m.lot, m.type, m.superficie, LIB.statut[m.statut] || "", m.clientNom, m.clientTel, m.prix || "", paye(m), du(m), retard(m)]) }] }));
   };
 
   views["g-maison"] = async (mid) => {
-    const isNew = mid === "nouvelle";
+    const isNew = mid === "nouvelle" || mid === "nouveau-magasin";
     const d = await load("maisons", "chantiers");
-    const m = isNew ? { statut: "disponible", echeancier: [], paiements: [] } : d.maisons.find((x) => x.id === mid);
+    const m = isNew ? { statut: "disponible", echeancier: [], paiements: [], bien: mid === "nouveau-magasin" ? "magasin" : "maison" } : d.maisons.find((x) => x.id === mid);
     if (!m) { main.innerHTML = '<p class="empty">Maison introuvable.</p>'; return; }
     const ech = (m.echeancier || []).map((x) => ({ ...x })), pay = (m.paiements || []).map((x) => ({ ...x })), documents = (m.documents || []).map((x) => ({ ...x }));
-    const relance = !isNew && retard(m) > 0 && m.clientTel ? `<a class="btn btn--ghost" target="_blank" rel="noopener" href="https://wa.me/${waTel(m.clientTel)}?text=${encodeURIComponent(`Bonjour ${m.clientNom || ""},\n\nGlobal Empire Immobilier vous rappelle qu'un montant de ${fcfa(retard(m))} est arrivé à échéance pour votre maison (${m.programme}, lot ${m.lot}).\n\nMerci de nous contacter pour le règlement. Bonne journée.`)}">Relancer sur WhatsApp</a>` : "";
+    const relance = !isNew && retard(m) > 0 && m.clientTel ? `<a class="btn btn--ghost" target="_blank" rel="noopener" href="https://wa.me/${waTel(m.clientTel)}?text=${encodeURIComponent(`Bonjour ${m.clientNom || ""},\n\nGlobal Empire Immobilier vous rappelle qu'un montant de ${fcfa(retard(m))} est arrivé à échéance pour votre ${m.bien === "magasin" ? "magasin" : "maison"} (${m.programme}, lot ${m.lot}).\n\nMerci de nous contacter pour le règlement. Bonne journée.`)}">Relancer sur WhatsApp</a>` : "";
     const progs = [...new Set(d.maisons.map((x) => x.programme))].sort();
-    main.innerHTML = head(isNew ? "Nouvelle maison" : `${esc(m.programme)} · lot ${esc(m.lot)}`, isNew ? "Ajoutez une maison (lot) d'un programme." : `${st(m.statut)} ${m.clientNom ? "· " + esc(m.clientNom) : ""}`, (isNew ? "" : G.exp.bouton("xpm")) + relance + '<a class="btn btn--text" href="#g-maisons">← Retour</a>') + `
+    const mag = m.bien === "magasin";
+    main.innerHTML = head(isNew ? (mag ? "Nouveau magasin" : "Nouvelle maison") : `${mag ? "Magasin · " : ""}${esc(m.programme)} · ${esc(m.lot)}`, isNew ? (mag ? "Ajoutez un magasin, à vendre ou à louer. Pour une location, créez ensuite son contrat dans Contrats." : "Ajoutez une maison (lot) d'un programme.") : `${st(m.statut)} ${m.clientNom ? "· " + esc(m.clientNom) : ""}`, (isNew ? "" : G.exp.bouton("xpm")) + relance + '<a class="btn btn--text" href="#g-maisons">← Retour</a>') + `
       <form class="form" id="f" novalidate>
-        <section class="panel"><h2>La maison</h2><div class="grid">
+        <section class="panel"><h2 id="hBien">${mag ? "Le magasin" : "La maison"}</h2><div class="grid">
+          <label class="full"><span>Type de bien</span><select name="bien">${opts({ maison: "Maison / villa", magasin: "Magasin" }, mag ? "magasin" : "maison")}</select></label>
           <label><span>Programme ou quartier *</span><input name="programme" list="progs" value="${esc(m.programme || "")}" placeholder="Ex. Les Rives de l'Opulence, ou Cocody Angré pour une location"><datalist id="progs">${progs.map((p) => `<option value="${esc(p)}">`).join("")}</datalist></label>
-          <label><span>Numéro du lot ou nom du bien *</span><input name="lot" value="${esc(m.lot || "")}" placeholder="Ex. A12, ou Villa 4 pièces"></label>
-          <label><span>Type</span><input name="type" value="${esc(m.type || "")}" placeholder="Ex. Villa basse 4 pièces"></label>
+          <label><span>Numéro du lot ou nom du bien *</span><input name="lot" value="${esc(m.lot || "")}" placeholder="${mag ? "Ex. Magasin M3, ou Boutique rue 12" : "Ex. A12, ou Villa 4 pièces"}"></label>
+          <label><span>Type</span><input name="type" value="${esc(m.type || "")}" placeholder="${mag ? "Ex. Magasin 40 m² avec vitrine" : "Ex. Villa basse 4 pièces"}"></label>
           <label><span>Superficie</span><input name="superficie" value="${esc(m.superficie || "")}" placeholder="Ex. 300 m²"></label>
-          <label><span>Prix de vente (FCFA)</span><input name="prix" inputmode="numeric" value="${m.prix || ""}" placeholder="Ex. 40000000"></label>
-          <label><span>Statut</span><select name="statut">${opts({ disponible: "Disponible", reservee: "Réservée", vendue: "Vendue", livree: "Livrée (clés remises)" }, m.statut)}</select></label>
+          <label><span>Prix de vente (FCFA, vide si location)</span><input name="prix" inputmode="numeric" value="${m.prix || ""}" placeholder="Ex. 40000000"></label>
+          <label><span>Statut</span><select name="statut">${opts({ disponible: "Disponible", reservee: "Réservée", vendue: "Vendue", livree: "Livrée (clés remises)", louee: "Louée (voir Contrats)" }, m.statut)}</select></label>
           <label><span>Chantier lié</span><select name="chantierId">${chantierOpts(d.chantiers, m.chantierId)}</select></label>
         </div></section>
         <section class="panel"><h2>Le client</h2><div class="grid">
@@ -522,6 +527,7 @@
       </form>`;
     const f = $("#f");
     f.addEventListener("input", () => { G.setDirty(true); bilan(); });
+    f.bien.addEventListener("change", () => { $("#hBien").textContent = f.bien.value === "magasin" ? "Le magasin" : "La maison"; });
     const e1 = rowsEditor($("#ech"), ech, [{ k: "date", ph: "Date", type: "date" }, { k: "libelle", ph: "Libellé (ex. apport initial)" }, { k: "montant", ph: "Montant", type: "money" }], "160px 2fr 160px auto");
     const e2 = rowsEditor($("#pay"), pay, [{ k: "date", ph: "Date", type: "date" }, { k: "montant", ph: "Montant", type: "money" }, { k: "mode", ph: "Mode", type: "select", map: LIB.mode }, { k: "reference", ph: "Référence / reçu" }], "160px 160px 160px 1fr auto");
     $("#addEch").onclick = () => { e1.add({ date: "", libelle: "", montant: 0 }); bilan(); };
@@ -553,7 +559,7 @@
 
   async function recu(m, i, info) {
     const p = (m.paiements || [])[i]; if (!p) return;
-    const R = info || { client: m.clientNom, tel: m.clientTel, pour: `${m.programme} · lot ${m.lot}${m.type ? " · " + m.type : ""}`, prixLib: "Prix de la maison", prix: m.prix || 0 };
+    const R = info || { client: m.clientNom, tel: m.clientTel, pour: `${m.bien === "magasin" ? "Magasin · " : ""}${m.programme} · lot ${m.lot}${m.type ? " · " + m.type : ""}`, prixLib: m.bien === "magasin" ? "Prix du magasin" : "Prix de la maison", prix: m.prix || 0 };
     const e = await api("/api/g/entreprise").catch(() => ({ nom: "Global Empire Immobilier SARL" }));
     const avant = sum(m.paiements.slice(0, i + 1), (x) => x.montant);
     const no = `R-${String(p.date || today()).slice(0, 7).replace("-", "")}-${m.id.slice(0, 4).toUpperCase()}-${i + 1}`;

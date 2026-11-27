@@ -927,3 +927,5 @@ body.panneau-open { overflow: hidden; }
 /* Cartes chiffres : jamais plus larges que leur colonne ; un très long montant passe à la ligne */
 .kpi { grid-template-columns: minmax(0, 1fr); }
 .kpi > b .num, .kpi > span { white-space: normal; overflow-wrap: anywhere; }
+/* Magasins et biens loués */
+.st--magasin, .st--louee { background: var(--info-bg); color: var(--info); }
