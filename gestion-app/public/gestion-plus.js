@@ -27,13 +27,14 @@
   function operations(d) {
     const ops = [];
     d.maisons.forEach((m) => (m.paiements || []).forEach((p) => ops.push({ date: p.date, sens: "entree", compte: MODE_COMPTE[p.mode] || "caisse", origine: "Vente", libelle: `Paiement ${m.clientNom || "client"} · ${m.programme} lot ${m.lot}`, montant: p.montant, href: `#g-maison/${m.id}` })));
+    (d.chantiers || []).filter((c) => c.nature === "particulier").forEach((c) => (c.paiements || []).forEach((p) => ops.push({ date: p.date, sens: "entree", compte: MODE_COMPTE[p.mode] || "caisse", origine: "Travaux particulier", libelle: `Versement ${c.client || "client"} · ${c.nom}`, montant: p.montant, href: `#g-chantier/${c.id}` })));
     d.depenses.forEach((x) => (Array.isArray(x.paiements) ? x.paiements : x.paye !== false ? [{ date: x.date, montant: x.montant, mode: x.mode }] : []).forEach((p) => ops.push({ date: p.date, sens: "sortie", compte: MODE_COMPTE[p.mode] || "caisse", origine: "Dépense chantier", libelle: `${x.libelle}${x.fournisseur ? " · " + x.fournisseur : ""}`, montant: p.montant, href: `#g-depense/${x.id}` })));
     d.mouvements.forEach((x) => ops.push({ date: x.date, sens: x.sens, compte: x.compte, origine: CAT[x.categorie] || "Autre", libelle: x.libelle, montant: x.montant, href: `#g-mouvement/${x.id}` }));
     return ops.sort((a, b) => String(b.date).localeCompare(String(a.date)));
   }
   G.operations = operations;
   views["g-tresorerie"] = async (filtre) => {
-    const d = await load("maisons", "depenses", "mouvements", "contrats");
+    const d = await load("maisons", "depenses", "mouvements", "contrats", "chantiers");
     const [fm = "", fc = ""] = (filtre || "").split("|");
     const ops = (G.operations || operations)(d);
     const solde = (c) => sum(ops.filter((o) => o.compte === c), (o) => (o.sens === "entree" ? o.montant : -o.montant));
@@ -315,19 +316,23 @@
     const pts = d.pointages.filter((p) => mois(p.date) === m);
     const paie = sum(pts, (p) => sum(p.presents, (id) => tarif[id] || 0));
     const deps = d.depenses.filter((x) => mois(x.date) === m);
-    const enc = d.maisons.flatMap((x) => (x.paiements || []).filter((p) => mois(p.date) === m).map((p) => ({ ...p, m: x })));
+    // Encaissements : ventes des maisons + versements des clients particuliers (présentés comme des « maisons » : client + objet)
+    const parts = d.chantiers.filter((c) => c.nature === "particulier").map((c) => ({ clientNom: c.client, programme: c.nom, objet: `${c.travaux === "renovation" ? "Rénovation" : "Construction"} · ${c.nom}`, prix: c.prix || 0, statut: "vendue", paiements: c.paiements || [] }));
+    const ventesTout = d.maisons.concat(parts);
+    const objet = (x) => x.objet || `${x.programme} · lot ${x.lot}`;
+    const enc = ventesTout.flatMap((x) => (x.paiements || []).filter((p) => mois(p.date) === m).map((p) => ({ ...p, m: x })));
     const mv = d.mouvements.filter((x) => mois(x.date) === m && x.reference !== `paie-${""}`);
     const frais = sum(mv.filter((x) => x.sens === "sortie" && !String(x.reference || "").startsWith("paie-")), (x) => x.montant);
     const apports = sum(mv.filter((x) => x.sens === "entree" && x.categorie !== "solde_initial"), (x) => x.montant);
     const totalEnc = sum(enc, (p) => p.montant), totalDep = sum(deps, (x) => x.montant);
     const ventes = d.maisons.filter((x) => (x.paiements || []).length && mois(x.paiements[0].date) === m);
-    const reste = sum(d.maisons, (x) => (["reservee", "vendue", "livree"].includes(x.statut) ? Math.max(0, (x.prix || 0) - sum(x.paiements || [], (p) => p.montant)) : 0));
-    const moisDispo = [...new Set([mois(today()), ...d.depenses.map((x) => mois(x.date)), ...d.maisons.flatMap((x) => (x.paiements || []).map((p) => mois(p.date)))].filter(Boolean))].sort().reverse();
+    const reste = sum(ventesTout, (x) => (["reservee", "vendue", "livree"].includes(x.statut) ? Math.max(0, (x.prix || 0) - sum(x.paiements || [], (p) => p.montant)) : 0));
+    const moisDispo = [...new Set([mois(today()), ...d.depenses.map((x) => mois(x.date)), ...ventesTout.flatMap((x) => (x.paiements || []).map((p) => mois(p.date)))].filter(Boolean))].sort().reverse();
     main.innerHTML = head(`Rapport de ${moisFr(m)}`, "Résumé du mois pour la direction. Bouton « Imprimer » pour l'enregistrer en PDF.",
       `<label class="muted">Mois <select id="rm">${moisDispo.map((x) => `<option value="${x}"${x === m ? " selected" : ""}>${moisFr(x)}</option>`).join("")}</select></label>${G.exp.bouton()}`) + `
       <div class="rapport">
         <div class="rapport__titre"><img src="/logo-gei.png" alt="" width="48" height="48"><div><b>Global Empire Immobilier SARL</b><br>Rapport de gestion · ${moisFr(m)}</div></div>
-        <div class="kpis"><div class="kpi"><small>Encaissé (ventes)</small><b>${fcfa(totalEnc)}</b><span>${enc.length} paiement(s)</span></div>
+        <div class="kpis"><div class="kpi"><small>Encaissé (ventes et travaux)</small><b>${fcfa(totalEnc)}</b><span>${enc.length} paiement(s)</span></div>
           <div class="kpi"><small>Dépenses de chantier</small><b>${fcfa(totalDep)}</b><span>${deps.length} dépense(s)</span></div>
           <div class="kpi"><small>Paie des ouvriers</small><b>${fcfa(paie)}</b><span>${sum(pts, (p) => p.presents.length)} journées</span></div>
           <div class="kpi kpi--alert"><small>Résultat du mois</small><b>${fcfa(totalEnc + apports - totalDep - paie - frais)}</b><span>dont frais généraux ${fcfa(frais)}</span></div></div>
@@ -335,9 +340,9 @@
           ["Dépenses du mois", (c) => fcfa(sum(deps.filter((x) => x.chantierId === c.id), (x) => x.montant) + sum(pts.filter((p) => p.chantierId === c.id), (p) => sum(p.presents, (id) => tarif[id] || 0))), 1],
           ["Budget utilisé (total)", (c) => (c.budget ? `${Math.round((sum(d.depenses.filter((x) => x.chantierId === c.id), (x) => x.montant) + sum(d.pointages.filter((p) => p.chantierId === c.id), (p) => sum(p.presents, (id) => tarif[id] || 0))) / c.budget * 100)} %` : "—"), 1]], d.chantiers.filter((c) => c.statut !== "termine"))}</section>
         <section class="panel"><h2>Dépenses par catégorie</h2>${tableau([["Catégorie", (r) => r[0]], ["Montant", (r) => fcfa(r[1]), 1]], Object.entries(LIBCAT).map(([k, l]) => [l, sum(deps.filter((x) => x.categorie === k), (x) => x.montant)]).filter((r) => r[1]).concat(paie ? [["Paie des ouvriers", paie]] : []).concat(frais ? [["Frais généraux, salaires du personnel, autres", frais]] : []), null, ["Total", fcfa(totalDep + paie + frais)])}</section>
-        <section class="panel"><h2>Ventes et encaissements</h2>
+        <section class="panel"><h2>Ventes, travaux et encaissements</h2>
           <p>${ventes.length} nouvelle(s) vente(s) ou réservation(s) ce mois · <b>${fcfa(reste)}</b> restent à encaisser au total.</p>
-          ${tableau([["Date", (p) => dfr(p.date)], ["Client", (p) => esc(p.m.clientNom || "—")], ["Maison", (p) => `${esc(p.m.programme)} · lot ${esc(p.m.lot)}`], ["Montant", (p) => fcfa(p.montant), 1]], enc, null, ["Total", "", "", fcfa(totalEnc)])}</section>
+          ${tableau([["Date", (p) => dfr(p.date)], ["Client", (p) => esc(p.m.clientNom || "—")], ["Maison / chantier", (p) => esc(objet(p.m))], ["Montant", (p) => fcfa(p.montant), 1]], enc, null, ["Total", "", "", fcfa(totalEnc)])}</section>
       </div>`;
     $("#rm").onchange = () => { location.hash = `#g-rapport/${$("#rm").value}`; };
     G.exp.brancher("xp", (per) => {
@@ -347,7 +352,7 @@
       const ptsP = d.pointages.filter((p) => dans(p.date));
       const paieP = sum(ptsP, (p) => sum(p.presents, (id) => tarif[id] || 0));
       const depsP = d.depenses.filter((x) => dans(x.date)).sort((a, b) => String(a.date).localeCompare(String(b.date)));
-      const encP = d.maisons.flatMap((x) => (x.paiements || []).filter((p) => dans(p.date)).map((p) => ({ ...p, m: x }))).sort((a, b) => String(a.date).localeCompare(String(b.date)));
+      const encP = ventesTout.flatMap((x) => (x.paiements || []).filter((p) => dans(p.date)).map((p) => ({ ...p, m: x }))).sort((a, b) => String(a.date).localeCompare(String(b.date)));
       const mvP = d.mouvements.filter((x) => dans(x.date));
       const fraisP = sum(mvP.filter((x) => x.sens === "sortie" && !String(x.reference || "").startsWith("paie-")), (x) => x.montant);
       const apportsP = sum(mvP.filter((x) => x.sens === "entree" && x.categorie !== "solde_initial"), (x) => x.montant);
@@ -359,15 +364,15 @@
       const versé = G.verseDep || ((x) => 0), resteD = G.resteDep || ((x) => 0);
       return { fichier: `GEI_Rapport-mensuel_${P.mois || P.du + "_" + P.au}`, titre: `Rapport de gestion — ${P.libelle}`, orientation: "portrait",
         filtres: `Période : ${P.libelle} (du ${G.exp.dateFr(P.du)} au ${G.exp.dateFr(P.au)})`,
-        chiffres: [{ l: "Encaissé (ventes)", v: encT, s: encP.length + " paiement(s)" }, { l: "Dépenses de chantier", v: depT, s: depsP.length + " dépense(s)" }, { l: "Paie des ouvriers", v: paieP }, { l: "Résultat", v: resultat, bad: resultat < 0, s: "dont frais généraux " + G.ui.sep(fraisP) + " FCFA" }],
+        chiffres: [{ l: "Encaissé (ventes et travaux)", v: encT, s: encP.length + " paiement(s)" }, { l: "Dépenses de chantier", v: depT, s: depsP.length + " dépense(s)" }, { l: "Paie des ouvriers", v: paieP }, { l: "Résultat", v: resultat, bad: resultat < 0, s: "dont frais généraux " + G.ui.sep(fraisP) + " FCFA" }],
         feuilles: [
-          { nom: "Synthèse", titre: "Synthèse", colonnes: [{ t: "Poste" }, { t: "Montant", type: "montant" }], total: false, lignes: [["Encaissements des ventes", encT], ["Apports et autres entrées", apportsP], ["Dépenses de chantier", -depT], ["Paie des ouvriers", -paieP], ["Frais généraux", -fraisP], ["Résultat de la période", resultat], ["Reste à encaisser sur les ventes (total)", reste]] },
+          { nom: "Synthèse", titre: "Synthèse", colonnes: [{ t: "Poste" }, { t: "Montant", type: "montant" }], total: false, lignes: [["Encaissements (ventes et travaux particuliers)", encT], ["Apports et autres entrées", apportsP], ["Dépenses de chantier", -depT], ["Paie des ouvriers", -paieP], ["Frais généraux", -fraisP], ["Résultat de la période", resultat], ["Reste à encaisser (ventes et travaux, total)", reste]] },
           { nom: "Chantiers", titre: "Chantiers", colonnes: [{ t: "Chantier" }, { t: "Statut" }, { t: "Dépenses de la période", type: "montant" }, { t: "Budget", type: "montant" }, { t: "Budget utilisé (total)", type: "pct" }],
             lignes: d.chantiers.filter((c) => c.statut !== "termine" || coutC(c, depsP, ptsP)).map((c) => [c.nom, { preparation: "En préparation", en_cours: "En cours", pause: "En pause", termine: "Terminé" }[c.statut] || "", coutC(c, depsP, ptsP), c.budget || "", c.budget ? Math.round(coutC(c, d.depenses, d.pointages) / c.budget * 100) : ""]) },
           { nom: "Dépenses", titre: "Dépenses", colonnes: [{ t: "Date", type: "date" }, { t: "Chantier" }, { t: "Catégorie" }, { t: "Désignation" }, { t: "Fournisseur" }, { t: "Montant", type: "montant" }, { t: "Payé", type: "montant" }, { t: "Reste", type: "montant" }],
             lignes: depsP.map((x) => [x.date, nomC(x.chantierId), LIBCAT[x.categorie] || "", x.libelle, x.fournisseur, x.montant, versé(x), resteD(x)]) },
-          { nom: "Encaissements", titre: "Ventes et encaissements", colonnes: [{ t: "Date", type: "date" }, { t: "Client" }, { t: "Maison" }, { t: "Mode" }, { t: "Montant", type: "montant" }],
-            lignes: encP.map((p) => [p.date, p.m.clientNom || "", `${p.m.programme} · lot ${p.m.lot}`, { especes: "Espèces", virement: "Virement", cheque: "Chèque", mobile_money: "Mobile Money" }[p.mode] || "Autre", p.montant]) },
+          { nom: "Encaissements", titre: "Ventes, travaux et encaissements", colonnes: [{ t: "Date", type: "date" }, { t: "Client" }, { t: "Maison / chantier" }, { t: "Mode" }, { t: "Montant", type: "montant" }],
+            lignes: encP.map((p) => [p.date, p.m.clientNom || "", objet(p.m), { especes: "Espèces", virement: "Virement", cheque: "Chèque", mobile_money: "Mobile Money" }[p.mode] || "Autre", p.montant]) },
           { nom: "Paie", titre: "Paie des ouvriers (pointages)", colonnes: [{ t: "Date", type: "date" }, { t: "Chantier" }, { t: "Présents", type: "nombre", total: true }, { t: "Coût", type: "montant" }],
             lignes: ptsP.slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).map((p) => [p.date, nomC(p.chantierId), p.presents.length, sum(p.presents, (id) => tarif[id] || 0)]) },
           { nom: "Stock", titre: "Mouvements de stock", colonnes: [{ t: "Date", type: "date" }, { t: "Matériau" }, { t: "Mouvement" }, { t: "Quantité", type: "nombre", total: false }, { t: "Unité" }, { t: "Programme" }, { t: "Villa" }],

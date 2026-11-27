@@ -257,6 +257,7 @@
       ...d.depenses.map((x) => ({ ts: x.modifieLe || x.creeLe, i: "receipt", t: `<b>${esc(x.modifiePar || x.creePar || "?")}</b> a ${x.modifieLe ? "modifié" : "ajouté"} la dépense <b>${esc(x.libelle)}</b>${x.montant ? ` · ${fcfa(x.montant)}` : ""}`, h: `#g-depense/${x.id}` })),
       ...d.chantiers.map((c) => ({ ts: c.modifieLe || c.creeLe, i: "hardhat", t: `<b>${esc(c.modifiePar || c.creePar || "?")}</b> a ${c.modifieLe ? "mis à jour" : "créé"} le chantier <b>${esc(c.nom)}</b>`, h: `#g-chantier/${c.id}` })),
       ...d.maisons.flatMap((x) => (x.paiements || []).map((p) => ({ ts: (p.date || "") + "T12:00:00", i: "house", t: `Paiement de <b>${esc(x.clientNom || "client")}</b> · ${esc(x.programme)} lot ${esc(x.lot)} · ${fcfa(p.montant)}`, h: `#g-maison/${x.id}` }))),
+      ...d.chantiers.filter((c) => c.nature === "particulier").flatMap((c) => (c.paiements || []).map((p) => ({ ts: (p.date || "") + "T12:00:00", i: "wallet", t: `Versement de <b>${esc(c.client || "client")}</b> · ${esc(c.nom)} · ${fcfa(p.montant)}`, h: `#g-chantier/${c.id}` }))),
       ...d.mouvements.map((x) => ({ ts: x.creeLe, i: "wallet", t: `<b>${esc(x.creePar || "?")}</b> a enregistré ${x.sens === "entree" ? "une entrée" : "une sortie"} : ${esc(x.libelle)} · ${fcfa(x.montant)}`, h: `#g-mouvement/${x.id}` })),
       ...d.stock.map((s) => ({ ts: s.creeLe, i: "package", t: `<b>${esc(s.creePar || "?")}</b> : ${s.sens === "entree" ? "entrée" : "sortie"} de ${s.quantite} ${esc(art(s.articleId).unite)} de ${esc(art(s.articleId).nom)}${s.chantierId ? ` vers ${esc(nomC(s.chantierId))}` : ""}`, h: "#g-stock" })),
       ...d.pointages.map((p) => ({ ts: p.modifieLe || p.creeLe, i: "users", t: `<b>${esc(p.modifiePar || p.creePar || "?")}</b> a pointé ${p.presents.length} ouvrier(s) sur ${esc(nomC(p.chantierId))}`, h: `#g-equipes/pointage/${p.date}/${p.chantierId}` })),
@@ -281,33 +282,50 @@
   const ETAPES = ["Terrassement", "Fondations", "Élévation des murs", "Dalle / poteaux", "Toiture", "Électricité et plomberie", "Enduits", "Carrelage", "Menuiseries", "Peinture", "Finitions et nettoyage"];
   views["g-chantier"] = async (arg) => {
     const [cid, , etapeVisee] = String(arg || "").split("/");
-    const isNew = cid === "nouveau";
+    const isNew = cid === "nouveau" || cid === "nouveau-particulier";
     if (isNew && !argent()) { location.replace("#g-chantiers"); return; }
     const d = argent() ? await load("chantiers", "depenses", "ouvriers", "pointages") : { ...(await load("chantiers", "ouvriers", "pointages")), depenses: [] };
-    const c = isNew ? { statut: "en_cours", etapes: ETAPES.map((nom) => ({ nom, avancement: 0 })), photos: [] } : d.chantiers.find((x) => x.id === cid);
+    const c = isNew ? { statut: "en_cours", etapes: ETAPES.map((nom) => ({ nom, avancement: 0 })), photos: [], nature: cid === "nouveau-particulier" ? "particulier" : "", travaux: "construction" } : d.chantiers.find((x) => x.id === cid);
     if (!c) { main.innerHTML = U.vide("Chantier introuvable.", "hardhat"); return; }
     const etapes = (c.etapes || []).map((e) => ({ ...e })), photos = (c.photos || []).map((p) => ({ ...p })), documents = (c.documents || []).map((x) => ({ ...x }));
+    const ech = (c.echeancier || []).map((x) => ({ ...x })), pay = (c.paiements || []).map((x) => ({ ...x }));
+    const part0 = c.nature === "particulier", genre0 = part0 ? c.travaux || "construction" : "programme";
+    const retourListe = part0 ? "#g-chantiers/particuliers" : "#g-chantiers";
+    let etapesTouchees = !isNew;
     const deps = d.depenses.filter((x) => x.chantierId === c.id);
     const paie = paieDe(d.pointages, d.ouvriers, (p) => p.chantierId === c.id);
     const achats = sum(deps, (x) => x.montant), resteFour = sum(deps, resteDep), verseFour = sum(deps, verseDep);
     const parCat = Object.entries(LIB.categorie).map(([k, l]) => [l, sum(deps.filter((x) => x.categorie === k), (x) => x.montant)]).filter((x) => x[1]);
     const sec = (n, titre, sous) => `<div class="sec__head"><span class="sec__n">${n}</span><div><h2>${titre}</h2><p>${sous}</p></div></div>`;
     let n = 0;
-    main.innerHTML = head(isNew ? "Nouveau programme" : esc(c.nom), isNew ? "Créez le programme (nom, lieu, dates, budget), puis ajoutez ses villas." : `${st(c.statut)}${c.lieu ? " · " + esc(c.lieu) : ""}`,
-      `<a class="btn btn--tertiary" href="#g-chantiers">${I("chevleft")}Retour</a>`, [["Chantiers", "#g-chantiers"], [isNew ? "Nouveau programme" : esc(c.nom), ""]]) + `
+    const titreNouveau = part0 ? "Nouveau chantier particulier" : "Nouveau programme";
+    main.innerHTML = head(isNew ? titreNouveau : esc(c.nom), isNew ? (part0 ? "Construction ou rénovation pour un client : le chantier, ses dépenses et les versements du client." : "Créez le programme (nom, lieu, dates, budget), puis ajoutez ses villas.")
+      : `${st(c.statut)}${part0 ? ` · ${c.travaux === "renovation" ? "Rénovation" : "Construction"} pour ${esc(c.client || "un particulier")}` : ""}${c.lieu ? " · " + esc(c.lieu) : ""}`,
+      `${!isNew && part0 && argent() ? `<button type="button" class="btn btn--secondary" id="releve">${I("printer")}Relevé client (PDF)</button>` : ""}<a class="btn btn--tertiary" href="${retourListe}">${I("chevleft")}Retour</a>`,
+      [["Chantiers", "#g-chantiers"], ...(part0 ? [["Particuliers", "#g-chantiers/particuliers"]] : []), [isNew ? titreNouveau : esc(c.nom), ""]]) + `
       <form class="form form--split" id="f" novalidate>
         <div class="form__main">
-          <section class="panel">${sec(++n, "Informations générales", "Nom, lieu, client, dates et budget.")}
+          <section class="panel">${sec(++n, "Informations générales", "Nature, nom, lieu, client, dates et budget.")}
             <div class="grid">
-              <label class="full"><span>Nom du programme <i class="req">*</i></span><input name="nom" value="${esc(c.nom || "")}" placeholder="Ex. Cité Les Rives de l'Opulence, tranche 2" autocomplete="off"></label>
+              <label class="full"><span>Nature du chantier</span><select name="genre"${argent() ? "" : " disabled"}>${opts({ programme: "Programme immobilier GEI (villas)", construction: "Particulier : construction pour un client", renovation: "Particulier : rénovation pour un client" }, genre0)}</select></label>
+              <label class="full"><span><b id="lNom">${part0 ? "Nom du chantier" : "Nom du programme"}</b> <i class="req">*</i></span><input name="nom" value="${esc(c.nom || "")}" placeholder="${part0 ? "Ex. Villa M. Koné, Bingerville" : "Ex. Cité Les Rives de l'Opulence, tranche 2"}" autocomplete="off"></label>
               <label><span>Lieu</span><input name="lieu" value="${esc(c.lieu || "")}" placeholder="Ex. Adiaké"></label>
-              <label><span>Client / propriétaire</span><input name="client" value="${esc(c.client || "")}" placeholder="Ex. GEI (programme) ou nom du client"></label>
-              <label><span>Type d'ouvrage</span><input name="type" value="${esc(c.type || "")}" placeholder="Ex. 20 villas basses 4 pièces"></label>
+              <label><span id="lClient">${part0 ? "Nom du client" : "Client / propriétaire"}</span><input name="client" value="${esc(c.client || "")}" placeholder="${part0 ? "Ex. M. Koné Ibrahim" : "Ex. GEI (programme) ou nom du client"}"></label>
+              <label class="only-part"${part0 ? "" : " hidden"}><span>Téléphone du client</span><input name="clientTel" value="${esc(c.clientTel || "")}" inputmode="tel" placeholder="Ex. 07 00 00 00 00"></label>
+              <label><span>Type d'ouvrage</span><input name="type" value="${esc(c.type || "")}" placeholder="${part0 ? "Ex. Villa basse 4 pièces, ou réfection toiture" : "Ex. 20 villas basses 4 pièces"}"></label>
               <label><span>Statut</span><select name="statut">${opts({ preparation: "En préparation", en_cours: "En cours", pause: "En pause", termine: "Terminé" }, c.statut)}</select></label>
               <label><span>Date de début</span><input name="dateDebut" type="date" value="${esc(c.dateDebut || "")}"></label>
               <label><span>Fin prévue</span><input name="dateFin" type="date" value="${esc(c.dateFin || "")}"></label>
-              ${argent() ? `<label class="full"><span>Budget prévu</span><input name="budget" class="money" inputmode="numeric" value="${c.budget || ""}" placeholder="Ex. 150 000 000"></label>` : ""}
+              ${argent() ? `<label class="full"><span id="lBud">${part0 ? "Coût prévu des travaux (budget interne)" : "Budget prévu"}</span><input name="budget" class="money" inputmode="numeric" value="${c.budget || ""}" placeholder="Ex. 150 000 000"></label>` : ""}
             </div></section>
+          ${argent() ? `<section class="panel only-part" id="sec-client"${part0 ? "" : " hidden"}>${sec(I("wallet"), "Client et paiements", "Le prix convenu avec le client, les tranches prévues et les versements reçus.")}
+            <div class="grid"><label class="full"><span>Prix convenu avec le client (devis / marché)</span><input name="prix" class="money" inputmode="numeric" value="${c.prix || ""}" placeholder="Ex. 35 000 000"></label></div>
+            <h3 style="margin:18px 0 6px;font-size:15px">Tranches prévues</h3><p class="t-help">Acompte, paiement par étape, solde… avec la date prévue.</p>
+            <div class="rows" id="ech"></div><div class="pay-actions"><button type="button" class="btn btn--secondary btn--sm" id="addEch">${I("plus")}Ajouter une tranche</button><span class="muted" id="totEch"></span></div>
+            <h3 style="margin:18px 0 6px;font-size:15px">Versements reçus du client</h3>
+            <div class="rows" id="pay"></div><div class="pay-actions"><button type="button" class="btn btn--secondary btn--sm" id="addPay">${I("plus")}Ajouter un versement</button></div>
+            ${(c.paiements || []).length ? `<p class="muted" style="margin-top:12px">Reçus à imprimer : ${c.paiements.map((p, i) => `<button type="button" class="btn btn--sm btn--ghost" data-recu="${i}">${dfr(p.date)} · ${fcfa(p.montant)}</button>`).join(" ")}</p>` : `<p class="t-help" style="margin-top:12px">Après l'enregistrement, un reçu à imprimer apparaît ici pour chaque versement.</p>`}
+          </section>` : ""}
           <section class="panel" id="sec-etapes">${sec(++n, "Étapes et avancement", "Le % réalisé et les dates prévues de chaque étape. L'avancement du chantier est la moyenne.")}
             <div class="r r--head" style="--cols:2fr 110px 150px 150px 36px"><span>Étape</span><span>% réalisé</span><span>Début prévu</span><span>Fin prévue</span><span></span></div>
             <div class="rows" id="et"></div>
@@ -330,7 +348,11 @@
               ${argent() ? `<div><span>Budget</span><b id="kBud"></b></div>
               <div><span>Dépensé (achats + paie)</span><b id="kDep"></b></div>
               <div id="kResteL"><span>Reste du budget</span><b id="kReste"></b></div>
-              <div class="${resteFour ? "is-bad" : "is-ok"}"><span>Reste à payer fournisseurs</span><b>${U.money(resteFour)}</b></div>` : ""}
+              <div class="${resteFour ? "is-bad" : "is-ok"}"><span>Reste à payer fournisseurs</span><b>${U.money(resteFour)}</b></div>
+              <div class="only-part"${part0 ? "" : " hidden"}><span>Prix convenu (client)</span><b id="kPrix"></b></div>
+              <div class="only-part"${part0 ? "" : " hidden"}><span>Encaissé du client</span><b id="kEnc"></b></div>
+              <div class="only-part" id="kRaeL"${part0 ? "" : " hidden"}><span>Reste à encaisser</span><b id="kRae"></b></div>
+              <div class="only-part" id="kMargeL"${part0 ? "" : " hidden"}><span>Marge (prix − dépensé)</span><b id="kMarge"></b></div>` : ""}
             </div>
             ${argent() ? `<span class="t-help">Budget consommé : <b id="kPct">0 %</b></span><div class="progress"><i id="kBar" style="width:0%"></i></div>
               ${parCat.length || paie ? `<p class="recap__meta">${parCat.map(([l, v]) => `${l} : <b>${fcfa(v)}</b>`).concat(paie ? [`Paie ouvriers : <b>${fcfa(paie)}</b>`] : []).join(" · ")}</p>` : ""}
@@ -366,8 +388,37 @@
         $("#kBud").innerHTML = bud ? U.money(bud) : "—"; $("#kDep").innerHTML = U.money(dep);
         $("#kReste").innerHTML = bud ? U.money(bud - dep) : "—"; $("#kResteL").className = bud && dep > bud ? "is-bad" : "";
         $("#kPct").textContent = pc + " %"; $("#kBar").style.width = Math.min(100, pc) + "%"; $("#kBar").parentElement.classList.toggle("progress--bad", pc > 100);
+        const prix = num(f.prix.value), enc = sum(pay, (x) => x.montant), te = sum(ech, (x) => x.montant);
+        $("#kPrix").innerHTML = prix ? U.money(prix) : "—"; $("#kEnc").innerHTML = U.money(enc);
+        $("#kRae").innerHTML = prix ? U.money(Math.max(0, prix - enc)) : "—"; $("#kRaeL").classList.toggle("is-bad", prix > enc);
+        $("#kMarge").innerHTML = prix ? U.money(prix - dep) : "—"; $("#kMargeL").className = "only-part" + (prix && dep > prix ? " is-bad" : prix ? " is-ok" : "");
+        $("#totEch").textContent = ech.length ? `Total prévu : ${fcfa(te)}${prix && te !== prix ? ` (prix convenu : ${fcfa(prix)})` : ""}` : "";
       }
     };
+    // Nature du chantier : programme GEI ou particulier (construction / rénovation)
+    const ETAPES_RENO = ["Diagnostic et devis", "Démolition et dépose", "Maçonnerie et reprises", "Électricité et plomberie", "Enduits et plafonds", "Carrelage", "Menuiseries", "Peinture", "Finitions et nettoyage"];
+    const nature = () => {
+      const g = f.genre.value, part = g !== "programme";
+      $$("#f .only-part").forEach((x) => { x.hidden = !part; });
+      $("#lNom").textContent = part ? "Nom du chantier" : "Nom du programme";
+      $("#lClient").textContent = part ? "Nom du client" : "Client / propriétaire";
+      if ($("#lBud")) $("#lBud").textContent = part ? "Coût prévu des travaux (budget interne)" : "Budget prévu";
+      if (!etapesTouchees) { etapes.splice(0, etapes.length, ...(g === "renovation" ? ETAPES_RENO : ETAPES).map((nom) => ({ nom, avancement: 0 }))); ed.draw(); }
+      calc();
+    };
+    f.genre.addEventListener("change", nature);
+    $("#et").addEventListener("input", () => { etapesTouchees = true; });
+    if (isNew && genre0 === "renovation") nature();
+    if ($("#ech")) {
+      const e1 = rowsEditor($("#ech"), ech, [{ k: "date", ph: "Date prévue", type: "date" }, { k: "libelle", ph: "Libellé (ex. acompte au démarrage)" }, { k: "montant", ph: "Montant", type: "money" }], "160px 2fr 170px 36px");
+      const e2 = rowsEditor($("#pay"), pay, [{ k: "date", ph: "Date", type: "date" }, { k: "montant", ph: "Montant", type: "money" }, { k: "mode", ph: "Mode", type: "select", map: LIB.mode }, { k: "reference", ph: "Référence / n° de reçu" }], "160px 170px 150px 1fr 36px");
+      $("#addEch").onclick = () => { e1.add({ date: "", libelle: "", montant: 0 }); calc(); };
+      $("#addPay").onclick = () => { e2.add({ date: today(), montant: 0, mode: "especes", reference: "" }); calc(); };
+      $("#ech").addEventListener("change", calc); $("#pay").addEventListener("change", calc);
+      f.addEventListener("click", (e) => { const b = e.target.closest("[data-recu]"); if (b) recu(c, +b.dataset.recu, infoChantier(c)); });
+      calc();
+    }
+    if ($("#releve")) $("#releve").onclick = () => G.exp.pdf(releveChantier(c));
     $("#et").addEventListener("change", calc); f.addEventListener("input", calc); f.addEventListener("change", calc); calc();
     $("#addE").onclick = () => { ed.add({ nom: "", avancement: 0, dateDebut: "", dateFin: "" }); calc(); const l = $$("#et .r"); const i = l.length && $("input", l[l.length - 1]); if (i) i.focus(); };
     if (etapeVisee != null && etapeVisee !== "") setTimeout(() => {
@@ -377,9 +428,35 @@
       setTimeout(() => r.classList.remove("is-flash"), 2400);
     }, 300);
     const ok = () => U.valider(f, [["nom", (v) => (v.trim() ? "" : "Le nom du chantier est obligatoire.")]]);
-    f.addEventListener("submit", (e) => { e.preventDefault(); if (!ok()) return; const v = Object.fromEntries(new FormData(f)); save("/api/g/chantiers", isNew ? null : c.id, { ...v, budget: num(v.budget), etapes: etapes.filter((x) => x.nom), photos, documents }, isNew ? "#g-chantiers" : `#g-chantier/${c.id}`); });
-    if ($("#del")) $("#del").onclick = () => supprimer("/api/g/chantiers", c.id, "ce chantier (les dépenses restent enregistrées)", "#g-chantiers");
+    f.addEventListener("submit", (e) => {
+      e.preventDefault(); if (!ok()) return;
+      const v = Object.fromEntries(new FormData(f)), g = v.genre || genre0; delete v.genre;
+      const part = g !== "programme", corps = { ...v, budget: num(v.budget), etapes: etapes.filter((x) => x.nom), photos, documents };
+      if (argent()) Object.assign(corps, { nature: part ? "particulier" : "", travaux: part ? g : "construction", prix: num(v.prix), echeancier: ech.filter((x) => x.montant), paiements: pay.filter((x) => x.montant) });
+      save("/api/g/chantiers", isNew ? null : c.id, corps, isNew ? (part ? "#g-chantiers/particuliers" : "#g-chantiers") : `#g-chantier/${c.id}`);
+    });
+    if ($("#del")) $("#del").onclick = () => supprimer("/api/g/chantiers", c.id, "ce chantier (les dépenses restent enregistrées)", retourListe);
   };
+
+  // Chantier de particulier : informations pour le reçu et relevé client (PDF avec les photos)
+  const encChantier = (c) => sum(c.paiements || [], (p) => p.montant);
+  const infoChantier = (c) => ({ client: c.client, tel: c.clientTel, pour: `${c.travaux === "renovation" ? "Rénovation" : "Construction"} · ${c.nom}${c.lieu ? " · " + c.lieu : ""}`, prixLib: "Prix convenu des travaux", prix: c.prix || 0 });
+  function releveChantier(c) {
+    const p = encChantier(c);
+    let cumul = 0;
+    const echs = (c.echeancier || []).slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).map((e) => { cumul += e.montant || 0; return [e.date, e.libelle, e.montant, cumul <= p ? "Payé" : cumul - (e.montant || 0) < p ? "Payé en partie" : e.date && e.date < today() ? "À régler" : "À venir"]; });
+    const photos = (c.photos || []).filter((x) => x.src).slice().sort((a, b) => String(b.date || "").localeCompare(String(a.date || ""))).slice(0, 9);
+    return { fichier: `GEI_Releve-client_${G.exp.slug(c.nom)}`, titre: `Relevé client — ${c.nom}`, orientation: "portrait",
+      filtres: [c.client ? "Client : " + c.client : "", c.clientTel ? "Tél. " + c.clientTel : "", c.travaux === "renovation" ? "Rénovation" : "Construction", c.lieu].filter(Boolean).join(" · "),
+      chiffres: [{ l: "Prix convenu", v: c.prix || 0 }, { l: "Déjà versé", v: p }, { l: "Reste à payer", v: Math.max(0, (c.prix || 0) - p) }, { l: "Avancement des travaux", v: avancement(c), type: "pct" }],
+      feuilles: [
+        { nom: "Avancement", titre: "Avancement des travaux", colonnes: [{ t: "Étape" }, { t: "Réalisé", type: "pct" }, { t: "Fin prévue", type: "date" }], total: false, lignes: (c.etapes || []).map((e) => [e.nom, e.avancement || 0, e.dateFin || ""]) },
+        { nom: "Échéancier", titre: "Tranches prévues", colonnes: [{ t: "Échéance", type: "date" }, { t: "Libellé" }, { t: "Montant", type: "montant" }, { t: "Statut" }], lignes: echs },
+        { nom: "Versements", titre: "Versements reçus", colonnes: [{ t: "Date", type: "date" }, { t: "Montant", type: "montant" }, { t: "Mode" }, { t: "Référence / reçu" }], lignes: (c.paiements || []).slice().sort((a, b) => String(a.date).localeCompare(String(b.date))).map((x) => [x.date, x.montant, LIB.mode[x.mode] || "", x.reference]) },
+      ],
+      photos: photos.map((x) => ({ src: location.origin + img(x.src), date: x.date ? G.exp.dateFr(x.date) : "", legende: x.legende || "" })) };
+  }
+  G.particulier = { est: (c) => c && c.nature === "particulier", encaisse: encChantier, releve: releveChantier };
 
   /* ================= Maisons et clients ================= */
   views["g-maisons"] = async (filtre) => {
@@ -474,8 +551,9 @@
     if ($("#del")) $("#del").onclick = () => supprimer("/api/g/maisons", m.id, "cette maison et son historique de paiements", "#g-maisons");
   };
 
-  async function recu(m, i) {
+  async function recu(m, i, info) {
     const p = (m.paiements || [])[i]; if (!p) return;
+    const R = info || { client: m.clientNom, tel: m.clientTel, pour: `${m.programme} · lot ${m.lot}${m.type ? " · " + m.type : ""}`, prixLib: "Prix de la maison", prix: m.prix || 0 };
     const e = await api("/api/g/entreprise").catch(() => ({ nom: "Global Empire Immobilier SARL" }));
     const avant = sum(m.paiements.slice(0, i + 1), (x) => x.montant);
     const no = `R-${String(p.date || today()).slice(0, 7).replace("-", "")}-${m.id.slice(0, 4).toUpperCase()}-${i + 1}`;
@@ -488,11 +566,11 @@
       @media print{button{display:none}body{padding:0}}</style></head><body><div class="r">
       <header><div><img src="${location.origin}/logo-gei.png" alt=""><div><b>${esc(e.nom)}</b><br><small>${esc(e.adresse || "")}<br>${esc((e.telephones || []).join(" · "))} ${e.email ? "· " + esc(e.email) : ""}</small></div></div>
       <div style="text-align:right"><h1>REÇU DE PAIEMENT</h1><small>N° ${no}<br>Date : ${dfr(p.date)}</small></div></header>
-      <table><tr><td>Reçu de</td><td><b>${esc(m.clientNom || "—")}</b>${m.clientTel ? " · " + esc(m.clientTel) : ""}</td></tr>
-      <tr><td>Pour</td><td>${esc(m.programme)} · lot ${esc(m.lot)}${m.type ? " · " + esc(m.type) : ""}</td></tr>
+      <table><tr><td>Reçu de</td><td><b>${esc(R.client || "—")}</b>${R.tel ? " · " + esc(R.tel) : ""}</td></tr>
+      <tr><td>Pour</td><td>${esc(R.pour)}</td></tr>
       <tr><td>Montant reçu</td><td class="big">${fcfa(p.montant)}</td></tr><tr><td>En lettres</td><td>${esc(enLettres(p.montant))} francs CFA</td></tr>
       <tr><td>Mode de paiement</td><td>${esc(LIB.mode[p.mode] || p.mode)}${p.reference ? " · réf. " + esc(p.reference) : ""}</td></tr>
-      <tr><td>Prix de la maison</td><td>${fcfa(m.prix)}</td></tr><tr><td>Total versé à ce jour</td><td>${fcfa(avant)}</td></tr><tr><td>Reste à payer</td><td><b>${fcfa(Math.max(0, (m.prix || 0) - avant))}</b></td></tr></table>
+      <tr><td>${esc(R.prixLib)}</td><td>${fcfa(R.prix)}</td></tr><tr><td>Total versé à ce jour</td><td>${fcfa(avant)}</td></tr><tr><td>Reste à payer</td><td><b>${fcfa(Math.max(0, R.prix - avant))}</b></td></tr></table>
       <div class="sign"><div>Le client</div><div>Pour ${esc(e.nom)}</div></div></div>
       <p style="text-align:center;margin-top:18px"><button onclick="print()" style="padding:10px 22px;font-size:15px;border-radius:999px;border:0;background:#0B1A6E;color:#fff;cursor:pointer">Imprimer / enregistrer en PDF</button></p></body></html>`);
     w.document.close();

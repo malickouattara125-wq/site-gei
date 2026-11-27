@@ -47,7 +47,7 @@
   }
   K.coutVilla = coutVilla;
   const LIB_CAT = (k) => (k === "stock" ? "Matériel sorti du stock" : k === "communs" ? "Part des frais communs" : CAT[k] || k);
-  const COUL = { materiaux: "#2F5A1F", stock: "#5B8A3C", main_oeuvre: "#B5CC5A", sous_traitance: "#C88A1E", transport: "#7B7FC4", location: "#8C6A4F", frais_chantier: "#4E8C8A", administratif: "#A9402D", autre: "#9AA090", communs: "#C9C2AE" };
+  const COUL = { materiaux: "#0D2299", stock: "#5B8A3C", main_oeuvre: "#8DB01E", sous_traitance: "#C88A1E", transport: "#7B7FC4", location: "#8C6A4F", frais_chantier: "#4E8C8A", administratif: "#A9402D", autre: "#9AA090", communs: "#C9C2AE" };
   const ecart = (cout, budget) => (budget ? Math.round((cout - budget) / budget * 100) : null);
   const classeEcart = (e) => (e === null ? "" : e > 0 ? "t-bad" : e > -0 && e >= -10 ? "" : "");
 
@@ -142,7 +142,7 @@
       table{width:100%;border-collapse:collapse;margin:12px 0}td,th{border:1px solid #bbb;padding:7px 10px;text-align:left;vertical-align:top}th{background:#f1f1f8}.r{text-align:right;white-space:nowrap}.opt{background:#fff8e6}
       .sign{display:flex;justify-content:space-between;margin-top:40px}.sign div{width:45%;text-align:center;font-weight:700}.sign small{display:block;font-weight:400;color:#555}.sign .z{height:70px}
       .pied{position:fixed;bottom:0;left:0;right:0;border-top:2px solid #7B7FC4;padding-top:5px;text-align:center;font:9.5pt/1.35 "Times New Roman",serif;color:#333;background:#fff}
-      .bar{text-align:center;margin:16px}.bar button{padding:10px 22px;border:0;border-radius:99px;background:#2F5A1F;color:#fff;font:600 14px sans-serif;cursor:pointer}@media print{.bar{display:none}body{padding:0}}</style></head><body>
+      .bar{text-align:center;margin:16px}.bar button{padding:10px 22px;border:0;border-radius:99px;background:#0D2299;color:#fff;font:600 14px sans-serif;cursor:pointer}@media print{.bar{display:none}body{padding:0}}</style></head><body>
       <div class="bar"><button onclick="print()">Imprimer / enregistrer en PDF</button></div>
       <div class="ent"><img src="${location.origin}/logo-gei.png" alt=""><span>${esc((p.activite || "Génie civil & BTP").toUpperCase())}</span></div>
       <h1>RÉCAPITULATIF DES FINITIONS</h1><p class="ref">${esc(c.nom || "")} · Villa ${esc(v.lot)}${v.type ? " · " + esc(v.type) : ""} · Gamme ${esc((K.GAMMES || {})[v.gamme] || v.gamme)}${m && m.clientNom ? " · Client : " + esc(m.clientNom) : ""}</p>

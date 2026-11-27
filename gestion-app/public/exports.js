@@ -93,6 +93,10 @@ tbody tr:nth-child(even) td { background: #f4f6fc; }
 .emarg { min-width: 34mm; height: 11mm; }
 tr.total td { font-weight: 700; background: #e3e8f7 !important; border-top: 1.5px solid ${BLEU}; color: ${BLEU_FONCE}; }
 .vide { color: #5f6670; font-style: italic; }
+.photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.photos figure { margin: 0; break-inside: avoid; page-break-inside: avoid; }
+.photos img { width: 100%; height: 46mm; object-fit: cover; border-radius: 4px; border: 1px solid #d3d8e4; display: block; }
+.photos figcaption { font-size: 8pt; color: #5f6670; margin-top: 2px; }
 .note { margin-top: 10px; font-size: 8.5pt; color: #5f6670; }
 .bar { position: sticky; top: 0; z-index: 2; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 14px; background: #fff; border-bottom: 1px solid #d3d8e4; font-size: 13px; color: #374151; }
 .bar button { padding: 9px 16px; border: 0; border-radius: 8px; background: ${BLEU}; color: #fff; font: 600 14px system-ui, sans-serif; cursor: pointer; }
@@ -106,6 +110,7 @@ tr.total td { font-weight: 700; background: #e3e8f7 !important; border-top: 1.5p
 <div class="titre"><h1>${esc(doc.titre || "")}</h1><p>${esc(doc.filtres || "Toutes les données")}</p><p>Édité le ${edition} par ${esc((G.me() || {}).user || "")}</p></div>
 ${chiffres}
 ${feuilles.map((f) => `${feuilles.length > 1 || f.titre ? `<h2>${esc(f.titre || f.nom || "")}</h2>` : ""}<div class="tbl">${tableau(f)}</div>`).join("")}
+${(doc.photos || []).length ? `<h2>Photos du chantier</h2><div class="photos">${doc.photos.map((p) => `<figure><img src="${esc(p.src)}" alt=""><figcaption>${esc([p.date, p.legende].filter(Boolean).join(" · "))}</figcaption></figure>`).join("")}</div>` : ""}
 ${doc.note ? `<p class="note">${esc(doc.note)}</p>` : ""}
 </div>
 <script>addEventListener("load", function () { setTimeout(function () { try { print(); } catch (e) {} }, 350); });<\/script>

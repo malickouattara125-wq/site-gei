@@ -22,7 +22,7 @@
   const formulaireProgramme = views["g-chantier"];
   views["g-chantier"] = async (arg) => {
     const a = String(arg || "");
-    if (a === "nouveau" || a.includes("/etape/")) return formulaireProgramme(a);
+    if (a === "nouveau" || a === "nouveau-particulier" || a.includes("/etape/")) return formulaireProgramme(a);
     if (a.endsWith("/modifier")) return formulaireProgramme(a.replace(/\/modifier$/, ""));
     return fiche(a.split("/")[0]);
   };
@@ -33,6 +33,8 @@
     if (!d.maisons) d.maisons = [];
     const c = d.chantiers.find((x) => x.id === cid);
     if (!c) { main.innerHTML = U.vide("Programme introuvable.", "hardhat"); return; }
+    // Chantier de particulier : pas de villas, sa fiche est le formulaire complet (étapes, photos, client et paiements)
+    if (c.nature === "particulier") return formulaireProgramme(c.id);
     const vs = d.villas.filter((v) => v.chantierId === c.id).sort(triLot);
     const av = K.avancementProgramme(c, d.villas), alertes = K.alertesProgramme(c, d);
     const n = { demarrer: 0, encours: 0, terminee: 0, retard: 0 }; vs.forEach((v) => n[K.etatVilla(v)]++);

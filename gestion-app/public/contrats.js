@@ -253,7 +253,7 @@ ${FAIT}`;
       .sign { display: flex; justify-content: space-between; margin-top: 36px; page-break-inside: avoid; } .sign div { width: 45%; text-align: center; font-weight: 700; } .sign small { display: block; font-weight: 400; color: #555; margin-top: 4px; } .sign .z { height: 70px; }
       .pied { position: fixed; bottom: 0; left: 0; right: 0; border-top: 2px solid #7B7FC4; padding: 5px 0 0; text-align: center; font: 9.5pt/1.35 "Times New Roman", serif; color: #333; background: #fff; }
       .pied a { color: #333; }
-      .bar { text-align: center; margin: 18px 0; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; } .bar button, .bar a { padding: 10px 22px; font: 600 14px "Segoe UI", sans-serif; border-radius: 999px; border: 0; background: #2F5A1F; color: #fff; cursor: pointer; text-decoration: none; } .bar a { background: #1f8f4e; }
+      .bar { text-align: center; margin: 18px 0; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; } .bar button, .bar a { padding: 10px 22px; font: 600 14px "Segoe UI", sans-serif; border-radius: 999px; border: 0; background: #0D2299; color: #fff; cursor: pointer; text-decoration: none; } .bar a { background: #1f8f4e; }
       @media print { .bar { display: none; } body { padding: 0 0 6mm; } }
     </style></head><body>
       <div class="bar"><button onclick="print()">Imprimer / enregistrer en PDF</button>${wa ? `<a href="${esc(wa)}" target="_blank" rel="noopener">Envoyer par WhatsApp</a>` : ""}</div>

@@ -227,7 +227,7 @@ async function api(req, res, pathname) {
     const name = "g-" + mg[1], clean = gestion.COLLECTIONS[mg[1]];
     const list = store.load(name, []);
     if (chef) {
-      const lecture = { chantiers: (c) => ({ ...c, budget: undefined }), ouvriers: (o) => ({ ...o, tarifJour: undefined }), articles: (a) => ({ ...a, prixUnitaire: undefined }),
+      const lecture = { chantiers: (c) => ({ ...c, budget: undefined, prix: undefined, echeancier: undefined, paiements: undefined }), ouvriers: (o) => ({ ...o, tarifJour: undefined }), articles: (a) => ({ ...a, prixUnitaire: undefined }),
         stock: (m) => ({ ...m, prixUnitaire: undefined }),
         villas: (v) => ({ ...v, budget: undefined, finitions: (v.finitions || []).map((f) => ({ ...f, surcout: undefined })) }) };
       if (method === "GET" && !mg[2]) return json(res, 200, lecture[mg[1]] ? list.map(lecture[mg[1]]) : list);
@@ -240,7 +240,7 @@ async function api(req, res, pathname) {
         const avant = list[i];
         list[i] = { ...avant, ...clean({ ...avant, statut: b.statut, etapes: b.etapes, photos: b.photos, notes: b.notes }), id: avant.id, creePar: avant.creePar, creeLe: avant.creeLe, modifiePar: session.user, modifieLe: new Date().toISOString() };
         store.save(name, list);
-        return json(res, 200, { ...list[i], budget: undefined });
+        return json(res, 200, lecture.chantiers(list[i]));
       }
       // Chef de chantier : met à jour seulement l'avancement, les dates et les photos des phases d'une villa
       if (mg[1] === "villas" && mg[2]) {

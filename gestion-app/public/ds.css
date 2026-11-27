@@ -4,27 +4,27 @@
 
 :root {
   /* Marque */
-  --forest-950: #0F180B;   /* fond le plus sombre */
-  --forest-900: #14200F;   /* sidebar */
-  --forest-800: #1E2D16;   /* survol sidebar */
-  --brand-700: #2F5A1F;    /* bouton principal */
-  --brand-800: #244817;    /* bouton principal, survol */
-  --brand-50: #EEF4E8;     /* fond teinté marque */
-  --olive-400: #B5CC5A;    /* accent lumineux, item actif */
-  --olive-500: #9DB641;
-  --olive-700: #5C7020;
+  --forest-950: #060B33;   /* fond le plus sombre */
+  --forest-900: #0A1452;   /* sidebar */
+  --forest-800: #16237A;   /* survol sidebar */
+  --brand-700: #0D2299;    /* bouton principal */
+  --brand-800: #0A1A7A;    /* bouton principal, survol */
+  --brand-50: #E8EBFA;     /* fond teinté marque */
+  --olive-400: #EBDD1F;    /* accent lumineux, item actif */
+  --olive-500: #8DB01E;
+  --olive-700: #5E7A12;
 
   /* Neutres chauds */
-  --bg: #F6F5F1;           /* fond de l'application (blanc cassé) */
+  --bg: #F4F5FA;           /* fond de l'application (blanc cassé) */
   --surface: #FFFFFF;      /* cartes */
-  --surface-2: #FAF9F6;    /* champs, lignes alternées */
-  --surface-3: #F1EFE9;    /* zones en retrait, skeleton */
-  --border: #E6E3DB;       /* bordures fines */
-  --border-strong: #D5D1C6;
-  --text: #1D2018;         /* titres, chiffres */
-  --text-2: #3F4339;       /* texte courant, libellés */
-  --muted: #6B6E63;        /* aides, sous-titres (AA sur fond clair) */
-  --placeholder: #9C9E94;
+  --surface-2: #F9FAFD;    /* champs, lignes alternées */
+  --surface-3: #ECEEF5;    /* zones en retrait, skeleton */
+  --border: #E1E4EE;       /* bordures fines */
+  --border-strong: #CDD2E0;
+  --text: #131733;         /* titres, chiffres */
+  --text-2: #373C58;       /* texte courant, libellés */
+  --muted: #5F6480;        /* aides, sous-titres (AA sur fond clair) */
+  --placeholder: #989CB0;
 
   /* Statuts (désaturés) */
   --ok: #2E7140;      --ok-bg: #E5F1E6;      /* payé, terminé */
@@ -52,10 +52,10 @@
   --r-badge: 8px; --r-field: 12px; --r-card: 16px; --r-modal: 20px; --r-pill: 999px;
 
   /* Ombres (2 niveaux) + bordure de carte */
-  --shadow-1: 0 1px 2px rgba(29, 32, 24, .04);
-  --shadow-2: 0 8px 24px rgba(29, 32, 24, .06);
-  --card-border: 1px solid rgba(29, 32, 24, .07);
-  --ring: 0 0 0 3px rgba(47, 90, 31, .20);
+  --shadow-1: 0 1px 2px rgba(19, 23, 51, .04);
+  --shadow-2: 0 8px 24px rgba(19, 23, 51, .06);
+  --card-border: 1px solid rgba(19, 23, 51, .07);
+  --ring: 0 0 0 3px rgba(13, 34, 153, .20);
 
   /* Mouvement */
   --ease: cubic-bezier(.2, .7, .2, 1);
@@ -72,32 +72,32 @@
 /* ---------- Mode sombre ---------- */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #0D110B; --surface: #151A12; --surface-2: #1A2016; --surface-3: #222A1D;
-    --border: #2A3324; --border-strong: #38432F;
-    --text: #EEF0E8; --text-2: #CDD1C4; --muted: #9DA293; --placeholder: #6F7466;
-    --brand-700: #B5CC5A; --brand-800: #C6DA74; --brand-50: #1F2A16;
+    --bg: #080B1E; --surface: #10142B; --surface-2: #151A35; --surface-3: #1C2240;
+    --border: #262D4D; --border-strong: #343C60;
+    --text: #ECEEF6; --text-2: #C9CDE0; --muted: #979CB4; --placeholder: #6C7190;
+    --brand-700: #EBDD1F; --brand-800: #F2E650; --brand-50: #1A2152;
     --ok: #8FCB98; --ok-bg: #18301D; --warn: #E2B866; --warn-bg: #33270F; --bad: #EE9C8B; --bad-bg: #3A1D17;
     --late: #F0A374; --late-bg: #3A2213; --info: #A9BCCB; --info-bg: #1C252C;
     --shadow-1: 0 1px 2px rgba(0, 0, 0, .3); --shadow-2: 0 8px 24px rgba(0, 0, 0, .35);
-    --card-border: 1px solid rgba(255, 255, 255, .06); --ring: 0 0 0 3px rgba(181, 204, 90, .25);
+    --card-border: 1px solid rgba(255, 255, 255, .06); --ring: 0 0 0 3px rgba(235, 221, 31, .25);
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --bg: #0D110B; --surface: #151A12; --surface-2: #1A2016; --surface-3: #222A1D;
-  --border: #2A3324; --border-strong: #38432F;
-  --text: #EEF0E8; --text-2: #CDD1C4; --muted: #9DA293; --placeholder: #6F7466;
-  --brand-700: #B5CC5A; --brand-800: #C6DA74; --brand-50: #1F2A16;
+  --bg: #080B1E; --surface: #10142B; --surface-2: #151A35; --surface-3: #1C2240;
+  --border: #262D4D; --border-strong: #343C60;
+  --text: #ECEEF6; --text-2: #C9CDE0; --muted: #979CB4; --placeholder: #6C7190;
+  --brand-700: #EBDD1F; --brand-800: #F2E650; --brand-50: #1A2152;
   --ok: #8FCB98; --ok-bg: #18301D; --warn: #E2B866; --warn-bg: #33270F; --bad: #EE9C8B; --bad-bg: #3A1D17;
   --late: #F0A374; --late-bg: #3A2213; --info: #A9BCCB; --info-bg: #1C252C;
   --shadow-1: 0 1px 2px rgba(0, 0, 0, .3); --shadow-2: 0 8px 24px rgba(0, 0, 0, .35);
-  --card-border: 1px solid rgba(255, 255, 255, .06); --ring: 0 0 0 3px rgba(181, 204, 90, .25);
+  --card-border: 1px solid rgba(255, 255, 255, .06); --ring: 0 0 0 3px rgba(235, 221, 31, .25);
   color-scheme: dark;
 }
 /* En sombre, le bouton principal est olive lumineux : texte vert forêt (le blanc serait illisible). */
 :root { --on-brand: #FFFFFF; }
-:root[data-theme="dark"] { --on-brand: #14200F; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --on-brand: #14200F; } }
+:root[data-theme="dark"] { --on-brand: #0A1452; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --on-brand: #0A1452; } }
 
 /* ---------- Base ---------- */
 .ds, .ds * { box-sizing: border-box; }

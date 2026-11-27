@@ -40,6 +40,11 @@ const COLLECTIONS = {
       notes: str(b.notes, 3000),
       // Volet Construction : répartition des frais communs entre les villas du programme
       repartition: pick(b.repartition, ["egale", "surface"], "egale"),
+      // Chantier de particulier (construction ou rénovation pour un client) : prix convenu, échéancier et versements du client
+      nature: pick(b.nature, ["", "particulier"], ""), travaux: pick(b.travaux, ["construction", "renovation"], "construction"),
+      clientTel: str(b.clientTel, 40), prix: montant(b.prix),
+      echeancier: arr(b.echeancier, 60).map((e) => ({ date: date(e && e.date), libelle: str(e && e.libelle, 80), montant: montant(e && e.montant) })).filter((e) => e.montant),
+      paiements: arr(b.paiements, 200).map((p) => ({ date: date(p && p.date), montant: montant(p && p.montant), mode: pick(p && p.mode, LISTES.modePaiement, "autre"), reference: str(p && p.reference, 80) })).filter((p) => p.montant),
     };
     if (!c.nom) throw err("Le nom du chantier est obligatoire.");
     return c;
