@@ -187,6 +187,16 @@ function depuisImport(nom, row) {
     const verse = avance ? Math.min(avance, total || avance) : (toutPaye ? total : 0);
     return { ...row, paiements: verse ? [{ date: date(row.date) || new Date().toISOString().slice(0, 10), montant: verse, mode: row.mode }] : [] };
   }
+  // Chantier repris d'Excel : somme déjà versée par le client (chantier de particulier)
+  if (nom === "chantiers") {
+    const v = montant(row.dejaVerse);
+    // Étapes habituelles (comme à la création dans l application) : 100 % si le chantier est déjà terminé
+    const ETAPES = row.travaux === "renovation"
+      ? ["Diagnostic et devis", "Démolition et dépose", "Maçonnerie et reprises", "Électricité et plomberie", "Enduits et plafonds", "Carrelage", "Menuiseries", "Peinture", "Finitions et nettoyage"]
+      : ["Terrassement", "Fondations", "Élévation des murs", "Dalle / poteaux", "Toiture", "Électricité et plomberie", "Enduits", "Carrelage", "Menuiseries", "Peinture", "Finitions et nettoyage"];
+    const etapes = Array.isArray(row.etapes) && row.etapes.length ? row.etapes : ETAPES.map((nom) => ({ nom, avancement: row.statut === "termine" ? 100 : 0 }));
+    return { ...row, etapes, paiements: v ? [{ date: date(row.dateVersement) || date(row.dateDebut) || new Date().toISOString().slice(0, 10), montant: v, mode: "autre", reference: "Reprise Excel" }] : [] };
+  }
   if (nom === "ouvriers") return { ...row, actif: !/^(non|no|0|false)$/i.test(String(row.actif || "oui").trim()) };
   // Contrat de location repris d'Excel : caution + loyers payés mois par mois (colonnes m01 à m12 = janvier à décembre de l'année « annee »)
   if (nom === "contrats") {

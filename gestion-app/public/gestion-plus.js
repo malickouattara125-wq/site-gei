@@ -394,7 +394,10 @@
       ["bien", "Bien loué", ["bienloue", "bien", "maison", "magasin", "logement", "local"]], ["montant", "Loyer mensuel *", ["loyermensuel", "loyer", "montantduloyer"]], ["caution", "Caution versée", ["caution", "cautionversee", "depotdegarantie"]],
       ["dateDebut", "Date de début *", ["datededebut", "debutdubail", "dateentree", "datedentree"]], ["dateFin", "Date de fin", ["datedefin", "findubail"]], ["mode", "Mode de paiement", ["modedepaiement", "mode", "paiement"]],
       ["m01", "Janv. 2026", ["janv2026", "janvier2026"]], ["m02", "Févr. 2026", ["fevr2026", "fevrier2026"]], ["m03", "Mars 2026", ["mars2026", "mars2026"]], ["m04", "Avr. 2026", ["avr2026", "avril2026"]], ["m05", "Mai 2026", ["mai2026", "mai2026"]], ["m06", "Juin 2026", ["juin2026", "juin2026"]], ["m07", "Juil. 2026", ["juil2026", "juillet2026"]], ["m08", "Août 2026", ["aout2026", "aout2026"]], ["m09", "Sept. 2026", ["sept2026", "septembre2026"]], ["m10", "Oct. 2026", ["oct2026", "octobre2026"]], ["m11", "Nov. 2026", ["nov2026", "novembre2026"]], ["m12", "Déc. 2026", ["dec2026", "decembre2026"]], ["notes", "Notes", ["notes", "remarques", "observations"]]] },
-    chantiers: { titre: "Chantiers", champs: [["nom", "Nom *", ["nom", "chantier", "projet"]], ["lieu", "Lieu", ["lieu", "ville", "localisation"]], ["client", "Client", ["client", "proprietaire"]], ["budget", "Budget", ["budget", "montant", "cout"]], ["dateDebut", "Début (AAAA-MM-JJ)", ["debut", "datedebut"]], ["dateFin", "Fin prévue", ["fin", "datefin"]]] },
+    chantiers: { titre: "Chantiers", champs: [["nature", "Nature", ["nature", "naturedetravaux", "naturedeschantier", "naturedechantier"]], ["nom", "Nom *", ["nom", "nomduchantier", "chantier", "projet", "programme"]], ["lieu", "Lieu", ["lieu", "ville", "localisation"]],
+      ["client", "Client", ["client", "nomduclient", "proprietaire"]], ["clientTel", "Téléphone du client", ["telephoneduclient", "telephone", "tel", "contact"]], ["type", "Type d'ouvrage", ["typedouvrage", "ouvrage", "travaux"]], ["etat", "Statut", ["statut", "etat"]],
+      ["dateDebut", "Date de début", ["debut", "datedebut", "datededebut"]], ["dateFin", "Date de fin", ["fin", "datefin", "datedefin", "finprevue"]], ["budget", "Budget (coût prévu)", ["budget", "budgetcoutprevu", "coutprevu", "montant", "cout"]],
+      ["prix", "Prix convenu (client)", ["prixconvenu", "prixconvenuclient", "prixclient", "prix"]], ["dejaVerse", "Déjà versé par le client", ["dejaverseparleclient", "dejaverse", "verse", "encaisse"]], ["dateVersement", "Date du versement", ["dateduversement", "dateversement"]]] },
   };
   // Modèles d'exemple à télécharger : titres reconnus automatiquement à l'import + 2 lignes d'exemple
   const MODELES = {
@@ -409,9 +412,9 @@
     contrats: [["Locataire", "Téléphone", "Bien loué", "Loyer mensuel", "Caution versée", "Date de début", "Date de fin", "Mode de paiement", "Janv. 2026", "Févr. 2026", "Mars 2026", "Avr. 2026", "Mai 2026", "Juin 2026", "Juil. 2026", "Août 2026", "Sept. 2026", "Oct. 2026", "Nov. 2026", "Déc. 2026", "Notes"],
       ["Yao Serge", "0505050505", "Magasin M3", "150000", "300000", "01/01/2026", "", "Espèces", "150000", "150000", "150000", "150000", "150000", "150000", "150000", "150000", "150000", "150000", "", "", ""],
       ["Bamba Awa", "0707070707", "Villa 4 pièces Angré", "250000", "500000", "01/06/2026", "31/05/2027", "Virement", "", "", "", "", "", "250000", "250000", "250000", "250000", "", "", "", "Paye avec retard"]],
-    chantiers: [["Nom", "Lieu", "Client", "Budget", "Date début", "Date fin"],
-      ["Villas ADOHA", "Bingerville", "Programme GEI", "180000000", "01/06/2026", "30/03/2027"],
-      ["Résidence ADJIN", "Bingerville", "Programme GEI", "95000000", "10/08/2026", "30/05/2027"]],
+    chantiers: [["Nature", "Nom du chantier", "Lieu", "Client", "Téléphone du client", "Type d'ouvrage", "Statut", "Date de début", "Date de fin", "Budget (coût prévu)", "Prix convenu (client)", "Déjà versé par le client", "Date du versement"],
+      ["Programme GEI", "Villas ADOHA", "Bingerville", "GEI", "", "20 villas basses 4 pièces", "En cours", "01/06/2026", "30/03/2027", "180000000", "", "", ""],
+      ["Particulier – rénovation", "Rénovation villa Koné", "Cocody", "M. Koné", "0700000009", "Réfection toiture et peinture", "Terminé", "01/02/2026", "30/04/2026", "8000000", "12000000", "11000000", "02/05/2026"]],
   };
   function telechargerModele(type) {
     const cell = (v) => (/[;"\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
@@ -445,13 +448,13 @@
     catch { return { texte: new TextDecoder("windows-1252").decode(buf), enc: "Windows-1252" }; }
   }
   const dateISO = (v) => { v = String(v || "").trim(); let m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})$/.exec(v); if (m) { const y = m[3].length === 2 ? "20" + m[3] : m[3]; if (+m[2] < 1 || +m[2] > 12 || +m[1] < 1 || +m[1] > 31) return ""; return `${y}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`; } m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v); return m ? m[0] : ""; };
-  const MONTANTS = ["prix", "montant", "avance", "tarifJour", "budget", "montantPaye", "caution", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12"], DATES = ["date", "dateDebut", "dateFin", "datePaiement"];
+  const MONTANTS = ["prix", "montant", "avance", "tarifJour", "budget", "montantPaye", "dejaVerse", "caution", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12"], DATES = ["date", "dateDebut", "dateFin", "datePaiement", "dateVersement"];
   const OBLIG = { maisons: [["programme", "Programme manquant"], ["lot", "Lot manquant"]], depenses: [["libelle", "Désignation manquante"]], ouvriers: [["nom", "Nom manquant"]], chantiers: [["nom", "Nom manquant"]], contrats: [["partie", "Locataire manquant"], ["montant", "Loyer mensuel manquant"], ["dateDebut", "Date de début manquante"]] };
   const INFO_IMPORT = {
     maisons: { ic: "house", desc: "Maisons et magasins : lots, prix, statut, clients et sommes déjà versées.", page: "#g-maisons", lien: "Voir les maisons" },
     depenses: { ic: "receipt", desc: "Achats et frais, avec l'avance payée.", page: "#g-depenses", lien: "Voir les dépenses" },
     ouvriers: { ic: "users", desc: "Noms, métiers, téléphones et tarifs par jour.", page: "#g-equipes", lien: "Voir les équipes" },
-    chantiers: { ic: "hardhat", desc: "Nom, lieu, client, budget et dates.", page: "#g-chantiers", lien: "Voir les chantiers" },
+    chantiers: { ic: "hardhat", desc: "Programmes GEI et chantiers de particuliers : dates, budget, client et prix.", page: "#g-chantiers", lien: "Voir les chantiers" },
     contrats: { ic: "file", desc: "Locataires déjà en place : loyer, caution et loyers payés mois par mois.", page: "#g-contrats", lien: "Voir les contrats" },
   };
   const taille = (o) => (o < 1024 ? `${o} o` : o < 1048576 ? `${(o / 1024).toFixed(1).replace(".", ",")} Ko` : `${(o / 1048576).toFixed(1).replace(".", ",")} Mo`);
@@ -512,6 +515,11 @@
         delete o.chantier;
       }
       if (type === "depenses" && o.avance && o.montant && +o.avance > +o.montant) err.push("Avance plus grande que le montant total");
+      // Chantier : nature (programme GEI ou particulier construction / rénovation) et statut
+      if (type === "chantiers") {
+        if (o.nature != null) { const n = SANS(o.nature); if (/reno/.test(n)) Object.assign(o, { nature: "particulier", travaux: "renovation" }); else if (/particulier|client|construction/.test(n)) Object.assign(o, { nature: "particulier", travaux: "construction" }); else o.nature = ""; }
+        if (o.etat != null) { const e = SANS(o.etat); o.statut = /prep/.test(e) ? "preparation" : /pause|arret|suspendu/.test(e) ? "pause" : /termin|fini|livre|acheve/.test(e) ? "termine" : "en_cours"; delete o.etat; }
+      }
       // Maison ou magasin (boutique, local commercial → magasin)
       if (type === "maisons" && o.bien != null) o.bien = /magasin|boutique|local|commerce|shop/.test(SANS(o.bien)) ? "magasin" : "maison";
       // Contrat : le bien loué est relié à la fiche maison / magasin du même nom, sinon il est gardé comme texte
