@@ -1,0 +1,209 @@
+{
+  "telephones": [
+    "07 09 71 85 30",
+    "07 04 75 53 06",
+    "07 08 62 30 38"
+  ],
+  "whatsapp": "07 04 75 53 06",
+  "email": "contact@gei-sarl.ci",
+  "adresse": "Abidjan, Cocody · Cité des Arts",
+  "adresseDetail": "Cocody, Cité des Arts (derrière la banque NSIA)",
+  "horaires": "Lundi au vendredi · 8h – 16h30",
+  "horairesCourt": "Lun – Ven · 8h – 16h30",
+  "reseaux": {
+    "facebook": "",
+    "instagram": "",
+    "tiktok": "",
+    "linkedin": "",
+    "youtube": ""
+  },
+  "slogan": "Promoteur et constructeur en Côte d'Ivoire. Votre confiance, notre engagement.",
+  "chiffresAccueil": [
+    {
+      "valeur": "12",
+      "libelle": "ans d'expérience"
+    },
+    {
+      "valeur": "+300",
+      "libelle": "employés"
+    },
+    {
+      "valeur": "+10",
+      "libelle": "programmes immobiliers"
+    }
+  ],
+  "chiffresAPropos": [
+    {
+      "valeur": "2014",
+      "libelle": "année de création"
+    },
+    {
+      "valeur": "+300",
+      "libelle": "employés"
+    },
+    {
+      "valeur": "+10",
+      "libelle": "programmes immobiliers"
+    },
+    {
+      "valeur": "12",
+      "libelle": "ans d'expérience"
+    }
+  ],
+  "chiffresProgrammes": [
+    {
+      "valeur": "4",
+      "libelle": "villes"
+    },
+    {
+      "valeur": "10",
+      "libelle": "M FCFA, prix d'entrée"
+    },
+    {
+      "valeur": "+300",
+      "libelle": "employés"
+    },
+    {
+      "valeur": "100%",
+      "libelle": "construit par nos équipes"
+    }
+  ],
+  "histoireSurtitre": "Notre histoire",
+  "histoireTitre": "Douze ans à bâtir *la confiance*",
+  "histoireTexte": [
+    "Tout commence en 2014 avec Ivoirbatgroup, une entreprise de génie civil. Devenue Global Empire Immobilier en 2023, elle construit aujourd'hui des villas à Adiaké, Djorobité, Bingerville et Abengourou.",
+    "Notre engagement n'a pas changé : construire nous-mêmes, avec rigueur, et remettre les clés dans les délais."
+  ],
+  "dgNom": "Angaman Laurent Fabrice",
+  "dgTitre": "Directeur Général, GEI SARL",
+  "aproposTitre": "Rigueur, qualité *et sincérité*",
+  "aproposTexte": [
+    "À l'origine Ivoirbatgroup, entreprise de génie civil fondée en 2014, la société devient une SARL le 7 janvier 2023 et prend le nom de Global Empire Immobilier.",
+    "Dirigée par M. Angaman Laurent Fabrice, GEI réalise l'étude technique, la conception de plans 2D et 3D, la construction, l'expertise et le conseil en immobilier. Pour respecter les délais de livraison, nous préfinançons nos chantiers.",
+    "Chaque projet suit un cahier des charges fondé sur la rigueur, la qualité du travail et la sincérité dans nos relations avec nos clients."
+  ],
+  "citation": "En près d'une décennie, nous avons beaucoup changé. Mais notre philosophie reste la même : *nous ne construisons pas que des maisons, nous tenons parole.*",
+  "visionSurtitre": "Notre vision",
+  "visionTitre": "Un toit de qualité, *accessible au plus grand nombre*",
+  "visionTexte": [
+    "En Côte d'Ivoire, l'accès au logement reste une préoccupation majeure. Global Empire Immobilier est née pour y répondre : construire des logements de qualité, à un coût maîtrisé, pour les familles ivoiriennes comme pour la diaspora.",
+    "Pour que chacun puisse réaliser son projet, nous proposons trois formules adaptées à chaque situation."
+  ],
+  "visionOffres": [
+    {
+      "titre": "Clé en main, tout corps d'état",
+      "texte": "Conception, permis de construire, plans d'exécution, validation des matériaux avec vous, jusqu'à la remise des clés."
+    },
+    {
+      "titre": "Préfinancement",
+      "texte": "Nous finançons la seconde partie de votre construction, remboursable par échéancier ou en une seule fois."
+    },
+    {
+      "titre": "Bail à construction",
+      "texte": "Vous avez un terrain mais pas le budget : nous finançons la construction et l'exploitons le temps convenu, par acte notarié."
+    }
+  ],
+  "dates": [
+    {
+      "date": "2014",
+      "titre": "Naissance d'Ivoirbatgroup",
+      "texte": "L'aventure commence avec Ivoirbatgroup, entreprise de génie civil installée à Cocody, Cité des Arts."
+    },
+    {
+      "date": "2019",
+      "titre": "Magasins avec mezzanine à Abidjan Mall",
+      "texte": "Fondations, voiles en béton armé et mezzanine pour des boutiques aujourd'hui en activité."
+    },
+    {
+      "date": "2021",
+      "titre": "Plans 3D et chantier de Saint-Viateur",
+      "texte": "Conception 3D de villas duplex et lancement du chantier d'une villa duplex à Saint-Viateur."
+    },
+    {
+      "date": "2022",
+      "titre": "Saint-Viateur et Bingerville",
+      "texte": "Finitions de la villa de Saint-Viateur et construction d'une villa sur trois niveaux à Bingerville."
+    },
+    {
+      "date": "7 janvier 2023",
+      "titre": "Global Empire Immobilier SARL",
+      "texte": "Lors de la première soirée « Parcours et Vision », Ivoirbatgroup devient une SARL et prend le nom de Global Empire Immobilier."
+    },
+    {
+      "date": "Début 2023",
+      "titre": "Yamoussoukro, Angré, Ouragahio",
+      "texte": "Immeuble R+3 à Yamoussoukro, finitions d'immeubles à Angré et à la Cité CIR, villa basse à Ouragahio."
+    },
+    {
+      "date": "2 avril 2023",
+      "titre": "Appartements Lucy et Agnibilékrou",
+      "texte": "Remise des clés des appartements Lucy, et déploiement de GEI à Agnibilékrou."
+    },
+    {
+      "date": "2024",
+      "titre": "Cité des Opulences 1 · Djorobité",
+      "texte": "Premier programme immobilier de GEI : des villas duplex de standing."
+    },
+    {
+      "date": "2025",
+      "titre": "Cité des Opulences 2 · Djorobité",
+      "texte": "L'entreprise poursuit son développement à Djorobité."
+    },
+    {
+      "date": "Décembre 2025",
+      "titre": "Première pierre à Adiaké",
+      "texte": "Lancement de la Cité Les Rives de l'Opulence."
+    },
+    {
+      "date": "2026",
+      "titre": "Djorobité, Bingerville, Abengourou",
+      "texte": "Cité des Opulences 3 à Djorobité, Cité des Opulences 1 à Bingerville, et première pierre des villas économiques d'Abengourou."
+    },
+    {
+      "date": "4 septembre 2026",
+      "titre": "Korhogo : 25 pièces en 6 mois",
+      "texte": "Remise officielle des clés d'une villa duplex de 25 pièces."
+    },
+    {
+      "date": "10 octobre 2026",
+      "titre": "Premières clés à Adiaké",
+      "texte": "Les premiers propriétaires de la Cité Les Rives de l'Opulence reçoivent leurs clés."
+    }
+  ],
+  "chiffresRealisations": [
+    {
+      "valeur": "25",
+      "libelle": "pièces à Korhogo"
+    },
+    {
+      "valeur": "6",
+      "libelle": "mois de chantier"
+    },
+    {
+      "valeur": "3",
+      "libelle": "studios et 3 magasins"
+    },
+    {
+      "valeur": "12",
+      "libelle": "ans d'expérience"
+    }
+  ],
+  "chiffresServices": [
+    {
+      "valeur": "3",
+      "libelle": "pôles d'expertise"
+    },
+    {
+      "valeur": "60%",
+      "libelle": "de préfinancement"
+    },
+    {
+      "valeur": "100%",
+      "libelle": "en crédit-bail"
+    },
+    {
+      "valeur": "12",
+      "libelle": "ans d'expérience"
+    }
+  ]
+}

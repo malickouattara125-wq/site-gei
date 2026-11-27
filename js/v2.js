@@ -20,10 +20,11 @@
       const el = e.target;
       const end = +el.dataset.count;
       const suffix = el.dataset.suffix || "";
+      const prefix = el.dataset.prefix || "";
       const t0 = performance.now();
       const step = (now) => {
         const k = Math.min((now - t0) / 1600, 1);
-        el.textContent = Math.round(end * (1 - Math.pow(1 - k, 3))) + (k === 1 ? suffix : "");
+        el.textContent = prefix + Math.round(end * (1 - Math.pow(1 - k, 3))) + (k === 1 ? suffix : "");
         if (k < 1) requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
@@ -180,17 +181,6 @@
     update();
   });
 
-  /* ---------- Vidéo du DG : photo affichée tant que la vidéo n'est pas déposée ---------- */
-  const dgv = $("[data-dgvideo]");
-  if (dgv) {
-    const photo = $("[data-dgphoto]");
-    const fallback = () => { dgv.hidden = true; if (photo) photo.hidden = false; };
-    const src = $("source", dgv);
-    if (src) src.addEventListener("error", fallback);
-    dgv.addEventListener("error", fallback);
-    fetch(src ? src.getAttribute("src") : "", { method: "HEAD" }).then((r) => { if (!r.ok) fallback(); }).catch(fallback);
-  }
-
   /* ---------- FAQ : une seule question ouverte à la fois ---------- */
   $$("[data-faq] details").forEach((d) => d.addEventListener("toggle", () => {
     if (d.open) $$("[data-faq] details").forEach((o) => { if (o !== d) o.open = false; });
@@ -208,7 +198,8 @@
     } catch (_) { /* site statique : on passe directement à WhatsApp */ }
     const msg = [`Bonjour GEI, je suis ${f.get("nom")} (${f.get("tel")}).`,
       f.get("programme") && `Programme : ${f.get("programme")}`, f.get("message")].filter(Boolean).join("\n");
-    open(`https://wa.me/2250709718530?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+    const wa = (($(".wa") || {}).href || "").replace(/\D/g, "") || "2250704755306";
+    open(`https://wa.me/${wa}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
   }));
 
   /* ---------- Galerie : agrandissement des photos ---------- */

@@ -9,8 +9,8 @@ const esc = (s) => String(s == null ? "" : s)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 const num = (n) => String(n).replace(".", ",");
 
-const NAV = [["index.html", "Accueil"], ["programmes.html", "Programmes"], ["realisations.html", "Réalisations"],
-  ["services.html", "Services"], ["a-propos.html", "À propos"], ["contact.html", "Contact"]];
+const NAV = [["index.html", "Accueil"], ["a-propos.html", "À propos"], ["programmes.html", "Programmes"],
+  ["realisations.html", "Réalisations"], ["actualites.html", "Actualités"], ["services.html", "Services"], ["contact.html", "Contact"]];
 
 const EXTRA_OPTIONS = ["Construction ou rénovation", "Préfinancement ou bail", "Autre demande"];
 
@@ -173,6 +173,28 @@ function realisations(list) {
   }).join("\n");
 }
 
+// Réalisations : chantiers de référence (une carte par projet, photos agrandissables)
+function references(list) {
+  return list.map((r, i) => {
+    const ph = (r.photos || []).filter((p) => p && p.src);
+    if (!ph.length) return "";
+    const btn = (p, cls, extra = "") => `<button type="button" class="${cls}" data-lightbox="${esc(p.src)}"${extra}><img src="${esc(p.src)}" alt="${esc([r.titre, p.legende].filter(Boolean).join(" · "))}" loading="lazy">`;
+    const thumbs = ph.slice(1, 4).map((p, k) => btn(p, "ref__thumb") + (k === 2 && ph.length > 4 ? `<span class="ref__more">+${ph.length - 4}</span>` : "") + "</button>").join("");
+    const hidden = ph.slice(4).map((p) => btn(p, "ref__thumb", " hidden") + "</button>").join("");
+    const meta = [r.lieu, r.annee].filter(Boolean).join(" · ");
+    return `          <article class="ref" data-anim style="--d:${((i % 2) * 0.06).toFixed(2)}s">
+            <div class="ref__photos">${btn(ph[0], "ref__main")}${r.categorie ? `<span class="ref__cat">${esc(r.categorie)}</span>` : ""}</button>${thumbs ? `<div class="ref__thumbs">${thumbs}</div>` : ""}${hidden}</div>
+            <div class="ref__body">
+              <h3>${esc(r.titre)}</h3>
+              ${meta ? `<p class="ref__lieu">${esc(meta)}</p>` : ""}
+              ${r.texte ? `<p>${esc(r.texte)}</p>` : ""}
+              ${(r.videos || []).filter((v) => v && v.src).map((v) => `<figure class="ref__video"><video controls muted playsinline preload="none"${v.affiche ? ` poster="${esc(v.affiche)}"` : ""}><source src="${esc(v.src)}" type="video/mp4"></video>${v.legende ? `<figcaption>${esc(v.legende)}</figcaption>` : ""}</figure>`).join("")}
+              <p class="ref__hint">${ph.length} photo${ph.length > 1 ? "s" : ""} · cliquez pour agrandir</p>
+            </div>
+          </article>`;
+  }).join("\n");
+}
+
 // Accueil : réalisations en cartes blanches (badge « Livré »)
 function realisationsCards(list) {
   return list.map((r) => {
@@ -205,10 +227,12 @@ function contactBlock(programmes, selected, titleHtml) {
             <h2>${titleHtml || "Parlons de votre <span>future maison</span>"}</h2>
             <p>Les rendez-vous sont gratuits et sans engagement. Un conseiller vous rappelle rapidement sur WhatsApp.</p>
             <ul class="contact__list">
+              <!-- p-contact:debut -->
               <li><i class="ico ico--phone"></i><a href="tel:+2250709718530">07 09 71 85 30</a> · <a href="tel:+2250704755306">07 04 75 53 06</a></li>
               <li><i class="ico ico--mail"></i><a href="mailto:contact@gei-sarl.ci">contact@gei-sarl.ci</a></li>
               <li><i class="ico ico--pin"></i>Cocody, Cité des Arts (derrière la banque NSIA)</li>
               <li><i class="ico ico--clock"></i>Lundi au vendredi · 8h – 16h30</li>
+              <!-- p-contact:fin -->
             </ul>
           </div>
           <form class="cform" data-form>
@@ -263,7 +287,7 @@ function souscrire(p, waText) {
           </div>
           <div class="sub-docs__cta">
             <p>Prêt à réserver votre villa à ${esc(p.ville)} ?</p>
-            <a href="https://wa.me/2250709718530?text=${waText}" class="btn btn--gold" target="_blank" rel="noopener">Souscrire sur WhatsApp</a>
+            <a href="https://wa.me/2250704755306?text=${waText}" class="btn btn--gold" target="_blank" rel="noopener">Souscrire sur WhatsApp</a>
             <a href="#contact" class="btn btn--line">Être rappelé</a>
           </div>
         </div>
@@ -319,7 +343,7 @@ function programmePage(p, all) {
           ${p.noteOffre ? `<p class="offer__note">${esc(p.noteOffre)}</p>` : ""}
           <ul class="tags"><li>ACD</li><li>Permis de construire</li><li>Frais de dossier 300 000 FCFA</li></ul>
           <a href="#contact" class="btn btn--primary">Réserver une visite</a>
-          <a href="https://wa.me/2250709718530?text=${waText}" class="btn btn--wa" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
+          <a href="https://wa.me/2250704755306?text=${waText}" class="btn btn--wa" target="_blank" rel="noopener">Écrire sur WhatsApp</a>
         </aside>
       </div>
     </section>
@@ -395,10 +419,18 @@ function newsList(list) {
   }).join("\n");
 }
 
+// Accueil : les 3 dernières actualités
+function newsCards(list) {
+  return list.slice(0, 3).map((a, i) => `          <article class="post" data-anim style="--d:${(i * 0.06).toFixed(2)}s">
+            <div class="post__img${a.image ? "" : " post__img--logo"}"><img src="${esc(a.image || "assets/img/logo-gei.png")}" alt="${esc(a.image ? a.titre : "")}" loading="lazy"></div>
+            <div class="post__body"><time>${esc(dateFr(a))}</time><h3>${esc(a.titre)}</h3><p>${esc(a.texte)}</p></div>
+          </article>`).join("\n");
+}
+
 // Remplace le contenu entre deux repères <!-- nom:debut --> et <!-- nom:fin -->
 function between(html, name, content) {
   const re = new RegExp(`(<!-- ${name}:debut -->)[\\s\\S]*?(<!-- ${name}:fin -->)`);
   return html.replace(re, (_, a, b) => `${a}\n${content}\n          ${b}`);
 }
 
-module.exports = { esc, layout, card, cards, projetsOnglets, projetsUne, slides, realisations, realisationsCards, servicesCards, servicesRows, programmePage, newsList, between, contactBlock };
+module.exports = { esc, layout, card, cards, references, projetsOnglets, projetsUne, slides, realisations, realisationsCards, servicesCards, servicesRows, programmePage, newsList, newsCards, between, contactBlock };

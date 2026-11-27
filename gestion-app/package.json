@@ -1,0 +1,9 @@
+{
+  "name": "gei-gestion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GEI Gestion : application de gestion de Global Empire Immobilier (chantiers, ventes, dépenses, trésorerie, stock, équipes)",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "engines": { "node": ">=18" }
+}

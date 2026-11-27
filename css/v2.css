@@ -13,7 +13,7 @@
   --sand: #EEE6D4;
   --ink: #131735;
   --text: #464A63;
-  --muted: #7C7F93;
+  --muted: #555A74;
   --line: #E6E8EF;
   --soft: #F6F8F3;
   --white: #fff;
@@ -68,8 +68,8 @@ h1, h2, h3 { color: var(--ink); line-height: 1.12; letter-spacing: -.02em; margi
 .btn--ghost:hover { background: var(--blue); color: #fff; }
 .btn--light { background: #fff; color: var(--blue); }
 .btn--light:hover { background: var(--olive); color: var(--blue-d); }
-.btn--wa { background: #25D366; color: #fff; }
-.btn--wa:hover { background: #1eb457; }
+.btn--wa { background: #0F7A36; color: #fff; }
+.btn--wa:hover { background: #0B632B; }
 
 /* ---------- Bandeau d'infos ---------- */
 .topbar { background: var(--blue-d); color: #D9DCF2; font-size: 13.5px; }
@@ -143,7 +143,7 @@ h1, h2, h3 { color: var(--ink); line-height: 1.12; letter-spacing: -.02em; margi
 .stats div { padding: 22px 26px; text-align: center; }
 .stats div + div { border-left: 1px solid var(--line); }
 .stats b { display: block; font-size: 42px; font-weight: 700; color: var(--blue); line-height: 1; letter-spacing: -.03em; }
-.stats span { font-size: 14.5px; font-weight: 700; color: var(--muted); }
+.stats span { display: block; margin-top: 8px; font-size: 15.5px; font-weight: 700; color: #3A3F5C; }
 
 /* ---------- Sections ---------- */
 .section { padding: 110px 0; }
@@ -399,7 +399,7 @@ h1, h2, h3 { color: var(--ink); line-height: 1.12; letter-spacing: -.02em; margi
 .quote { margin: 0; background: var(--blue); color: #fff; border-radius: var(--r); padding: 40px; position: relative; box-shadow: var(--shadow-h); }
 .quote::before { content: "“"; position: absolute; top: -10px; left: 26px; font-size: 120px; line-height: 1; color: var(--olive); font-weight: 700; }
 .quote blockquote { margin: 34px 0 24px; font-size: 21px; font-weight: 700; line-height: 1.5; }
-.quote blockquote em { font-style: normal; color: var(--olive); }
+.quote blockquote em, .quote blockquote .hl { font-style: normal; font-weight: 700; color: var(--olive); }
 .quote figcaption { display: flex; gap: 14px; align-items: center; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, .15); }
 .quote figcaption img { width: 52px; height: 52px; border-radius: 14px; background: #fff; padding: 4px; }
 .quote strong { display: block; }
@@ -508,7 +508,7 @@ h1, h2, h3 { color: var(--ink); line-height: 1.12; letter-spacing: -.02em; margi
   .finder label + label { border-left: 0; border-top: 1px solid var(--line); }
   .programs { grid-template-columns: 1fr; }
   .mosaic { height: 300px; grid-template-columns: 1fr 1fr; }
-  .tabs { overflow-x: auto; max-width: 100%; }
+  .tabs { flex-wrap: wrap; justify-content: center; border-radius: 22px; max-width: 100%; }
   .tabs button { flex: none; }
   .stats b { font-size: 34px; }
   .footer__grid { grid-template-columns: 1fr; }
@@ -811,6 +811,9 @@ body { background: #fff; }
 .story-v__media { position: relative; aspect-ratio: 16 / 10; background: var(--blue-l); overflow: hidden; }
 .story-v__media video, .story-v__media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .story-v__media img { object-position: 50% 20%; }
+/* Photo du Directeur Général : format portrait, visage entièrement visible */
+.story-v__media--photo { aspect-ratio: 550 / 620; width: 100%; max-width: 440px; justify-self: center; border-radius: var(--r); box-shadow: var(--shadow); background: #4a4a4a; }
+.story-v__media--photo img { object-fit: cover; object-position: 50% 0; }
 .story-v h2 { font-size: clamp(28px, 3vw, 40px); font-weight: 600; margin: 0 0 16px; }
 .story-v p { margin: 0 0 14px; color: var(--text); }
 .story-v__sign { margin-top: 18px; font-weight: 600; color: var(--ink); }
@@ -818,7 +821,7 @@ body { background: #fff; }
 .figures { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 26px 0 0; }
 .figures div { padding: 16px 0; }
 .figures b { display: block; font-size: 34px; font-weight: 600; color: var(--blue); line-height: 1; }
-.figures span { font-size: 13px; color: var(--muted); }
+.figures span { display: block; margin-top: 6px; font-size: 14.5px; font-weight: 600; color: #3A3F5C; }
 
 /* ---- Nos catalogues ---- */
 .catal { display: grid; grid-template-columns: .8fr 1.2fr; gap: 0; background: var(--blue); color: rgba(255, 255, 255, .85); overflow: hidden; }
@@ -951,7 +954,7 @@ a.re-item:hover h3 { color: var(--olive-d); }
 .duo-title--light { color: #fff; }
 
 /* Bande bleue */
-.band-c { background: var(--blue); padding: 90px 0 80px; }
+.band-c { background: var(--blue); padding: 90px 0 80px; overflow-x: clip; }
 .band-c .center-btn { margin-top: 40px; }
 .btn--light { background: #fff; color: var(--blue); }
 .btn--light:hover { background: var(--olive); color: var(--blue); }
@@ -1136,3 +1139,51 @@ a.pcard:hover h3 { color: var(--olive-d); }
 .head--center p { margin-inline: auto; }
 @media (max-width: 1000px) { .pune__row { flex: none; min-height: 0; } .pune__thumb { min-height: 130px; } }
 @media (max-width: 560px) { .pune__row { grid-template-columns: 38% 1fr; } .pune__info { padding: 12px 12px 12px 0; } }
+
+/* Réseaux sociaux (pied de page et bloc contact) — liens gérés dans le tableau de bord */
+.social { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.social a { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; background: rgba(255, 255, 255, .08); color: #fff; transition: background .25s, transform .25s; }
+.social a:hover { background: var(--olive); transform: translateY(-2px); }
+.social svg { width: 18px; height: 18px; fill: currentColor; }
+.contact__list .social { margin-top: 4px; }
+
+/* Chantiers de référence (page Réalisations) */
+.refs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+.refs--3 { grid-template-columns: repeat(3, 1fr); }
+.ref { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+.ref__photos { position: relative; display: grid; gap: 4px; background: #fff; }
+.ref__photos button[hidden] { display: none; }
+.ref__photos button { border: 0; padding: 0; margin: 0; cursor: zoom-in; display: block; position: relative; overflow: hidden; background: var(--soft); }
+.ref__photos img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s var(--ease); }
+.ref__photos button:hover img { transform: scale(1.04); }
+.ref__main { aspect-ratio: 16 / 10; }
+.ref__thumbs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+.ref__thumb { aspect-ratio: 4 / 3; }
+.ref__more { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(11, 26, 110, .62); color: #fff; font-weight: 700; font-size: 20px; }
+.ref__cat { position: absolute; top: 14px; left: 14px; background: var(--olive); color: var(--blue-d); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: 6px 12px; border-radius: 6px; }
+.ref__body { padding: 22px 24px 24px; }
+.ref__body h3 { margin: 0 0 4px; font-size: 20px; }
+.ref__body p { margin: 8px 0 0; color: var(--text); font-size: 15.5px; }
+.ref__body .ref__lieu { margin-top: 0; color: var(--olive-d); font-weight: 700; font-size: 14px; }
+.ref__body .ref__hint { color: var(--muted); font-size: 13px; }
+.refs--3 .ref__body h3 { font-size: 18px; }
+@media (max-width: 1000px) { .refs--3 { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 760px) { .refs, .refs--3 { grid-template-columns: 1fr; } }
+.ref__video { margin: 14px 0 0; }
+.ref__video video { width: 100%; max-height: 420px; border-radius: 10px; background: #000; display: block; }
+.ref__video figcaption { font-size: 13px; color: var(--muted); margin-top: 6px; }
+
+/* Menu à 7 rubriques : une seule ligne, plus serré sur les écrans moyens */
+.nav a, .brand b, .brand small, .header__cta { white-space: nowrap; }
+.brand { flex: none; }
+.nav { gap: 2px; }
+.nav a { padding: 8px 10px; font-size: 14px; }
+.header__cta { padding-left: 18px; padding-right: 18px; }
+@media (max-width: 1260px) {
+  .nav a { padding: 8px 7px; font-size: 13.5px; }
+  .header__cta { font-size: 12px; letter-spacing: .08em; }
+}
+
+/* Bloc de chiffres sous les grandes photos : il déborde volontairement sous la photo.
+   Le haut de page ne coupe plus que sur les côtés, pour que les légendes restent visibles. */
+.phero { overflow: visible; overflow-x: clip; z-index: 1; }

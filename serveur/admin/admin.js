@@ -56,15 +56,18 @@
   /* ---------- Navigation ---------- */
   const views = { accueil: viewAccueil, demandes: viewDemandes, programmes: viewProgrammes, programme: viewProgramme, actualites: viewActualites, actualite: viewActualite, compte: viewCompte,
     slides: () => viewListe(SLIDES), slide: (id) => viewFiche(SLIDES, id), realisations: () => viewListe(REALS), realisation: (id) => viewFiche(REALS, id),
-    services: () => viewListe(SERVICES), service: (id) => viewFiche(SERVICES, id) };
+    services: () => viewListe(SERVICES), service: (id) => viewFiche(SERVICES, id), parametres: viewParametres,
+    references: () => viewListe(REFS), reference: (id) => viewFiche(REFS, id) };
   let dirty = false;
   function route() {
-    const [name, arg] = (location.hash.slice(1) || "accueil").split("/");
+    const h = location.hash.slice(1) || "accueil";
+    const cut = h.indexOf("/");
+    const name = cut < 0 ? h : h.slice(0, cut), arg = cut < 0 ? "" : h.slice(cut + 1);
     const v = views[name] || viewAccueil;
     $$("#nav a").forEach((a) => a.classList.toggle("is-on", name.startsWith(a.dataset.view.replace(/s$/, ""))));
     dirty = false;
     main.innerHTML = '<p class="empty">Chargement…</p>';
-    v(arg ? decodeURIComponent(arg) : undefined).catch(fail);
+    Promise.resolve(v(arg ? arg.split("/").map(decodeURIComponent).join("/") : undefined)).catch(fail);
     scrollTo(0, 0);
   }
   addEventListener("hashchange", (e) => {
@@ -432,6 +435,24 @@
     ],
   };
 
+  const REFS = {
+    api: "/api/references", list: "references", one: "reference", titre: "Chantiers de référence", nouveau: "+ Nouveau chantier", nom: "ce chantier",
+    sous: "Les chantiers réalisés pour nos clients et nos actions sociales (page Réalisations). Ne mettez pas le nom des clients sans leur accord.",
+    vide: { publie: true, ordre: 200, categorie: "Construction", photos: [] },
+    label: (x) => x.titre, sub: (x) => [x.categorie, x.lieu, x.annee].filter(Boolean).join(" · "),
+    fields: [
+      { k: "titre", label: "Titre *", ph: "Ex. Immeuble R+3", full: true },
+      { k: "categorie", type: "select", label: "Catégorie", options: ["Construction", "Finitions", "Études", "Action sociale"], hint: "« Action sociale » apparaît dans le bloc « Engagement social »." },
+      { k: "lieu", label: "Lieu", ph: "Ex. Yamoussoukro" },
+      { k: "annee", label: "Année (facultatif)", ph: "Ex. 2023" },
+      { k: "texte", type: "textarea", label: "Description", full: true },
+      { k: "photos", type: "gallery", label: "Photos", hint: "La première photo est la photo principale. Utilisez ← → pour changer l'ordre." },
+      { k: "videos", type: "videos", label: "Vidéos (facultatif)", full: true, hint: "Une vidéo par ligne : chemin de la vidéo | légende. Exemple : assets/video/references/visite.mp4 | Visite du chantier. Les vidéos sont déposées sur le serveur par votre webmaster." },
+      { k: "ordre", type: "number", label: "Ordre d'affichage", hint: "Le plus petit numéro passe en premier." },
+      { k: "publie", type: "check", label: "Afficher sur le site" },
+    ],
+  };
+
   async function viewListe(c) {
     const list = (await api(c.api)).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
     main.innerHTML = `
@@ -439,7 +460,7 @@
         <div class="top__actions"><a class="btn btn--primary" href="#${c.one}/nouveau">${c.nouveau}</a></div></div>
       <div class="items">${list.map((x) => `
         <article class="item">
-          <img src="${esc(img(x.image))}" alt="" loading="lazy">
+          <img src="${esc(img(x.image || (x.photos && x.photos[0] && x.photos[0].src)))}" alt="" loading="lazy">
           <div class="item__body"><small>${esc(c.sub(x))}</small><h3>${esc(c.label(x))}</h3>
             <p>Ordre ${esc(x.ordre || 0)} · ${x.publie === false ? '<span class="tag tag--off">Masqué du site</span>' : '<span class="tag">En ligne</span>'}</p></div>
           <div class="item__foot"><a class="btn btn--sm btn--primary" href="#${c.one}/${esc(x.id)}">Modifier</a></div>
@@ -450,12 +471,16 @@
     const isNew = id === "nouveau";
     const x = isNew ? { ...c.vide } : (await api(c.api)).find((y) => y.id === id);
     if (!x) { main.innerHTML = '<p class="empty">Élément introuvable.</p>'; return; }
+    const gals = {};
     const field = (f) => {
       const v = x[f.k];
       const hint = f.hint ? `<p class="hint">${f.hint}</p>` : "";
       if (f.type === "img") return imgField(f.k, f.label, v);
+      if (f.type === "select") return `<label><span>${f.label}</span><select name="${f.k}">${f.options.map((o) => `<option${o === v ? " selected" : ""}>${esc(o)}</option>`).join("")}</select>${hint}</label>`;
+      if (f.type === "gallery") { gals[f.k] = (v || []).map((g) => ({ ...g })); return `<div class="full"><span class="lbl">${f.label}</span><div class="gal" data-gal="${f.k}"></div><p><button type="button" class="btn btn--sm btn--ghost" data-addgal="${f.k}">+ Ajouter une photo</button></p>${hint}</div>`; }
       if (f.type === "check") return `<label class="check"><input type="checkbox" name="${f.k}"${v !== false ? " checked" : ""}> ${f.label}</label>`;
       if (f.type === "textarea") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="3">${esc(v)}</textarea>${hint}</label>`;
+      if (f.type === "videos") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="3">${esc((v || []).map((x) => [x.src, x.legende].filter(Boolean).join(" | ")).join("\n"))}</textarea>${hint}</label>`;
       if (f.type === "lines") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="4">${esc((v || []).join("\n"))}</textarea>${hint}</label>`;
       if (f.type === "paras") return `<label class="full"><span>${f.label}</span><textarea name="${f.k}" rows="9">${esc((v || []).join("\n\n"))}</textarea>${hint}</label>`;
       return `<label${f.full ? ' class="full"' : ""}><span>${f.label}</span><input name="${f.k}"${f.type === "number" ? ' type="number"' : ""} value="${esc(v == null ? "" : v)}" placeholder="${esc(f.ph || "")}">${hint}</label>`;
@@ -471,8 +496,31 @@
         </div>
       </form>`;
     const form = $("#cf");
+    const drawGal = (k) => {
+      const list = gals[k];
+      $(`[data-gal="${k}"]`, form).innerHTML = list.length ? list.map((g, i) => `<figure data-i="${i}"><img src="${esc(img(g.src))}" alt="">
+        <figcaption><input value="${esc(g.legende || "")}" placeholder="Légende" aria-label="Légende">
+        <div><button type="button" class="btn btn--text" data-mv="-1" title="Avancer">←</button><button type="button" class="btn btn--text" data-mv="1" title="Reculer">→</button><button type="button" class="btn btn--danger" data-rm>Retirer</button></div></figcaption></figure>`).join("")
+        : '<p class="empty">Aucune photo.</p>';
+    };
+    Object.keys(gals).forEach((k) => {
+      const box = $(`[data-gal="${k}"]`, form);
+      box.addEventListener("input", (e) => { gals[k][e.target.closest("figure").dataset.i].legende = e.target.value; });
+      box.addEventListener("click", (e) => {
+        const fig = e.target.closest("figure"); if (!fig) return;
+        const i = +fig.dataset.i, list = gals[k];
+        if (e.target.matches("[data-rm]")) list.splice(i, 1);
+        else if (e.target.dataset.mv) { const j = i + +e.target.dataset.mv; if (j < 0 || j >= list.length) return; [list[i], list[j]] = [list[j], list[i]]; }
+        else return;
+        dirty = true; drawGal(k);
+      });
+      drawGal(k);
+    });
     form.addEventListener("input", () => { dirty = true; });
-    form.addEventListener("click", (e) => { const n = e.target.dataset.pick; if (n) pick(([src]) => setImg(form, n, src)); });
+    form.addEventListener("click", (e) => {
+      const n = e.target.dataset.pick; if (n) pick(([src]) => setImg(form, n, src));
+      const g = e.target.dataset.addgal; if (g) pick((srcs) => { srcs.forEach((src) => gals[g].push({ src, legende: "" })); drawGal(g); dirty = true; }, true);
+    });
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const fd = new FormData(form);
@@ -481,6 +529,8 @@
         if (f.type === "check") body[f.k] = fd.get(f.k) === "on";
         else if (f.type === "lines") body[f.k] = lines(fd.get(f.k));
         else if (f.type === "paras") body[f.k] = paras(fd.get(f.k));
+        else if (f.type === "gallery") body[f.k] = gals[f.k];
+        else if (f.type === "videos") body[f.k] = lines(fd.get(f.k)).map((l) => { const [src, ...lg] = l.split("|").map((t) => t.trim()); const old = (x[f.k] || []).find((o) => o.src === src); return { src, legende: lg.join(" | "), affiche: old ? old.affiche : "" }; });
         else body[f.k] = fd.get(f.k) || "";
       });
       const btn = $("[type=submit]", form); btn.disabled = true;
@@ -495,6 +545,94 @@
     if (del) del.addEventListener("click", async () => {
       if (!confirm(`Supprimer définitivement ${c.nom} ?\n\nAstuce : pour le cacher sans le supprimer, décochez plutôt la case « Afficher ».`)) return;
       try { await api(c.api + "/" + x.id, { method: "DELETE" }); dirty = false; toast("Supprimé"); location.hash = "#" + c.list; } catch (err) { fail(err); }
+    });
+  }
+
+  /* ---------- Paramètres du site ---------- */
+  const RESEAUX = [["facebook", "Facebook"], ["instagram", "Instagram"], ["tiktok", "TikTok"], ["linkedin", "LinkedIn"], ["youtube", "YouTube"]];
+  async function viewParametres() {
+    const p = await api("/api/parametres");
+    const r = p.reseaux || {};
+    const inp = (k, label, v, ph = "", hint = "", full = false) =>
+      `<label${full ? ' class="full"' : ""}><span>${label}</span><input name="${k}" value="${esc(v == null ? "" : v)}" placeholder="${esc(ph)}">${hint ? `<p class="hint">${hint}</p>` : ""}</label>`;
+    const area = (k, label, v, rows, hint = "") =>
+      `<label class="full"><span>${label}</span><textarea name="${k}" rows="${rows}">${esc(v)}</textarea>${hint ? `<p class="hint">${hint}</p>` : ""}</label>`;
+    const chiffres = (l) => (l || []).map((c) => `${c.valeur} | ${c.libelle}`).join("\n");
+    const HL = "Mettez des *étoiles* autour des mots à afficher en vert.";
+    main.innerHTML = `
+      <div class="top"><div><h1>Paramètres du site</h1><p>Coordonnées, réseaux sociaux, chiffres clés et textes. Les changements apparaissent tout de suite sur toutes les pages.</p></div></div>
+      <form class="form" id="pf" novalidate>
+        <section class="panel"><h2>Coordonnées</h2><div class="grid">
+          ${area("telephones", "Numéros de téléphone", (p.telephones || []).join("\n"), 3, "Un numéro par ligne, par exemple 07 09 71 85 30. Le premier apparaît en haut de chaque page.")}
+          ${inp("whatsapp", "Numéro WhatsApp", p.whatsapp, "07 04 75 53 06", "Bouton vert WhatsApp et formulaires de contact.")}
+          ${inp("email", "Adresse e-mail", p.email, "contact@…")}
+          ${inp("adresse", "Adresse courte (haut des pages)", p.adresse, "Abidjan, Cocody · Cité des Arts")}
+          ${inp("adresseDetail", "Adresse complète (bloc contact)", p.adresseDetail, "Cocody, Cité des Arts (derrière…)")}
+          ${inp("horaires", "Horaires", p.horaires, "Lundi au vendredi · 8h – 16h30")}
+          ${inp("horairesCourt", "Horaires en abrégé (haut des pages)", p.horairesCourt, "Lun – Ven · 8h – 16h30")}
+        </div></section>
+
+        <section class="panel"><h2>Réseaux sociaux</h2><p class="hint" style="margin:-6px 0 14px">Collez l'adresse complète de chaque page (elle commence par https://). Laissez vide pour ne pas afficher l'icône.</p><div class="grid">
+          ${RESEAUX.map(([k, l]) => inp("r_" + k, l, r[k], `https://www.${k}.com/…`)).join("")}
+        </div></section>
+
+        <section class="panel"><h2>Chiffres clés</h2><div class="grid">
+          ${area("chiffresAccueil", "Accueil (3 chiffres)", chiffres(p.chiffresAccueil), 4, "Un par ligne : valeur | texte. Exemple : +10 | programmes immobiliers")}
+          ${area("chiffresAPropos", "Page À propos (4 chiffres)", chiffres(p.chiffresAPropos), 4, "Un par ligne : valeur | texte. Exemple : +300 | employés")}
+          ${area("chiffresRealisations", "Page Réalisations (4 chiffres)", chiffres(p.chiffresRealisations), 4, "Un par ligne : valeur | texte. Exemple : 25 | pièces à Korhogo")}
+          ${area("chiffresServices", "Page Services (4 chiffres)", chiffres(p.chiffresServices), 4, "Un par ligne : valeur | texte. Exemple : 60% | de préfinancement")}
+          ${area("chiffresProgrammes", "Page Programmes (4 chiffres)", chiffres(p.chiffresProgrammes), 4, "Un par ligne : valeur | texte. Exemple : 10 | M FCFA, prix d'entrée")}
+        </div></section>
+
+        <section class="panel"><h2>Accueil · Notre histoire</h2><div class="grid">
+          ${inp("histoireSurtitre", "Petite ligne au-dessus du titre", p.histoireSurtitre, "Notre histoire")}
+          ${inp("histoireTitre", "Titre", p.histoireTitre, "", HL)}
+          ${area("histoireTexte", "Texte", (p.histoireTexte || []).join("\n\n"), 6, "Laissez une ligne vide entre deux paragraphes.")}
+          ${inp("dgNom", "Nom du Directeur Général", p.dgNom)}
+          ${inp("dgTitre", "Fonction", p.dgTitre)}
+        </div></section>
+
+        <section class="panel"><h2>Page À propos</h2><div class="grid">
+          ${inp("aproposTitre", "Titre « Qui sommes-nous »", p.aproposTitre, "", HL, true)}
+          ${area("aproposTexte", "Texte « Qui sommes-nous »", (p.aproposTexte || []).join("\n\n"), 8, "Laissez une ligne vide entre deux paragraphes.")}
+          ${area("citation", "Citation du Directeur Général", p.citation, 3, HL)}
+          ${inp("visionTitre", "Titre « Notre vision »", p.visionTitre, "", HL, true)}
+          ${area("visionTexte", "Texte « Notre vision »", (p.visionTexte || []).join("\n\n"), 5, "Laissez une ligne vide entre deux paragraphes.")}
+          ${area("visionOffres", "Formules proposées", (p.visionOffres || []).map((o) => `${o.titre} | ${o.texte}`).join("\n"), 4, "Une formule par ligne : titre | texte.")}
+          ${area("dates", "Dates clés (« Notre histoire »)", (p.dates || []).map((d) => [d.date, d.titre, d.texte].join(" | ")).join("\n"), 10, "Une date par ligne : date | titre | texte. Exemple : 2024 | Cité des Opulences 1 | Premier programme de GEI.")}
+        </div></section>
+
+        <section class="panel"><h2>Pied de page</h2><div class="grid">
+          ${inp("slogan", "Phrase sous le logo", p.slogan, "", "", true)}
+        </div></section>
+
+        <div class="savebar"><a class="btn btn--ghost" href="/" target="_blank" rel="noopener">Voir le site ↗</a><button type="submit" class="btn btn--primary">Enregistrer</button></div>
+      </form>`;
+    const form = $("#pf");
+    form.addEventListener("input", () => { dirty = true; });
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const g = (k) => String(fd.get(k) || "").trim();
+      const pairs = (k) => lines(g(k)).map((l) => { const [valeur, ...rest] = l.split("|"); return { valeur: valeur.trim(), libelle: rest.join("|").trim() }; });
+      const body = {
+        telephones: lines(g("telephones")), whatsapp: g("whatsapp"), email: g("email"), adresse: g("adresse"), adresseDetail: g("adresseDetail"),
+        horaires: g("horaires"), horairesCourt: g("horairesCourt"),
+        reseaux: Object.fromEntries(RESEAUX.map(([k]) => [k, g("r_" + k)])),
+        chiffresAccueil: pairs("chiffresAccueil"), chiffresAPropos: pairs("chiffresAPropos"), chiffresProgrammes: pairs("chiffresProgrammes"), chiffresServices: pairs("chiffresServices"), chiffresRealisations: pairs("chiffresRealisations"),
+        histoireSurtitre: g("histoireSurtitre"), histoireTitre: g("histoireTitre"), histoireTexte: paras(g("histoireTexte")), dgNom: g("dgNom"), dgTitre: g("dgTitre"),
+        visionSurtitre: p.visionSurtitre || "Notre vision", visionTitre: g("visionTitre"), visionTexte: paras(g("visionTexte")),
+        visionOffres: lines(g("visionOffres")).map((l) => { const [titre, ...t] = l.split("|"); return { titre: titre.trim(), texte: t.join("|").trim() }; }),
+        aproposTitre: g("aproposTitre"), aproposTexte: paras(g("aproposTexte")), citation: g("citation"),
+        dates: lines(g("dates")).map((l) => { const [date, titre, ...t] = l.split("|").map((x) => x.trim()); return { date, titre: titre || "", texte: t.join(" | ") }; }),
+        slogan: g("slogan"),
+      };
+      const bad = RESEAUX.filter(([k]) => body.reseaux[k] && !/^https:\/\//i.test(body.reseaux[k]));
+      if (bad.length) return toast(`Adresse ${bad.map(([, l]) => l).join(", ")} : elle doit commencer par https://`, true);
+      const btn = $("[type=submit]", form); btn.disabled = true;
+      try { await api("/api/parametres", { method: "PUT", body }); dirty = false; toast("Paramètres enregistrés : visibles sur le site"); }
+      catch (err) { fail(err); }
+      btn.disabled = false;
     });
   }
 
@@ -576,6 +714,7 @@
     dlg.close();
     onPick && onPick(multi ? done : [done[0]]);
   });
+
 
   /* ---------- Démarrage ---------- */
   api("/api/me").then(showApp).catch(showLogin);

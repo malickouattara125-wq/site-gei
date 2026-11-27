@@ -10,6 +10,7 @@ const store = require("./lib/store");
 const auth = require("./lib/auth");
 const stats = require("./lib/stats");
 const R = require("./lib/render");
+const site = require("./lib/site");
 
 const PORT = +process.env.PORT || 8765;
 // Dossier du site : variable SITE_DIR, sinon ../Site_GEI (sur ton ordinateur), sinon le dossier parent (dépôt GitHub : site + serveur/)
@@ -27,14 +28,54 @@ const TYPES = {
 
 auth.ensureAdmin();
 
+// Mises à jour du contenu : ajoute une seule fois les nouveaux éléments du dossier seed
+// à un site déjà en ligne (sans toucher à ce qui a été modifié ou supprimé dans le tableau de bord).
+(function ajouterNouveautes() {
+  const faites = store.load("migrations", {});
+  const lot = "realisations-2026-11";
+  if (faites[lot]) return;
+  const seed = JSON.parse(fs.readFileSync(path.join(__dirname, "seed", "realisations.json"), "utf8"));
+  const list = store.load("realisations", []);
+  const ids = new Set(list.map((x) => x.id));
+  const ajouts = seed.filter((x) => x.id.startsWith("b7c1d2e3f4") && !ids.has(x.id));
+  if (ajouts.length) store.save("realisations", list.concat(ajouts));
+  store.save("migrations", { ...faites, [lot]: new Date().toISOString() });
+})();
+
+// Parcours (dates clés) : remplacé par la nouvelle version seulement s'il n'a pas été modifié dans le tableau de bord
+(function majParcours() {
+  const faites = store.load("migrations", {});
+  const lot = "parcours-2026-11";
+  if (faites[lot]) return;
+  const p = store.load("parametres", null);
+  const anciennes = JSON.parse(fs.readFileSync(path.join(__dirname, "seed", "anciennes-dates.json"), "utf8"));
+  if (p && JSON.stringify(p.dates) === JSON.stringify(anciennes)) store.save("parametres", { ...p, dates: JSON.parse(fs.readFileSync(path.join(__dirname, "seed", "parametres.json"), "utf8")).dates });
+  store.save("migrations", { ...faites, [lot]: new Date().toISOString() });
+})();
+
 /* ---------------- Outils ---------------- */
 const programmes = () => store.load("programmes", []);
 const visibles = () => programmes().filter((p) => p.visible !== false).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
 const actualites = () => store.load("actualites", []);
 const publiees = () => actualites().filter((a) => a.publie !== false).sort((a, b) => String(b.date).localeCompare(String(a.date)));
+// Valeurs de départ (seed) complétées par celles enregistrées : un nouveau réglage a toujours une valeur
+const PARAM_DEFAUT = JSON.parse(fs.readFileSync(path.join(__dirname, "seed", "parametres.json"), "utf8"));
+const parametres = () => ({ ...PARAM_DEFAUT, ...(store.load("parametres", null) || {}) });
+const avecParametres = (html) => site.apply(html, parametres());
 const enLigne = (name) => store.load(name, []).filter((x) => x.publie !== false).sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
 
-function ip(req) { return (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.socket.remoteAddress || ""; }
+// Adresse du visiteur (pour limiter les essais de connexion et les envois du formulaire).
+// On ne croit l'en-tête X-Forwarded-For que si la requête vient d'un relais installé sur la même machine
+// (Apache/Passenger chez LWS, Nginx…), et on prend la DERNIÈRE adresse : celle ajoutée par ce relais.
+// La première peut être inventée par n'importe qui.
+const LOCAL = /^(127\.|::1$|::ffff:127\.)/;
+function ip(req) {
+  const direct = req.socket.remoteAddress || "";
+  const fwd = (req.headers["x-forwarded-for"] || "").split(",").map((s) => s.trim()).filter(Boolean);
+  return LOCAL.test(direct) && fwd.length ? fwd[fwd.length - 1] : direct;
+}
+// Le site est-il servi en HTTPS ? (FORCE_HTTPS=1 à mettre chez l'hébergeur une fois le certificat SSL actif)
+const isHttps = (req) => process.env.FORCE_HTTPS === "1" || req.headers["x-forwarded-proto"] === "https" || req.headers["x-forwarded-ssl"] === "on";
 
 function cookies(req) {
   const out = {};
@@ -92,12 +133,13 @@ function safeJoin(root, urlPath) {
   if (!full.startsWith(root)) return null;
   // Le dossier du serveur (code, données, mot de passe) n'est jamais servi comme une page du site
   if (root === SITE && (full === __dirname || full.startsWith(__dirname + path.sep))) return null;
+  if (root === SITE && parts[0] === "gestion-app") return null;   // application de gestion : projet séparé, jamais publié par le site
   return full;
 }
 
 function notFound(res) {
   const f = path.join(SITE, "404.html");
-  send(res, 404, fs.existsSync(f) ? fs.readFileSync(f) : "Page introuvable");
+  send(res, 404, fs.existsSync(f) ? avecParametres(fs.readFileSync(f, "utf8")) : "Page introuvable");
 }
 
 /* ---------------- Pages publiques dynamiques ---------------- */
@@ -110,10 +152,14 @@ function dynamicPage(pathname) {
     if (s.length) html = R.between(html, "slides", R.slides(s));
     const sv = enLigne("services");
     if (sv.length) html = R.between(html, "services", R.servicesCards(sv.slice(0, 3)));
+    html = R.between(html, "actualites", R.newsCards(publiees()));
     return R.between(html, "realisations", R.realisationsCards(enLigne("realisations")));
   }
   if (pathname === "/realisations.html") {
-    return R.between(page("realisations.html"), "realisations", R.realisations(enLigne("realisations")));
+    const refs = enLigne("references");
+    let html = R.between(page("realisations.html"), "realisations", R.realisations(enLigne("realisations")));
+    html = R.between(html, "references", R.references(refs.filter((r) => r.categorie !== "Action sociale")));
+    return R.between(html, "social", R.references(refs.filter((r) => r.categorie === "Action sociale")));
   }
   if (pathname === "/services.html") {
     const sv = enLigne("services");
@@ -200,6 +246,15 @@ const COLLECTIONS = {
     if (!r.titre) throw Object.assign(new Error("Le titre est obligatoire."), { status: 400 });
     return r;
   },
+  references: (b) => {
+    const r = { titre: str(b.titre, 120), lieu: str(b.lieu, 60), annee: str(b.annee, 30), texte: str(b.texte, 600),
+      categorie: ["Construction", "Finitions", "Études", "Action sociale"].includes(b.categorie) ? b.categorie : "Construction",
+      photos: (Array.isArray(b.photos) ? b.photos : []).map((p) => ({ src: str(p && p.src, 300), legende: str(p && p.legende, 80) })).filter((p) => p.src).slice(0, 40),
+      videos: (Array.isArray(b.videos) ? b.videos : []).map((v) => ({ src: str(v && v.src, 300), affiche: str(v && v.affiche, 300), legende: str(v && v.legende, 80) })).filter((v) => /^assets\/video\/[\w\/.-]+\.mp4$/.test(v.src)).slice(0, 6),
+      publie: b.publie !== false, ordre: Number.isInteger(+b.ordre) ? +b.ordre : 0 };
+    if (!r.titre) throw Object.assign(new Error("Le titre est obligatoire."), { status: 400 });
+    return r;
+  },
   services: (b) => {
     const list = (v, n, max) => (Array.isArray(v) ? v : []).map((x) => str(x, max)).filter(Boolean).slice(0, n);
     const s = { titre1: str(b.titre1, 60), titre2: str(b.titre2, 60), resume: str(b.resume, 220), paragraphes: list(b.paragraphes, 6, 1500),
@@ -208,6 +263,31 @@ const COLLECTIONS = {
     return s;
   },
 };
+
+function cleanParametres(b) {
+  const lines = (v, n, max) => (Array.isArray(v) ? v : []).map((x) => str(x, max)).filter(Boolean).slice(0, n);
+  const url = (v) => { const u = str(v, 300); return /^https:\/\/[^\s"'<>]+$/i.test(u) ? u : ""; };
+  const r = b.reseaux || {};
+  const p = {
+    telephones: lines(b.telephones, 8, 30), whatsapp: str(b.whatsapp, 30), email: /^[^\s@<>"]+@[^\s@<>"]+\.[a-z]{2,}$/i.test(str(b.email, 120)) ? str(b.email, 120) : "",
+    adresse: str(b.adresse, 120), adresseDetail: str(b.adresseDetail, 200), horaires: str(b.horaires, 80), horairesCourt: str(b.horairesCourt, 40),
+    reseaux: Object.fromEntries(site.RESEAUX.map(([k]) => [k, url(r[k])])),
+    slogan: str(b.slogan, 200),
+    chiffresAccueil: (Array.isArray(b.chiffresAccueil) ? b.chiffresAccueil : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
+    chiffresRealisations: (Array.isArray(b.chiffresRealisations) ? b.chiffresRealisations : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
+    chiffresServices: (Array.isArray(b.chiffresServices) ? b.chiffresServices : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
+    chiffresProgrammes: (Array.isArray(b.chiffresProgrammes) ? b.chiffresProgrammes : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
+    chiffresAPropos: (Array.isArray(b.chiffresAPropos) ? b.chiffresAPropos : []).map((c) => ({ valeur: str(c && c.valeur, 12), libelle: str(c && c.libelle, 40) })).filter((c) => c.valeur).slice(0, 4),
+    histoireSurtitre: str(b.histoireSurtitre, 60), histoireTitre: str(b.histoireTitre, 120), histoireTexte: lines(b.histoireTexte, 6, 1500),
+    dgNom: str(b.dgNom, 80), dgTitre: str(b.dgTitre, 80),
+    visionSurtitre: str(b.visionSurtitre, 60), visionTitre: str(b.visionTitre, 140), visionTexte: lines(b.visionTexte, 4, 1200),
+    visionOffres: (Array.isArray(b.visionOffres) ? b.visionOffres : []).map((o) => ({ titre: str(o && o.titre, 80), texte: str(o && o.texte, 400) })).filter((o) => o.titre).slice(0, 6),
+    aproposTitre: str(b.aproposTitre, 120), aproposTexte: lines(b.aproposTexte, 8, 1500), citation: str(b.citation, 600),
+    dates: (Array.isArray(b.dates) ? b.dates : []).map((d) => ({ date: str(d && d.date, 40), titre: str(d && d.titre, 120), texte: str(d && d.texte, 400) })).filter((d) => d.date && d.titre).slice(0, 30),
+  };
+  if (!p.telephones.length) throw Object.assign(new Error("Il faut au moins un numéro de téléphone."), { status: 400 });
+  return p;
+}
 
 async function api(req, res, pathname) {
   const method = req.method;
@@ -227,11 +307,12 @@ async function api(req, res, pathname) {
   }
 
   // --- Connexion ---
+  const secure = isHttps(req) ? "; Secure" : "";
   if (pathname === "/api/login" && method === "POST") {
     const b = await readBody(req, 5000);
     const r = auth.login(ip(req), b.user, b.password);
     if (r.error) return json(res, 401, { error: r.error });
-    const secure = req.headers["x-forwarded-proto"] === "https" ? "; Secure" : "";
+    if (auth.check(r.token).role !== "dg") { auth.logout(r.token); return json(res, 403, { error: "Accès réservé au Directeur." }); }
     return json(res, 200, { ok: true }, { "Set-Cookie": `gei_sid=${r.token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${auth.SESSION_HOURS * 3600}${secure}` });
   }
 
@@ -241,16 +322,17 @@ async function api(req, res, pathname) {
   if (!session) return json(res, 401, { error: "Non connecté" });
   // Protection contre les requêtes venant d'un autre site
   if (method !== "GET" && req.headers["x-gei"] !== "1") return json(res, 403, { error: "Requête refusée" });
+  if (session.role !== "dg") return json(res, 403, { error: "Accès réservé au Directeur." });
 
   if (pathname === "/api/logout" && method === "POST") {
     auth.logout(token);
     return json(res, 200, { ok: true }, { "Set-Cookie": "gei_sid=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0" });
   }
-  if (pathname === "/api/me") return json(res, 200, { user: session.user });
+  if (pathname === "/api/me") return json(res, 200, { user: session.user, role: session.role });
 
   if (pathname === "/api/password" && method === "POST") {
     const b = await readBody(req, 5000);
-    const r = auth.changePassword(b.current, b.next);
+    const r = auth.changePassword(session.user, b.current, b.next);
     return r.error ? json(res, 400, r) : json(res, 200, { ok: true }, { "Set-Cookie": "gei_sid=; HttpOnly; SameSite=Strict; Path=/; Max-Age=0" });
   }
 
@@ -317,8 +399,16 @@ async function api(req, res, pathname) {
     return json(res, 200, list[i] || { ok: true });
   }
 
+  // Paramètres du site : coordonnées, réseaux sociaux, chiffres clés, textes
+  if (pathname === "/api/parametres" && method === "GET") return json(res, 200, parametres() || {});
+  if (pathname === "/api/parametres" && method === "PUT") {
+    const p = cleanParametres(await readBody(req, 100000));
+    store.save("parametres", p);
+    return json(res, 200, p);
+  }
+
   // Slides et réalisations
-  m = /^\/api\/(slides|realisations|services)(?:\/([a-f0-9]+))?$/.exec(pathname);
+  m = /^\/api\/(slides|realisations|services|references)(?:\/([a-f0-9]+))?$/.exec(pathname);
   if (m) {
     const name = m[1], clean = COLLECTIONS[name];
     const list = store.load(name, []);
@@ -354,7 +444,8 @@ async function api(req, res, pathname) {
   // Liste des images disponibles (pour les choisir dans le formulaire)
   if (pathname === "/api/images" && method === "GET") {
     const list = (dir, prefix) => (fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /\.(jpe?g|png|webp)$/i.test(f)).map((f) => prefix + f) : []);
-    return json(res, 200, [...list(UPLOADS, "uploads/").reverse(), ...list(path.join(SITE, "assets", "img"), "assets/img/").filter((f) => !/\.webp$/.test(f))]);
+    return json(res, 200, [...list(UPLOADS, "uploads/").reverse(), ...list(path.join(SITE, "assets", "img"), "assets/img/").filter((f) => !/\.webp$/.test(f)),
+      ...list(path.join(SITE, "assets", "img", "references"), "assets/img/references/")]);
   }
 
   return json(res, 404, { error: "Introuvable" });
@@ -384,13 +475,16 @@ const server = http.createServer(async (req, res) => {
     const html = dynamicPage(pathname);
     if (html === false) return notFound(res);
     if (typeof html === "string") {
-      stats.record(req, pathname);
-      return send(res, 200, html, "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
+      stats.record(req, pathname, ip(req));
+      return send(res, 200, avecParametres(html), "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
     }
 
     const f = safeJoin(SITE, pathname.endsWith("/") ? pathname + "index.html" : pathname);
     if (!f) return notFound(res);
-    if (f.endsWith(".html") && fs.existsSync(f)) stats.record(req, pathname);
+    if (f.endsWith(".html") && fs.existsSync(f) && fs.statSync(f).isFile()) {
+      stats.record(req, pathname, ip(req));
+      return send(res, 200, avecParametres(fs.readFileSync(f, "utf8")), "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
+    }
     return sendFile(res, f, req);
   } catch (e) {
     const status = e.status || 500;

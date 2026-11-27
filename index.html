@@ -13,17 +13,21 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/v2.css">
+  <link rel="stylesheet" href="css/v2.css?v=20261122b">
 </head>
 <body>
 
   <!-- Bandeau d'infos -->
   <div class="topbar">
     <div class="wrap topbar__in">
+      <!-- p-topbar:debut -->
+
       <span><i class="ico ico--pin"></i>Abidjan, Cocody · Cité des Arts</span>
       <span class="hide-sm"><i class="ico ico--clock"></i>Lun – Ven · 8h – 16h30</span>
       <span class="push hide-sm"><i class="ico ico--mail"></i><a href="mailto:contact@gei-sarl.ci">contact@gei-sarl.ci</a></span>
       <span><i class="ico ico--phone"></i><a href="tel:+2250709718530">07 09 71 85 30</a></span>
+      
+          <!-- p-topbar:fin -->
     </div>
   </div>
 
@@ -36,18 +40,20 @@
       </a>
       <nav class="nav" aria-label="Navigation principale">
         <a href="index.html" class="is-current">Accueil</a>
+        <a href="a-propos.html">À propos</a>
         <a href="programmes.html">Programmes</a>
         <a href="realisations.html">Réalisations</a>
+        <a href="actualites.html">Actualités</a>
         <a href="services.html">Services</a>
-        <a href="a-propos.html">À propos</a>
         <a href="contact.html">Contact</a>
       </nav>
       <a href="#contact" class="btn btn--primary header__cta">Prendre rendez-vous</a>
       <button class="burger" aria-label="Menu" aria-expanded="false" data-burger><span></span><span></span><span></span></button>
     </div>
     <nav class="mnav" data-mnav aria-label="Navigation mobile">
-      <a href="index.html">Accueil</a><a href="programmes.html">Programmes</a><a href="realisations.html">Réalisations</a>
-      <a href="services.html">Services</a><a href="a-propos.html">À propos</a><a href="contact.html">Contact</a>
+      <a href="index.html">Accueil</a><a href="a-propos.html">À propos</a><a href="programmes.html">Programmes</a><a href="realisations.html">Réalisations</a>
+      <a href="actualites.html">Actualités</a>
+      <a href="services.html">Services</a><a href="contact.html">Contact</a>
       <a href="#contact" class="btn btn--primary">Prendre rendez-vous</a>
     </nav>
   </header>
@@ -162,20 +168,25 @@
     <!-- NOTRE HISTOIRE : vidéo du Directeur Général -->
     <section class="section" id="histoire">
       <div class="wrap story-v">
-        <div class="story-v__media" data-anim>
-          <video data-dgvideo controls playsinline preload="none" poster="assets/img/dg-angaman.jpg"><source src="assets/video/gei-notre-histoire.mp4" type="video/mp4"></video>
-          <img data-dgphoto src="assets/img/dg-angaman.jpg" alt="M. Angaman Laurent Fabrice, Directeur Général de Global Empire Immobilier" hidden>
+        <div class="story-v__media story-v__media--photo" data-anim>
+          <img src="assets/img/dg-angaman.jpg" alt="M. Angaman Laurent Fabrice, Directeur Général de Global Empire Immobilier" width="550" height="620" loading="lazy">
         </div>
         <div>
+          <!-- p-histoire:debut -->
+
           <p class="kicker" data-anim>Notre histoire</p>
           <h2 data-anim style="--d:.06s">Douze ans à bâtir <span class="hl">la confiance</span></h2>
-          <p data-anim style="--d:.1s">Tout commence en 2014 avec Ivoirbatgroup, une entreprise de génie civil. Devenue Global Empire Immobilier en 2023, elle construit aujourd'hui des villas à Adiaké, Djorobité, Bingerville et Abengourou.</p>
-          <p data-anim style="--d:.12s">Notre engagement n'a pas changé : construire nous-mêmes, avec rigueur, et remettre les clés dans les délais.</p>
+          <p data-anim style="--d:0.10s">Tout commence en 2014 avec Ivoirbatgroup, une entreprise de génie civil. Devenue Global Empire Immobilier en 2023, elle construit aujourd&#39;hui des villas à Adiaké, Djorobité, Bingerville et Abengourou.</p>
+          <p data-anim style="--d:0.12s">Notre engagement n&#39;a pas changé : construire nous-mêmes, avec rigueur, et remettre les clés dans les délais.</p>
           <p class="story-v__sign" data-anim style="--d:.14s">Angaman Laurent Fabrice<span>Directeur Général, GEI SARL</span></p>
+          <!-- p-histoire:fin -->
           <div class="figures" data-anim style="--d:.16s">
-            <div><b data-count="12">0</b><span>ans d'expérience</span></div>
-            <div><b data-count="300" data-suffix="+">0</b><span>collaborateurs</span></div>
-            <div><b data-count="4">0</b><span>programmes en cours</span></div>
+      <!-- p-chiffres:debut -->
+
+            <div><b data-count="12">12</b><span>ans d&#39;expérience</span></div>
+            <div><b data-count="300" data-prefix="+">+300</b><span>employés</span></div>
+            <div><b data-count="10" data-prefix="+">+10</b><span>programmes immobiliers</span></div>
+          <!-- p-chiffres:fin -->
           </div>
         </div>
       </div>
@@ -220,7 +231,7 @@
         <p data-anim style="--d:.06s">Tous nos programmes, nos prix, nos réalisations et nos services, réunis dans un seul document.</p>
         <div class="dl-band__btns" data-anim style="--d:.1s">
           <a href="assets/docs/GEI_Catalogue_2026.pdf" class="btn btn--primary" download>Télécharger le catalogue</a>
-          <a href="https://wa.me/2250709718530?text=Bonjour%20GEI%2C%20je%20souhaite%20recevoir%20votre%20catalogue." class="btn btn--ghost" target="_blank" rel="noopener">Le recevoir sur WhatsApp</a>
+          <a href="https://wa.me/2250704755306?text=Bonjour%20GEI%2C%20je%20souhaite%20recevoir%20votre%20catalogue." class="btn btn--ghost" target="_blank" rel="noopener">Le recevoir sur WhatsApp</a>
         </div>
       </div>
     </section>
@@ -231,7 +242,7 @@
         <h2 class="duo-title" data-anim>Avec GEI, <b>tout est pris en charge</b></h2>
         <div class="promises promises--clean">
           <div class="promise" data-anim><i class="ico-lg ico--doc"></i><h3>Documents en règle</h3><p>ACD et permis de construire sur chacun de nos programmes.</p></div>
-          <div class="promise" data-anim style="--d:.06s"><i class="ico-lg ico--crane"></i><h3>Construit par nos équipes</h3><p>Plus de 300 collaborateurs, aucun intermédiaire sur le chantier.</p></div>
+          <div class="promise" data-anim style="--d:.06s"><i class="ico-lg ico--crane"></i><h3>Construit par nos équipes</h3><p>Plus de 300 employés, aucun intermédiaire sur le chantier.</p></div>
           <div class="promise" data-anim style="--d:.12s"><i class="ico-lg ico--clock"></i><h3>Délais respectés</h3><p>Nos chantiers sont préfinancés pour être livrés à temps.</p></div>
           <div class="promise" data-anim style="--d:.18s"><i class="ico-lg ico--card"></i><h3>Paiement adapté</h3><p>Vente directe, location-vente, gros œuvre ou clé en main.</p></div>
           <div class="promise" data-anim style="--d:.24s"><i class="ico-lg ico--search"></i><h3>Contrôle à chaque étape</h3><p>Chaque phase est vérifiée sur place avant la suivante.</p></div>
@@ -281,11 +292,107 @@
               <p class="pcard__txt">Nos premiers programmes de villas duplex de standing, à Djorobité.</p>
             </div>
           </article>
+          <a class="pcard" href="realisations.html#references">
+            <div class="pcard__img"><img src="assets/img/references/immeuble-angre-1.jpg" alt="Immeuble R+2" loading="lazy">
+              <span class="pcard__badge pcard__badge--ok">Livré</span>
+              <span class="pcard__price">Finitions livrées</span>
+            </div>
+            <div class="pcard__body">
+              <h3>Angré, Abidjan · Immeuble R+2</h3>
+              <p class="pcard__specs"><span>Immeuble R+2</span><span>Finitions</span><span>Abidjan</span></p>
+              <p class="pcard__txt">Finitions d&#39;un immeuble résidentiel : façades en pierre, balcons et garde-corps.</p>
+            </div>
+          </a>
+          <a class="pcard" href="realisations.html#references">
+            <div class="pcard__img"><img src="assets/img/references/villa-bingerville-1.jpg" alt="Villa sur trois niveaux" loading="lazy">
+              <span class="pcard__badge pcard__badge--ok">Livré</span>
+              <span class="pcard__price">Livrée</span>
+            </div>
+            <div class="pcard__body">
+              <h3>Bingerville · Villa sur trois niveaux</h3>
+              <p class="pcard__specs"><span>3 niveaux</span><span>Gros œuvre</span><span>Façades</span></p>
+              <p class="pcard__txt">Construction d&#39;une villa sur trois niveaux, du gros œuvre aux façades.</p>
+            </div>
+          </a>
+          <a class="pcard" href="realisations.html#references">
+            <div class="pcard__img"><img src="assets/img/references/magasins-abidjan-mall-1.jpg" alt="Magasins avec mezzanine" loading="lazy">
+              <span class="pcard__badge pcard__badge--ok">Livré</span>
+              <span class="pcard__price">Livrés</span>
+            </div>
+            <div class="pcard__body">
+              <h3>Abidjan Mall · Magasins avec mezzanine</h3>
+              <p class="pcard__specs"><span>Commerces</span><span>Mezzanine</span><span>En activité</span></p>
+              <p class="pcard__txt">Fondations, voiles en béton armé et mezzanine pour des boutiques aujourd&#39;hui en activité.</p>
+            </div>
+          </a>
+          <a class="pcard" href="realisations.html#references">
+            <div class="pcard__img"><img src="assets/img/references/immeuble-r1-1.jpg" alt="Immeuble de logements R+1" loading="lazy">
+              <span class="pcard__badge pcard__badge--ok">Livré</span>
+              <span class="pcard__price">Livré</span>
+            </div>
+            <div class="pcard__body">
+              <h3>Immeuble de logements R+1</h3>
+              <p class="pcard__specs"><span>Immeuble</span><span>Logements</span><span>Livré</span></p>
+              <p class="pcard__txt">Construction d&#39;un immeuble de logements, du chaînage à la peinture des façades.</p>
+            </div>
+          </a>
+          <a class="pcard" href="realisations.html#references">
+            <div class="pcard__img"><img src="assets/img/references/villa-cnps-1.jpg" alt="Villa duplex contemporaine" loading="lazy">
+              <span class="pcard__badge pcard__badge--ok">Livré</span>
+              <span class="pcard__price">Livrée</span>
+            </div>
+            <div class="pcard__body">
+              <h3>Villa duplex contemporaine</h3>
+              <p class="pcard__specs"><span>Villa duplex</span><span>Plans 3D</span><span>Gros œuvre</span></p>
+              <p class="pcard__txt">Construction d&#39;une villa duplex contemporaine, de la vue 3D à la livraison du gros œuvre.</p>
+            </div>
+          </a>
+          <a class="pcard" href="realisations.html#references">
+            <div class="pcard__img"><img src="assets/img/references/villa-ouragahio-2.jpg" alt="Villa basse avec toit-terrasse" loading="lazy">
+              <span class="pcard__badge pcard__badge--ok">Livré</span>
+              <span class="pcard__price">Livrée</span>
+            </div>
+            <div class="pcard__body">
+              <h3>Ouragahio · Villa basse avec toit-terrasse</h3>
+              <p class="pcard__specs"><span>Villa basse</span><span>Toit-terrasse</span><span>Plans 3D</span></p>
+              <p class="pcard__txt">Conception 3D et construction d&#39;une villa basse avec toit-terrasse.</p>
+            </div>
+          </a>
           <!-- realisations:fin -->
           </div>
           <button type="button" class="carou__nav carou__nav--next" data-cnext aria-label="Réalisations suivantes">›</button>
         </div>
         <p class="center-btn"><a href="realisations.html" class="btn btn--light">Toutes nos réalisations</a></p>
+      </div>
+    </section>
+
+    <!-- ACTUALITÉS : les 3 dernières (gérées dans le tableau de bord, rubrique « Actualités ») -->
+    <section class="section" id="actualites">
+      <div class="wrap">
+        <div class="head head--row">
+          <div>
+            <p class="kicker" data-anim>Actualités</p>
+            <h2 data-anim style="--d:.06s">La vie <span class="hl">de GEI</span></h2>
+          </div>
+          <p data-anim>Remises de clés, lancements de chantiers, cérémonies, déplacements et actions sur le terrain.</p>
+        </div>
+        <div class="news news--3">
+          <!-- actualites:debut -->
+          <article class="post" data-anim style="--d:0.00s">
+            <div class="post__img"><img src="assets/img/remise-cles.jpg" alt="Premières clés remises à Adiaké" loading="lazy"></div>
+            <div class="post__body"><time>10 octobre 2026</time><h3>Premières clés remises à Adiaké</h3><p>Le samedi 10 octobre 2026, les premiers clients de la Cité Les Rives de l&#39;Opulence ont reçu les clés de leur villa, suivis d&#39;une visite guidée.</p></div>
+          </article>
+          <article class="post" data-anim style="--d:0.06s">
+            <div class="post__img"><img src="assets/img/korhogo-villa.jpg" alt="Korhogo : 25 pièces livrées en 6 mois" loading="lazy"></div>
+            <div class="post__body"><time>4 septembre 2026</time><h3>Korhogo : 25 pièces livrées en 6 mois</h3><p>Remise officielle des clés d&#39;une villa duplex de 25 pièces, avec trois studios, trois magasins et une cuisine africaine.</p></div>
+          </article>
+          <article class="post" data-anim style="--d:0.12s">
+            <div class="post__img"><img src="assets/img/abengourou-4.jpg" alt="Première pierre à Abengourou" loading="lazy"></div>
+            <div class="post__body"><time>2026</time><h3>Première pierre à Abengourou</h3><p>Lancement du programme de villas économiques, lors d&#39;une journée qui a aussi mis à l&#39;honneur l&#39;excellence scolaire.</p></div>
+          </article>
+          <!-- actualites:fin -->
+        </div>
+        <p class="center-btn" data-anim><a href="actualites.html" class="btn btn--primary">Toutes les actualités</a></p>
       </div>
     </section>
 
@@ -298,11 +405,16 @@
             <h2>Parlons de votre <span>future maison</span></h2>
             <p>Les rendez-vous sont gratuits et sans engagement. Un conseiller vous rappelle rapidement.</p>
             <ul class="contact__list">
-              <li><i class="ico ico--phone"></i><a href="tel:+2250709718530">07 09 71 85 30</a> · <a href="tel:+2250704755306">07 04 75 53 06</a></li>
+      <!-- p-contact:debut -->
+
+              <li><i class="ico ico--phone"></i><span><a href="tel:+2250709718530">07 09 71 85 30</a> · <a href="tel:+2250704755306">07 04 75 53 06</a> · <a href="tel:+2250708623038">07 08 62 30 38</a></span></li>
               <li><i class="ico ico--mail"></i><a href="mailto:contact@gei-sarl.ci">contact@gei-sarl.ci</a></li>
               <li><i class="ico ico--pin"></i>Cocody, Cité des Arts (derrière la banque NSIA)</li>
               <li><i class="ico ico--clock"></i>Lundi au vendredi · 8h – 16h30</li>
-            </ul>
+              
+              
+          <!-- p-contact:fin -->
+    </ul>
           </div>
           <form class="cform" data-form>
             <label><span>Nom complet</span><input name="nom" required autocomplete="name" placeholder="Votre nom"></label>
@@ -331,19 +443,23 @@
     <div class="wrap footer__grid">
       <div class="footer__brand">
         <a href="index.html" class="brand brand--light"><img src="assets/img/logo-gei.png" alt="" width="46" height="46"><span><b>Global Empire</b><small>Immobilier · GEI Sarl</small></span></a>
-        <p>Promoteur et constructeur en Côte d'Ivoire. Votre confiance, notre engagement.</p>
+        <!-- p-slogan:debut -->
+<p>Promoteur et constructeur en Côte d&#39;Ivoire. Votre confiance, notre engagement.</p>
+          <!-- p-slogan:fin -->
       </div>
       <div><h4>Programmes</h4><a href="programme-adiake.html">Adiaké</a><a href="programme-djorobite.html">Djorobité</a><a href="programme-bingerville.html">Bingerville</a><a href="programme-abengourou.html">Abengourou</a></div>
       <div><h4>L'entreprise</h4><a href="a-propos.html">À propos</a><a href="services.html">Services</a><a href="realisations.html">Réalisations</a><a href="actualites.html">Actualités</a></div>
-      <div><h4>Téléphones</h4><a href="tel:+2250709718530">07 09 71 85 30</a><a href="tel:+2250704755306">07 04 75 53 06</a><a href="tel:+2250142518590">01 42 51 85 90</a><a href="tel:+2250151757200">01 51 75 72 00</a><a href="tel:+2250710296720">07 10 29 67 20</a><a href="tel:+2250708623038">07 08 62 30 38</a></div>
+      <div><!-- p-pied:debut -->
+<h4>Nous joindre</h4><a href="tel:+2250709718530">07 09 71 85 30</a><a href="tel:+2250704755306">07 04 75 53 06</a><a href="tel:+2250708623038">07 08 62 30 38</a><a href="mailto:contact@gei-sarl.ci">contact@gei-sarl.ci</a>
+          <!-- p-pied:fin --></div>
     </div>
     <div class="wrap footer__bottom"><span>© <span data-year>2026</span> Global Empire Immobilier SARL</span><a href="#top">Haut de page ↑</a></div>
   </footer>
 
-  <a href="https://wa.me/2250709718530" class="wa" target="_blank" rel="noopener" aria-label="Nous écrire sur WhatsApp">
+  <a href="https://wa.me/2250704755306" class="wa" target="_blank" rel="noopener" aria-label="Nous écrire sur WhatsApp">
     <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3Zm0 23.6c-2 0-4-.5-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1 1 16 26.6Zm5.8-7.9c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.6.3-.5.9-1.6.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.7 5.8 5.1 2.2.9 3 1 4.1.8.7-.1 1.9-.8 2.2-1.5.3-.8.3-1.4.2-1.5 0-.2-.3-.3-.5-.4Z"/></svg>
   </a>
 
-  <script src="js/v2.js" defer></script>
+  <script src="js/v2.js?v=20261122b" defer></script>
 </body>
 </html>

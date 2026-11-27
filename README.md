@@ -6,7 +6,7 @@
 
 **Le site officiel de GEI Sarl, promoteur et constructeur en Côte d'Ivoire,<br>avec un tableau de bord pour gérer les programmes, les actualités et les demandes des clients.**
 
-[Voir le site en ligne](https://malickouattara125-wq.github.io/site-gei/) ·
+[Voir le site en ligne](https://geisarl.com) ·
 [Lancer en local](#-lancer-le-site-et-le-tableau-de-bord) ·
 [Organisation du code](#-organisation-du-dépôt)
 

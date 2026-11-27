@@ -5,18 +5,23 @@ const crypto = require("crypto");
 const store = require("./store");
 
 const BOTS = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|curl|wget|python|headless|lighthouse/i;
-const salt = crypto.randomBytes(16).toString("hex");
+// Sel gardé dans data/ : le même pour toutes les copies du serveur, sinon un visiteur serait compté plusieurs fois.
+function salt() {
+  let s = store.load("stats-sel", null);
+  if (!s) { s = crypto.randomBytes(16).toString("hex"); store.save("stats-sel", s); }
+  return s;
+}
 
 function day(d = new Date()) { return d.toISOString().slice(0, 10); }
 
-function record(req, pathname) {
+function record(req, pathname, addr) {
   const ua = req.headers["user-agent"] || "";
   if (!ua || BOTS.test(ua)) return;
   const stats = store.load("stats", { jours: {} });
   const k = day();
   const j = stats.jours[k] || (stats.jours[k] = { vues: 0, visiteurs: {}, pages: {} });
   j.vues++;
-  const id = crypto.createHash("sha256").update(salt + k + (req.socket.remoteAddress || "") + ua).digest("hex").slice(0, 16);
+  const id = crypto.createHash("sha256").update(salt() + k + (addr || req.socket.remoteAddress || "") + ua).digest("hex").slice(0, 16);
   j.visiteurs[id] = 1;
   const page = pathname === "/" ? "/index.html" : pathname;
   j.pages[page] = (j.pages[page] || 0) + 1;
