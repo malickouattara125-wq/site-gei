@@ -384,9 +384,9 @@
   /* ---------- Import depuis Excel (fichier CSV) ---------- */
   const SANS = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[^a-z0-9]/g, "");
   const IMPORTS = {
-    maisons: { titre: "Maisons et clients", champs: [["programme", "Programme *", ["programme", "cite", "projet"]], ["lot", "Lot *", ["lot", "numero", "villa", "n"]], ["type", "Type", ["type", "typologie"]], ["superficie", "Superficie", ["superficie", "surface", "m2"]],
+    maisons: { titre: "Maisons et magasins", champs: [["bien", "Type de bien", ["typedebien", "bien", "naturedubien"]], ["programme", "Programme *", ["programme", "programmeouquartier", "quartier", "cite", "projet"]], ["lot", "Lot *", ["lot", "lotnomdubien", "nomdubien", "numero", "villa", "n"]], ["type", "Type", ["type", "typologie"]], ["superficie", "Superficie", ["superficie", "surface", "m2"]],
       ["prix", "Prix", ["prix", "prixdevente", "montant", "cout"]], ["statut", "Statut", ["statut", "etat"]], ["clientNom", "Client", ["client", "nom", "nomduclient", "acquereur"]], ["clientTel", "Téléphone", ["telephone", "tel", "contact", "whatsapp"]],
-      ["clientEmail", "E-mail", ["email", "mail", "courriel"]], ["clientPays", "Pays", ["pays", "residence"]], ["montantPaye", "Déjà payé (total)", ["paye", "dejapaye", "verse", "montantpaye", "totalverse", "avance"]]] },
+      ["clientEmail", "E-mail", ["email", "mail", "courriel"]], ["clientPays", "Pays", ["pays", "residence"]], ["montantPaye", "Déjà payé (total)", ["paye", "dejapaye", "verse", "montantpaye", "totalverse", "avance"]], ["datePaiement", "Date du paiement", ["datedupaiement", "datepaiement", "datedudernierpaiement", "datedeversement"]]] },
     depenses: { titre: "Dépenses", champs: [["date", "Date", ["date"]], ["libelle", "Libellé *", ["libelle", "designation", "description", "objet", "article"]], ["montant", "Montant total", ["montant", "montanttotal", "montanttotalf", "total", "prix", "cout", "somme"]], ["avance", "Avance payée", ["avance", "avancepayee", "avancepayeef", "dejapaye", "montantpaye", "verse"]],
       ["categorie", "Catégorie", ["categorie", "type", "nature"]], ["fournisseur", "Fournisseur", ["fournisseur", "vendeur", "magasin"]], ["quantite", "Quantité / détail", ["quantite", "quantitedetail", "detail", "qte", "nombre"]], ["mode", "Mode de paiement", ["mode", "modedepaiement", "paiement"]], ["paye", "Tout payé (oui/non)", ["paye", "payee", "regle"]], ["chantier", "Chantier (nom)", ["chantier", "site", "projet"]]] },
     ouvriers: { titre: "Ouvriers", champs: [["nom", "Nom *", ["nom", "nomprenoms", "ouvrier", "nomsetprenoms"]], ["metier", "Métier", ["metier", "fonction", "poste", "specialite"]], ["tel", "Téléphone", ["telephone", "tel", "contact"]], ["tarifJour", "Tarif / jour", ["tarif", "tarifjour", "journalier", "salairejour", "prixjour"]]] },
@@ -398,9 +398,9 @@
   };
   // Modèles d'exemple à télécharger : titres reconnus automatiquement à l'import + 2 lignes d'exemple
   const MODELES = {
-    maisons: [["Programme", "Lot", "Type", "Superficie", "Prix", "Statut", "Client", "Téléphone", "E-mail", "Pays", "Déjà payé"],
-      ["Villas ADOHA", "A-01", "Duplex 5 pièces", "300 m²", "65000000", "Vendue", "Awa Diallo", "0700000001", "awa@exemple.com", "France", "20000000"],
-      ["Villas ADOHA", "A-02", "Duplex 5 pièces", "300 m²", "65000000", "Disponible", "", "", "", "", "0"]],
+    maisons: [["Type de bien", "Programme ou quartier", "Lot / nom du bien", "Type", "Superficie", "Prix de vente", "Statut", "Client", "Téléphone", "E-mail", "Pays", "Déjà payé", "Date du paiement"],
+      ["Maison", "Villas ADOHA", "A-01", "Duplex 5 pièces", "300 m²", "65000000", "Vendue", "Awa Diallo", "0700000001", "awa@exemple.com", "France", "20000000", "15/03/2026"],
+      ["Magasin", "Marché Adjamé", "Magasin M3", "Magasin 40 m²", "40 m²", "", "Louée", "", "", "", "", "", ""]],
     depenses: [["Date", "Désignation", "Quantité / détail", "Montant total", "Avance payée", "Catégorie", "Fournisseur", "Mode de paiement", "Chantier"],
       ["03/11/2026", "Ciment CPJ 45", "200 sacs", "1100000", "1100000", "Matériaux", "SOCOCIM", "Espèces", "Villas ADOHA"],
       ["06/11/2026", "Fer à béton de 12", "300 barres", "2450000", "1500000", "Matériaux", "Quincaillerie Abobo", "Virement", "Villas ADOHA"]],
@@ -420,7 +420,7 @@
     a.download = `modele-${type}.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   }
   const VALEURS = {
-    statut: { disponible: "disponible", libre: "disponible", reservee: "reservee", reserve: "reservee", vendue: "vendue", vendu: "vendue", livree: "livree", livre: "livree" },
+    statut: { louee: "louee", loue: "louee", enlocation: "louee", disponible: "disponible", libre: "disponible", reservee: "reservee", reserve: "reservee", vendue: "vendue", vendu: "vendue", livree: "livree", livre: "livree" },
     categorie: { materiaux: "materiaux", materiel: "materiaux", maindoeuvre: "main_oeuvre", mainduvre: "main_oeuvre", transport: "transport", location: "location", engins: "location", enginsetoutillage: "location", administratif: "administratif", admin: "administratif", etudes: "administratif", etudesetadministratif: "administratif", soustraitance: "sous_traitance", fraisdechantier: "frais_chantier", frais: "frais_chantier", divers: "autre", autre: "autre" },
     mode: { especes: "especes", cash: "especes", virement: "virement", cheque: "cheque", mobilemoney: "mobile_money", orangemoney: "mobile_money", mtnmoney: "mobile_money", moovmoney: "mobile_money", wave: "mobile_money" },
   };
@@ -445,10 +445,10 @@
     catch { return { texte: new TextDecoder("windows-1252").decode(buf), enc: "Windows-1252" }; }
   }
   const dateISO = (v) => { v = String(v || "").trim(); let m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})$/.exec(v); if (m) { const y = m[3].length === 2 ? "20" + m[3] : m[3]; if (+m[2] < 1 || +m[2] > 12 || +m[1] < 1 || +m[1] > 31) return ""; return `${y}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}`; } m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v); return m ? m[0] : ""; };
-  const MONTANTS = ["prix", "montant", "avance", "tarifJour", "budget", "montantPaye", "caution", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12"], DATES = ["date", "dateDebut", "dateFin"];
+  const MONTANTS = ["prix", "montant", "avance", "tarifJour", "budget", "montantPaye", "caution", "m01", "m02", "m03", "m04", "m05", "m06", "m07", "m08", "m09", "m10", "m11", "m12"], DATES = ["date", "dateDebut", "dateFin", "datePaiement"];
   const OBLIG = { maisons: [["programme", "Programme manquant"], ["lot", "Lot manquant"]], depenses: [["libelle", "Désignation manquante"]], ouvriers: [["nom", "Nom manquant"]], chantiers: [["nom", "Nom manquant"]], contrats: [["partie", "Locataire manquant"], ["montant", "Loyer mensuel manquant"], ["dateDebut", "Date de début manquante"]] };
   const INFO_IMPORT = {
-    maisons: { ic: "house", desc: "Lots, prix, clients et sommes déjà versées.", page: "#g-maisons", lien: "Voir les maisons" },
+    maisons: { ic: "house", desc: "Maisons et magasins : lots, prix, statut, clients et sommes déjà versées.", page: "#g-maisons", lien: "Voir les maisons" },
     depenses: { ic: "receipt", desc: "Achats et frais, avec l'avance payée.", page: "#g-depenses", lien: "Voir les dépenses" },
     ouvriers: { ic: "users", desc: "Noms, métiers, téléphones et tarifs par jour.", page: "#g-equipes", lien: "Voir les équipes" },
     chantiers: { ic: "hardhat", desc: "Nom, lieu, client, budget et dates.", page: "#g-chantiers", lien: "Voir les chantiers" },
@@ -512,6 +512,8 @@
         delete o.chantier;
       }
       if (type === "depenses" && o.avance && o.montant && +o.avance > +o.montant) err.push("Avance plus grande que le montant total");
+      // Maison ou magasin (boutique, local commercial → magasin)
+      if (type === "maisons" && o.bien != null) o.bien = /magasin|boutique|local|commerce|shop/.test(SANS(o.bien)) ? "magasin" : "maison";
       // Contrat : le bien loué est relié à la fiche maison / magasin du même nom, sinon il est gardé comme texte
       if (type === "contrats") {
         o.annee = "2026";
