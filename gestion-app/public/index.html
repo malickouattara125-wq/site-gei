@@ -16,23 +16,62 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/ds.css?v=20261127m">
-  <link rel="stylesheet" href="/app.css?v=20261127m">
+  <link rel="stylesheet" href="/ds.css?v=20261127o">
+  <link rel="stylesheet" href="/app.css?v=20261127o">
   <script>try { var t = localStorage.getItem("gei-theme"); if (t) document.documentElement.dataset.theme = t; if (localStorage.getItem("gei-side") === "mini") document.documentElement.classList.add("pre-mini"); } catch (e) {}</script>
 </head>
 <body class="ds">
 
-  <!-- Connexion -->
+  <!-- Connexion (version premium : fond « plan d'architecte » en SVG intégré, aucune ressource externe) -->
   <section class="login" id="login" hidden>
-    <form class="login__card" id="loginForm">
-      <img src="/logo-gei.png" alt="" width="64" height="64">
-      <h1>GEI Gestion</h1>
-      <p>Chantiers · Maisons et clients · Dépenses · Équipes</p>
-      <label class="field"><span>Identifiant</span><input name="user" autocomplete="username" required></label>
-      <label class="field"><span>Mot de passe</span><input name="password" type="password" autocomplete="current-password" required></label>
-      <p class="err" id="loginErr" hidden></p>
-      <button class="btn btn--primary" type="submit">Se connecter</button>
-    </form>
+    <div class="login__bg" aria-hidden="true">
+      <div class="login__halo"></div>
+      <div class="login__grid"></div>
+      <svg class="login__plan" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" focusable="false">
+        <g fill="none" stroke="currentColor" stroke-width="1">
+          <!-- lignes de cotes -->
+          <path d="M120 120h360M120 112v16M480 112v16M300 116l-6 4 6 4M300 116l6 4-6 4" opacity=".55"/>
+          <path d="M1180 180v280M1172 180h16M1172 460h16" opacity=".45"/>
+          <path d="M900 90h220M900 84v12M1120 84v12" opacity=".4"/>
+          <circle cx="1240" cy="120" r="34" opacity=".35"/><path d="M1240 78v84M1198 120h84" opacity=".35"/>
+          <path d="M80 420h140v90H80zM80 465h140M150 420v90" opacity=".3"/>
+        </g>
+        <!-- silhouette d'immeubles en traits fins -->
+        <g class="login__ville" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round">
+          <path d="M0 900V760h70v-40h50v180M120 900V690h90v210M210 900V740h60v-30h40v190M310 900V640h110v260M420 900V720h70v180M490 900V600l60-40 60 40v300M610 900V700h90v200M700 900V660h50v-50h60v290M810 900V740h80v160M890 900V580h120v320M1010 900V690h70v210M1080 900V630l50-30 50 30v270M1180 900V720h90v180M1270 900V660h80v240M1350 900V740h90v160"/>
+          <path d="M330 670h70M330 700h70M330 730h70M330 760h70M330 790h70M910 610h80M910 640h80M910 670h80M910 700h80M910 730h80M910 760h80M510 630h80M510 660h80M510 690h80M510 720h80M1100 660h60M1100 690h60M1100 720h60M1100 750h60M140 720h50M140 750h50M140 780h50M720 690h70M720 720h70M720 750h70M1290 690h40M1290 720h40M1290 750h40" opacity=".55"/>
+        </g>
+      </svg>
+    </div>
+
+    <div class="login__wrap">
+      <div class="login__intro">
+        <img src="/logo-gei.png" alt="Global Empire Immobilier" width="132" height="132" class="login__logo">
+        <h1 class="login__titre">GEI Gestion</h1>
+        <p class="login__slogan">Votre confiance, notre engagement</p>
+        <p class="login__phrase">Pilotez vos chantiers, ventes et locations en un seul endroit.</p>
+      </div>
+
+      <form class="login__card" id="loginForm">
+        <img src="/logo-gei.png" alt="" width="72" height="72" class="login__logo-mobile">
+        <h2>Connexion</h2>
+        <p class="login__sous">Accédez à votre espace de gestion</p>
+        <label class="lf"><span class="lf__lbl">Identifiant</span>
+          <span class="lf__box"><svg class="lf__ic" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+            <input name="user" autocomplete="username" autocapitalize="none" spellcheck="false" required autofocus></span></label>
+        <label class="lf"><span class="lf__lbl">Mot de passe</span>
+          <span class="lf__box"><svg class="lf__ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="10" width="16" height="11" rx="2.5"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+            <input name="password" type="password" autocomplete="current-password" required id="loginPw">
+            <span class="lf__eye" id="loginEye" role="button" tabindex="0" aria-label="Afficher le mot de passe" aria-pressed="false" aria-controls="loginPw">
+              <svg class="eye-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg class="eye-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a10 10 0 0 0 5.4-1.6M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+            </span></span></label>
+        <p class="login__caps" id="loginCaps" hidden role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4l8 8h-5v6H9v-6H4z"/></svg>Majuscules activées</p>
+        <button class="btn btn--primary login__btn" type="submit"><span class="login__spin" aria-hidden="true"></span><span class="login__btxt">Se connecter</span></button>
+        <p class="err login__err" id="loginErr" role="alert" hidden></p>
+        <p class="login__pied">© 2026 Global Empire Immobilier Sarl</p>
+      </form>
+    </div>
   </section>
 
   <!-- Application -->
@@ -108,18 +147,19 @@
     <div class="modal__grid" id="pickerGrid"></div>
   </dialog>
 
-  <script src="/icons.js?v=20261127m"></script>
-  <script src="/core.js?v=20261127m" defer></script>
-  <script src="/ui.js?v=20261127m" defer></script>
-  <script src="/exports.js?v=20261127m" defer></script>
-  <script src="/gestion-plus.js?v=20261127m" defer></script>
-  <script src="/gestion.js?v=20261127m" defer></script>
-  <script src="/contrats.js?v=20261127m" defer></script>
-  <script src="/construction.js?v=20261127m" defer></script>
-  <script src="/construction-programme.js?v=20261127m" defer></script>
-  <script src="/construction-villa.js?v=20261127m" defer></script>
-  <script src="/construction-depense.js?v=20261127m" defer></script>
-  <script src="/construction-stock.js?v=20261127m" defer></script>
-  <script src="/construction-cout.js?v=20261127m" defer></script>
+  <script src="/icons.js?v=20261127o"></script>
+  <script src="/core.js?v=20261127o" defer></script>
+  <script src="/login.js?v=20261127o" defer></script>
+  <script src="/ui.js?v=20261127o" defer></script>
+  <script src="/exports.js?v=20261127o" defer></script>
+  <script src="/gestion-plus.js?v=20261127o" defer></script>
+  <script src="/gestion.js?v=20261127o" defer></script>
+  <script src="/contrats.js?v=20261127o" defer></script>
+  <script src="/construction.js?v=20261127o" defer></script>
+  <script src="/construction-programme.js?v=20261127o" defer></script>
+  <script src="/construction-villa.js?v=20261127o" defer></script>
+  <script src="/construction-depense.js?v=20261127o" defer></script>
+  <script src="/construction-stock.js?v=20261127o" defer></script>
+  <script src="/construction-cout.js?v=20261127o" defer></script>
 </body>
 </html>
